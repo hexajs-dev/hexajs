@@ -32,6 +32,7 @@ export const packageJsonTemplate = (ctx: ScaffoldContext): string => {
       name: ctx.name,
       version: '0.0.1',
       private: true,
+      packageManager: `${ctx.packageManager}@${ctx.packageManagerVersion}`,
       scripts: {
         ...platformScripts,
       },

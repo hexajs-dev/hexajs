@@ -6,6 +6,11 @@ const promptMock = vi.hoisted(() => vi.fn());
 const scaffoldMock = vi.hoisted(() => vi.fn());
 const printErrorMock = vi.hoisted(() => vi.fn());
 const printSuccessMock = vi.hoisted(() => vi.fn());
+const detectAvailablePMsMock = vi.hoisted(() => vi.fn());
+const getInstallCommandMock = vi.hoisted(() => vi.fn());
+const getPackageManagerVersionMock = vi.hoisted(() => vi.fn());
+const getRunScriptCommandMock = vi.hoisted(() => vi.fn());
+const spawnMock = vi.hoisted(() => vi.fn());
 
 vi.mock('enquirer', () => ({
   default: { prompt: promptMock },
@@ -20,20 +25,47 @@ vi.mock('../src/bin/shared/reporter', () => ({
   printSuccess: printSuccessMock,
 }));
 
+vi.mock('../src/shared/package-manager', () => ({
+  ALL_PACKAGE_MANAGERS: ['npm', 'pnpm', 'yarn', 'bun'],
+  detectAvailablePMs: detectAvailablePMsMock,
+  getInstallCommand: getInstallCommandMock,
+  getPackageManagerVersion: getPackageManagerVersionMock,
+  getRunScriptCommand: getRunScriptCommandMock,
+}));
+
+vi.mock('child_process', () => ({
+  spawn: spawnMock,
+}));
+
 import { newCommand } from '../src/bin/programs/new/new';
 
 describe('new command', () => {
+  const wireSuccessfulInstall = () => {
+    spawnMock.mockImplementation(() => ({
+      on(event: string, handler: (...args: any[]) => void) {
+        if (event === 'close') handler(0);
+        return this;
+      },
+    }));
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
     vi.spyOn(console, 'log').mockImplementation(() => undefined);
     scaffoldMock.mockResolvedValue('D:/tmp/my-extension');
+    detectAvailablePMsMock.mockReturnValue(['npm', 'pnpm']);
+    getInstallCommandMock.mockReturnValue({ command: 'npm', args: ['install'], display: 'npm install' });
+    getPackageManagerVersionMock.mockReturnValue('10.9.0');
+    getRunScriptCommandMock.mockReturnValue('npm run build');
+    wireSuccessfulInstall();
   });
 
   it('uses explicit --platform list and calls scaffold with parsed platforms', async () => {
     promptMock
       .mockResolvedValueOnce({ template: 'full' })
       .mockResolvedValueOnce({ reactPopup: false })
-      .mockResolvedValueOnce({ managedDevtools: false });
+      .mockResolvedValueOnce({ managedDevtools: false })
+      .mockResolvedValueOnce({ packageManager: 'npm' });
 
     const program = new Command();
     newCommand(program);
@@ -48,7 +80,10 @@ describe('new command', () => {
       managedDevtools: false,
       reactDevtools: false,
       blank: false,
+      packageManager: 'npm',
+      packageManagerVersion: '10.9.0',
     });
+    expect(spawnMock).toHaveBeenCalledTimes(1);
     expect(printSuccessMock).toHaveBeenCalledTimes(1);
   });
 
@@ -57,7 +92,8 @@ describe('new command', () => {
       .mockResolvedValueOnce({ template: 'full' })
       .mockResolvedValueOnce({ platforms: ['chrome', 'edge'] })
       .mockResolvedValueOnce({ reactPopup: true })
-      .mockResolvedValueOnce({ managedDevtools: true });
+      .mockResolvedValueOnce({ managedDevtools: true })
+      .mockResolvedValueOnce({ packageManager: 'npm' });
 
     const program = new Command();
     newCommand(program);
@@ -71,6 +107,8 @@ describe('new command', () => {
       managedDevtools: true,
       reactDevtools: true,
       blank: false,
+      packageManager: 'npm',
+      packageManagerVersion: '10.9.0',
     });
   });
 

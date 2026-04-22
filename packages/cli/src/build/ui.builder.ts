@@ -10,6 +10,7 @@ import { ConfigToken } from '../bin/config/config';
 import { StoreScriptOutput } from '../generators/store/generator';
 import { UIGenerator } from '../generators/ui/generator';
 import { normalizeManifestPath } from '../shared/path-utils';
+import { detectProjectPM, getAddDependencyCommand } from '../shared/package-manager';
 
 interface HexaUiModule {
     buildManagedPopup: (config: UiSurfaceConfig | undefined, outputDir: string, minify: boolean, bootstrapPath: string, platform: string, watch?: boolean, hmrAddress?: string) => Promise<string>;
@@ -55,9 +56,10 @@ function loadHexaUi(cwd: string): HexaUiModule {
     try {
         return userRequire('@hexajs/ui') as HexaUiModule;
     } catch {
+        const packageManager = detectProjectPM(cwd);
         throw new Error(
             `'@hexajs/ui' is not installed in your project but popup/devtools is set to managed mode.\n` +
-            `Run: pnpm add @hexajs/ui\n` +
+            `Run: ${getAddDependencyCommand(packageManager, '@hexajs/ui')}\n` +
             `Or change the popup mode to "external" or "none" in hexa-cli.config.json.`
         );
     }
