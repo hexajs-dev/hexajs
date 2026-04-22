@@ -1,0 +1,192 @@
+$cyan: #09fffa;
+$cyan-mid: #40b5c2;
+$teal: #0891b2;
+
+// Section wrapper
+.featuresSection {
+
+  [data-theme='dark'] & {
+    background-color: #0d1117;
+  }
+}
+
+// Section header
+.sectionHeader {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto 3.5rem;
+}
+
+.sectionTitle {
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+}
+
+.accent {
+  background: linear-gradient(90deg, $cyan 0%, $cyan-mid 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sectionSubtitle {
+  font-size: 1.05rem;
+  opacity: 0.65;
+  margin: 0;
+}
+
+// Cards grid
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+
+  @media (max-width: 996px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Card
+.card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.75rem;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  text-decoration: none !important;
+  color: inherit !important;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+
+  [data-theme='dark'] & {
+    background-color: #161b22;
+    border: 1px solid rgba($cyan, 0.08);
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    border-color: rgba($teal, 0.5);
+    box-shadow: 0 8px 32px rgba($teal, 0.12);
+    text-decoration: none !important;
+    color: inherit !important;
+
+    [data-theme='dark'] & {
+      border-color: rgba($cyan, 0.35);
+      box-shadow: 0 8px 32px rgba($cyan, 0.07);
+    }
+
+    .cardArrow {
+      transform: translateX(4px);
+    }
+  }
+}
+
+// Card internals
+.cardIcon {
+  width: 2rem;
+  height: 2rem;
+  margin-bottom: 1rem;
+  line-height: 1;
+
+  svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+}
+
+.cardContent {
+  flex: 1;
+}
+
+.cardTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.cardDescription {
+  font-size: 0.9rem;
+  opacity: 0.72;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.cardArrow {
+  margin-top: 1.25rem;
+  font-size: 1.2rem;
+  color: $teal;
+  align-self: flex-end;
+  transition: transform 0.2s ease;
+
+  [data-theme='dark'] & {
+    color: $cyan;
+  }
+}
+
+// Audience badges
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.75rem;
+}
+
+.badge--beginner {
+  background: rgba(34, 197, 94, 0.12);
+  color: #15803d;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+
+  [data-theme='dark'] & {
+    color: #4ade80;
+    background: rgba(34, 197, 94, 0.08);
+    border-color: rgba(34, 197, 94, 0.22);
+  }
+}
+
+.badge--intermediate {
+  background: rgba(59, 130, 246, 0.12);
+  color: #1d4ed8;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+
+  [data-theme='dark'] & {
+    color: #60a5fa;
+    background: rgba(59, 130, 246, 0.08);
+    border-color: rgba(59, 130, 246, 0.22);
+  }
+}
+
+.badge--advanced {
+  background: rgba(168, 85, 247, 0.12);
+  color: #6d28d9;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+
+  [data-theme='dark'] & {
+    color: #c084fc;
+    background: rgba(168, 85, 247, 0.08);
+    border-color: rgba(168, 85, 247, 0.22);
+  }
+}
+
+.badge--all {
+  background: rgba($cyan, 0.1);
+  color: $teal;
+  border: 1px solid rgba($cyan, 0.3);
+
+  [data-theme='dark'] & {
+    color: $cyan;
+    background: rgba($cyan, 0.06);
+    border-color: rgba($cyan, 0.2);
+  }
+}

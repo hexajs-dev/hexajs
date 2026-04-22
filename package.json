@@ -1,0 +1,35 @@
+{
+  "name": "hexajs",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A framework for building browser extensions like real applications",
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "pnpm run build:packages && changeset publish",
+    "build": "pnpm run rebuild",
+    "build:turbo": "turbo run build",
+    "build:packages": "pnpm -r --filter ./packages/* build",
+    "install:examples": "pnpm -r --filter ./examples/* install",
+    "build:examples": "pnpm -r --filter ./examples/* build",
+    "rebuild": "pnpm run build:packages && pnpm run install:examples && pnpm run build:examples",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean",
+    "docs:generate:reference-models": "node scripts/generate-reference-models.mjs"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.31.0",
+    "turbo": "^2.0.0"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}

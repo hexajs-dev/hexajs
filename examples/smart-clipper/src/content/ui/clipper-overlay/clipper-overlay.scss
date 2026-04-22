@@ -1,0 +1,83 @@
+.hexa-clipper-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646;
+  cursor: crosshair;
+  pointer-events: auto;
+  user-select: none;
+}
+
+.hexa-clipper-overlay__dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.28);
+}
+
+.hexa-clipper-overlay__tooltip {
+  position: absolute;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.92);
+  color: #f8fafc;
+  font-size: 12px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  box-shadow: 0 8px 24px rgba(2, 6, 23, 0.24);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.hexa-clipper-overlay__rect {
+  position: absolute;
+  background: rgba(14, 165, 233, 0.12);
+  pointer-events: none;
+}
+
+.hexa-clipper-overlay__edge {
+  position: absolute;
+  pointer-events: none;
+}
+
+.hexa-clipper-overlay__edge--top,
+.hexa-clipper-overlay__edge--bottom {
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-image: repeating-linear-gradient(90deg, #0ea5e9 0 10px, transparent 10px 16px);
+}
+
+.hexa-clipper-overlay__edge--top {
+  top: 0;
+}
+
+.hexa-clipper-overlay__edge--bottom {
+  bottom: 0;
+}
+
+.hexa-clipper-overlay__edge--left,
+.hexa-clipper-overlay__edge--right {
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background-image: repeating-linear-gradient(180deg, #0ea5e9 0 10px, transparent 10px 16px);
+}
+
+.hexa-clipper-overlay__edge--left {
+  left: 0;
+}
+
+.hexa-clipper-overlay__edge--right {
+  right: 0;
+}
+
+.hexa-clipper-overlay__label {
+  position: absolute;
+  top: -28px;
+  left: 0;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.94);
+  color: #e2e8f0;
+  font-size: 11px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  white-space: nowrap;
+}

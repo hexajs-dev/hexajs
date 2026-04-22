@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="122.68858mm"
+   height="139.21994mm"
+   viewBox="0 0 122.68858 139.21994"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   sodipodi:docname="logo.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.0"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="true"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     showborder="false"
+     borderlayer="true"
+     shape-rendering="auto"
+     inkscape:zoom="0.914906"
+     inkscape:cx="130.61451"
+     inkscape:cy="428.45932"
+     inkscape:window-width="3840"
+     inkscape:window-height="2036"
+     inkscape:window-x="-12"
+     inkscape:window-y="-12"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient3269">
+      <stop
+         style="stop-color:#ff7f2a;stop-opacity:1;"
+         offset="0"
+         id="stop3265" />
+      <stop
+         style="stop-color:#e45a00;stop-opacity:1;"
+         offset="1"
+         id="stop3267" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3269"
+       id="linearGradient3271"
+       x1="-2.9275479"
+       y1="76.057442"
+       x2="119.76104"
+       y2="76.057442"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-37.848499,-35.077465)">
+    <path
+       sodipodi:type="star"
+       style="fill:none;stroke:url(#linearGradient3271);stroke-width:5.035;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;paint-order:markers stroke fill"
+       id="path3238"
+       inkscape:flatsided="true"
+       sodipodi:sides="6"
+       sodipodi:cx="58.416744"
+       sodipodi:cy="76.057442"
+       sodipodi:r1="67.108086"
+       sodipodi:r2="58.117302"
+       sodipodi:arg1="1.5492479"
+       sodipodi:arg2="2.0728467"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="M 59.862706,143.14995 1.0359106,110.85593 -0.41005119,43.763428 56.970782,8.9649358 115.79758,41.258949 l 1.44596,67.092511 z"
+       transform="rotate(1.0553869,-1475.4416,2303.9961)" />
+    <path
+       sodipodi:type="star"
+       style="fill:#e85f06;fill-opacity:1;stroke:none;stroke-width:5.035;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers stroke fill"
+       id="path3273"
+       inkscape:flatsided="true"
+       sodipodi:sides="6"
+       sodipodi:cx="58.416744"
+       sodipodi:cy="76.057442"
+       sodipodi:r1="67.108086"
+       sodipodi:r2="58.117302"
+       sodipodi:arg1="1.5492479"
+       sodipodi:arg2="2.0728467"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="M 59.862706,143.14995 1.0359106,110.85593 -0.41005119,43.763428 56.970782,8.9649358 115.79758,41.258949 l 1.44596,67.092511 z"
+       transform="matrix(0.80387898,0.0148091,-0.0148091,0.80387898,53.359141,42.681353)" />
+    <text
+       xml:space="preserve"
+       style="font-size:52.8655px;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;direction:rtl;text-anchor:middle;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:5.23972;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers stroke fill"
+       x="96.705154"
+       y="123.98499"
+       id="text4163"
+       transform="scale(1.0202913,0.98011225)"><tspan
+         sodipodi:role="line"
+         id="tspan4161"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:52.8655px;font-family:'Segoe Print';-inkscape-font-specification:'Segoe Print Bold';fill:#ffffff;stroke-width:5.23973"
+         x="96.705154"
+         y="123.98499">H</tspan></text>
+  </g>
+</svg>

@@ -1,0 +1,45 @@
+{
+  "name": "@hexajs/cli",
+  "version": "0.0.0",
+  "description": "HexaJS CLI and compiler",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "hexa": "dist/bin/hexa.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "publish:global:windows": "tsup && cd dist && npm link",
+    "publish:global:mac": "tsup && cd dist && sudo npm link",
+    "dev": "tsup --watch",
+    "test": "tsup && vitest run",
+    "debug": "tsx src/debug.ts",
+    "test:watch": "vitest",
+    "lint": "echo \"Error: no lint specified\" && exit 1",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^25.0.10",
+    "@types/ws": "^8.18.1",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.6.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "boxen": "^8.0.1",
+    "chalk": "^5.6.2",
+    "commander": "^14.0.3",
+    "enquirer": "^2.4.1",
+    "fast-glob": "^3.3.3",
+    "fs-extra": "^11.3.3",
+    "sharp": "^0.34.4",
+    "vite": "^7.3.1",
+    "ora": "^9.3.0",
+    "ws": "^8.18.3"
+  }
+}

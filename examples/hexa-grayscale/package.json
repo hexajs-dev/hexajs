@@ -1,0 +1,42 @@
+{
+  "name": "hexa-grayscale",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev:chrome": "hexa build --platform chrome --watch",
+    "build:chrome": "hexa build --platform chrome",
+    "production:chrome": "hexa build --platform chrome --mode production",
+    "dev:firefox": "hexa build --platform firefox --watch",
+    "build:firefox": "hexa build --platform firefox",
+    "production:firefox": "hexa build --platform firefox --mode production",
+    "dev:safari": "hexa build --platform safari --watch",
+    "build:safari": "hexa build --platform safari",
+    "production:safari": "hexa build --platform safari --mode production",
+    "dev:opera": "hexa build --platform opera --watch",
+    "build:opera": "hexa build --platform opera",
+    "production:opera": "hexa build --platform opera --mode production",
+    "dev:edge": "hexa build --platform edge --watch",
+    "build:edge": "hexa build --platform edge",
+    "production:edge": "hexa build --platform edge --mode production",
+    "dev:brave": "hexa build --platform brave --watch",
+    "build:brave": "hexa build --platform brave",
+    "production:brave": "hexa build --platform brave --mode production"
+  },
+  "dependencies": {
+    "@hexajs/common": "file:../../packages/common",
+    "@hexajs/core": "file:../../packages/core",
+    "@hexajs/ports": "file:../../packages/ports",
+    "@hexajs/ui": "file:../../packages/ui",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "@hexajs/cli": "file:../../packages/cli",
+    "vite": "^7.3.1",
+    "@vitejs/plugin-react": "^4.7.0",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
+    "typescript": "^5.0.0"
+  }
+}
