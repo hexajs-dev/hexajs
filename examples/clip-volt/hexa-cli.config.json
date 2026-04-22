@@ -1,0 +1,109 @@
+{
+  "$schema": "./node_modules/@hexajs/cli/schema/hexa-cli.schema.json",
+  "project": {
+    "name": "clip-volt",
+    "version": "0.0.1",
+    "sourceRoot": "src"
+  },
+  "compilerOptions": {
+    "tsConfig": "tsconfig.json",
+    "assets": [
+      "src/assets/**/*"
+    ],
+    "minify": false
+  },
+  "tokens": [],
+  "ui": {
+    "popup": {
+      "mode": "managed",
+      "sourceDir": "ui/popup",
+      "indexFile": "index.html",
+      "icons": "src/assets/clip-volt.svg"
+    },
+    "devtools": {
+      "mode": "managed",
+      "sourceDir": "ui/devtools",
+      "indexFile": "index.html"
+    }
+  },
+  "environments": {
+    "dev": {
+      "compilerOptions": {
+        "minify": false
+      },
+      "tokens": [],
+      "platforms": {
+        "chrome": {
+          "outDir": "dist/chrome",
+          "manifest": "manifest.chrome.json",
+          "tokens": []
+        },
+        "firefox": {
+          "outDir": "dist/firefox",
+          "manifest": "manifest.firefox.json",
+          "tokens": []
+        },
+        "safari": {
+          "outDir": "dist/safari",
+          "manifest": "manifest.safari.json",
+          "tokens": []
+        },
+        "opera": {
+          "outDir": "dist/opera",
+          "manifest": "manifest.opera.json",
+          "tokens": []
+        },
+        "edge": {
+          "outDir": "dist/edge",
+          "manifest": "manifest.edge.json",
+          "tokens": []
+        },
+        "brave": {
+          "outDir": "dist/brave",
+          "manifest": "manifest.brave.json",
+          "tokens": []
+        }
+      }
+    },
+    "production": {
+      "compilerOptions": {
+        "minify": true
+      },
+      "tokens": [],
+      "platforms": {
+        "chrome": {
+          "outDir": "dist/chrome",
+          "manifest": "manifest.chrome.json",
+          "tokens": []
+        },
+        "firefox": {
+          "outDir": "dist/firefox",
+          "manifest": "manifest.firefox.json",
+          "tokens": []
+        },
+        "safari": {
+          "outDir": "dist/safari",
+          "manifest": "manifest.safari.json",
+          "tokens": []
+        },
+        "opera": {
+          "outDir": "dist/opera",
+          "manifest": "manifest.opera.json",
+          "tokens": []
+        },
+        "edge": {
+          "outDir": "dist/edge",
+          "manifest": "manifest.edge.json",
+          "tokens": []
+        },
+        "brave": {
+          "outDir": "dist/brave",
+          "manifest": "manifest.brave.json",
+          "tokens": []
+        }
+      }
+    }
+  },
+  "defaultMode": "dev",
+  "defaultPlatform": "chrome"
+}

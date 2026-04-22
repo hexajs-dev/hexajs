@@ -1,0 +1,147 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "HexaJS Configuration Schema",
+  "description": "Configuration schema for HexaJS Browser Extension Framework",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Link to the HexaJS JSON schema"
+    },
+    "project": {
+      "type": "object",
+      "description": "General project metadata",
+      "properties": {
+        "name": { "type": "string", "description": "The name of your extension" },
+        "version": { "type": "string", "description": "Current version of the project" },
+        "sourceRoot": { "type": "string", "default": "src", "description": "The root directory for source code" }
+      },
+      "required": ["name", "sourceRoot"]
+    },
+    "compilerOptions": {
+      "type": "object",
+      "description": "Build and compilation settings",
+      "properties": {
+        "tsConfig": { "type": "string", "default": "tsconfig.json" },
+        "assets": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Static assets to copy to the build folder (globs supported)"
+        },
+        "minify": { "type": "boolean", "default": true }
+      }
+    },
+    "tokens": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/tokenItem" },
+      "description": "Root-level DI tokens — overridden by environment and platform tokens"
+    },
+    "ui": {
+      "$ref": "#/definitions/uiConfig",
+      "description": "UI surface configuration (popup/devtools)"
+    },
+    "environments": {
+      "type": "object",
+      "description": "Build environments (e.g. development, production, staging). Each can override compilerOptions, tsConfig, manifest, and tokens.",
+      "additionalProperties": { "$ref": "#/definitions/environmentConfig" }
+    },
+    "defaultMode": {
+      "type": "string",
+      "description": "Default build mode when --mode flag is not provided",
+      "default": "production"
+    },
+    "defaultPlatform": {
+      "type": "string",
+      "enum": ["chrome", "firefox", "safari", "opera", "edge", "brave"],
+      "default": "chrome"
+    }
+  },
+  "definitions": {
+    "tokenItem": {
+      "type": "object",
+      "description": "A DI token with a key, value, and optional context",
+      "properties": {
+        "key": { "type": "string", "description": "Unique token identifier used with @Inject() and createToken()" },
+        "value": { "description": "Token value — any JSON type (string, number, boolean, null, object, array)" },
+        "context": {
+          "type": "string",
+          "enum": ["background", "content", "ui"],
+          "description": "DI context where this token is available. If omitted, available in both contexts."
+        }
+      },
+      "required": ["key", "value"]
+    },
+    "uiSurfaceConfig": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["managed", "external", "none"],
+          "description": "How this UI surface is provided"
+        },
+        "sourceDir": { "type": "string", "description": "Source directory for managed UI mode" },
+        "distDir": { "type": "string", "description": "Directory containing built UI assets" },
+        "indexFile": { "type": "string", "description": "Entry HTML file inside distDir used by manifest" },
+        "buildCommand": { "type": "string", "description": "Optional command to build this surface before copying dist" },
+        "viteConfig": { "type": "string", "description": "Optional name to a Vite config file for this surface (only for managed mode)" },
+        "icons": { "type": "string", "description": "Icon source path (relative to project root). SVG is recommended; PNG is also supported." }
+      }
+    },
+    "uiConfig": {
+      "type": "object",
+      "properties": {
+        "popup": { "$ref": "#/definitions/uiSurfaceConfig" },
+        "devtools": { "$ref": "#/definitions/uiSurfaceConfig" }
+      }
+    },
+    "platformSettings": {
+      "type": "object",
+      "properties": {
+        "outDir": { "type": "string", "description": "Output directory for this specific browser" },
+        "manifest": { "type": "string", "description": "Path to the browser-specific manifest.json" },
+        "tsConfig": { "type": "string", "description": "Optional tsconfig override for this platform" },
+        "tokens": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/tokenItem" },
+          "description": "Platform-specific DI token overrides"
+        },
+        "ui": {
+          "$ref": "#/definitions/uiConfig",
+          "description": "Platform-specific UI overrides"
+        }
+      }
+    },
+    "environmentConfig": {
+      "type": "object",
+      "description": "Environment-specific overrides applied during build",
+      "properties": {
+        "compilerOptions": {
+          "type": "object",
+          "description": "Partial compiler option overrides for this environment",
+          "properties": {
+            "tsConfig": { "type": "string" },
+            "assets": { "type": "array", "items": { "type": "string" } },
+            "minify": { "type": "boolean" }
+          }
+        },
+        "tsConfig": { "type": "string", "description": "Override tsconfig file for this environment (e.g. tsconfig.prod.json)" },
+        "manifest": { "type": "string", "description": "Override manifest file for this environment" },
+        "tokens": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/tokenItem" },
+          "description": "Environment-specific DI token overrides"
+        },
+        "ui": {
+          "$ref": "#/definitions/uiConfig",
+          "description": "Environment-specific UI overrides"
+        },
+        "platforms": {
+          "type": "object",
+          "description": "Per-platform overrides within this environment — same shape as root platforms",
+          "additionalProperties": { "$ref": "#/definitions/platformSettings" }
+        }
+      }
+    }
+  },
+  "required": ["project"]
+}

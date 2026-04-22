@@ -1,0 +1,97 @@
+
+.supportedBrowsersHeader {
+    text-align: center;
+    max-width: 680px;
+    margin: 0 auto 1.75rem;
+}
+
+.supportedBrowsersTitle {
+    margin: 0 0 0.65rem;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.supportedBrowsersTitle .accent {
+    background: linear-gradient(90deg, var(--ifm-color-primary-light), var(--ifm-color-primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.supportedBrowsersSubtitle {
+    margin: 0;
+    opacity: 0.7;
+    line-height: 1.7;
+}
+
+.supportedBrowsersList {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.9rem;
+    padding: 0;
+    margin: 0;
+}
+
+.supportedBrowserItem {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    list-style: none;
+    padding: 0.7rem 1.05rem 0.7rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid rgba(8, 145, 178, 0.14);
+    background: rgba(255, 255, 255, 0.82);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        border-color: var(--ifm-color-primary);
+        box-shadow: 0 10px 24px rgba(8, 145, 178, 0.08);
+    }
+}
+
+[data-theme='dark'] .supportedBrowserItem {
+    background: rgba(22, 27, 34, 0.92);
+    border-color: rgba(9, 255, 250, 0.12);
+
+    &:hover {
+        border-color: rgba(9, 255, 250, 0.42);
+        box-shadow: 0 10px 24px rgba(9, 255, 250, 0.08);
+    }
+}
+
+.supportedBrowserIcon {
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--browser-accent);
+    color: #08131f;
+    flex-shrink: 0;
+}
+
+.supportedBrowserName {
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+@media (max-width: 768px) {
+
+    .supportedBrowsersTitle {
+        font-size: 1.7rem;
+    }
+
+    .supportedBrowsersList {
+        gap: 0.75rem;
+    }
+
+    .supportedBrowserItem {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}

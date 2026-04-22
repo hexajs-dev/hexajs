@@ -1,0 +1,32 @@
+.hexa-ocr-status {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  z-index: 2147483647;
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(2, 6, 23, 0.24);
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: opacity 0.3s ease;
+}
+
+.hexa-ocr-status--progress {
+  background: rgba(15, 23, 42, 0.92);
+  color: #f8fafc;
+}
+
+.hexa-ocr-status--success {
+  background: rgba(22, 101, 52, 0.92);
+  color: #f0fdf4;
+}
+
+.hexa-ocr-status--error {
+  background: rgba(127, 29, 29, 0.92);
+  color: #fef2f2;
+}

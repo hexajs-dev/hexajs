@@ -1,0 +1,103 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  background: #f4f4f5;
+  color: #111827;
+}
+
+.popup-root {
+  width: 320px;
+  background: #f9fafb;
+}
+
+.popup-header {
+  background: linear-gradient(160deg, #18181b 0%, #3f3f46 100%);
+  color: #ffffff;
+  padding: 18px 16px;
+}
+
+.popup-kicker {
+  margin: 0;
+  font-size: 11px;
+  opacity: 0.72;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+
+.popup-header h1 {
+  margin: 6px 0 2px;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.popup-subtitle {
+  margin: 0;
+  font-size: 12.5px;
+  opacity: 0.82;
+}
+
+.popup-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.eye-preview {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 12px;
+}
+
+.eye-preview__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: #111827;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eye-preview__title {
+  margin: 0 0 5px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.eye-preview__text {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #4b5563;
+}
+
+.preview-toggle {
+  border: 1px solid #111827;
+  background: #ffffff;
+  color: #111827;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.preview-toggle:hover {
+  background: #f3f4f6;
+}

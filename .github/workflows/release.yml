@@ -1,0 +1,68 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Inspect lockfile immediately after checkout (before pnpm setup)
+        run: |
+          echo "=== pnpm-lock.yaml stat ==="
+          ls -la pnpm-lock.yaml
+          echo "=== first 3 lines ==="
+          head -n 3 pnpm-lock.yaml
+          echo "=== all pnpm-lock.yaml files in repo ==="
+          find . -name 'pnpm-lock.yaml' -not -path '*/node_modules/*'
+          echo "=== xxd first 8 bytes ==="
+          head -c 8 pnpm-lock.yaml | xxd
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.0.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Inspect lockfile after pnpm setup
+        run: |
+          echo "=== pnpm version ==="
+          pnpm -v
+          echo "=== pnpm-lock.yaml stat ==="
+          ls -la pnpm-lock.yaml
+          echo "=== first 3 lines ==="
+          head -n 3 pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Create Release PR or Publish
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: pnpm release
+          commit: Version Packages
+          title: Version Packages
+          createGithubReleases: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -1,0 +1,58 @@
+:host {
+  all: initial;
+}
+
+.hexa-grayscale-toggle {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2147483646;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #111827;
+  border-radius: 999px;
+  box-shadow: 0 10px 26px rgba(2, 6, 23, 0.25);
+  height: 44px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.hexa-grayscale-toggle:hover {
+  background: #f9fafb;
+}
+
+.hexa-grayscale-toggle:focus-visible {
+  outline: 2px solid #111827;
+  outline-offset: 2px;
+}
+
+.hexa-grayscale-toggle__icon {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+}
+
+.hexa-grayscale-toggle__icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.hexa-grayscale-toggle__label {
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .hexa-grayscale-toggle {
+    right: 10px;
+    bottom: 10px;
+    height: 40px;
+    padding: 0 10px;
+  }
+}

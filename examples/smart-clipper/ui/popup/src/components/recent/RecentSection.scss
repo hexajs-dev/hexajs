@@ -1,0 +1,37 @@
+.popup-root {
+  .recent-section {
+    margin-top: 2px;
+    padding-top: 11px;
+    border-top: 1px solid var(--divider);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    block-size: 100%;
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      h2 {
+        margin: 0;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--subtle);
+      }
+
+      span {
+        color: var(--muted);
+        font-size: 10px;
+      }
+    }
+
+    .recent-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+  }
+}

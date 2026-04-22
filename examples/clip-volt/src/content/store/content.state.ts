@@ -1,0 +1,14 @@
+import { State } from '@hexajs/core';
+import { InjectableContext } from '@hexajs/common';
+import { ContentState, ContentClipsReducer, ContentConfigReducer } from './content.reducer';
+import { ContentEffects } from './content.effects';
+
+@State<ContentState>({
+  context: InjectableContext.Content,
+  state: {
+    clips: ContentClipsReducer,
+    config: ContentConfigReducer,
+  },
+  effects: [ContentEffects],
+})
+export class ContentStateConfig {}

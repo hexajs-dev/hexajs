@@ -1,0 +1,22 @@
+{
+	"host_permissions": [
+		"https://cdn.jsdelivr.net/*"
+	],
+  "permissions": [
+    "activeTab",
+    "storage",
+    "tabs",
+    "downloads"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "libs/tesseract/*",
+        "libs/tesseract/lang-data/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
+}

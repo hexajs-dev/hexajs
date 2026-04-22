@@ -1,0 +1,6 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Force LF for YAML files (prevents CRLF breaking pnpm lockfile parsing on Linux CI)
+*.yaml text eol=lf
+*.yml text eol=lf

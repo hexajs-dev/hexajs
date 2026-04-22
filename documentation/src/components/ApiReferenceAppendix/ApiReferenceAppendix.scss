@@ -1,0 +1,57 @@
+.api-reference-appendix {
+  border: 1px solid var(--ifm-toc-border-color);
+  border-radius: 10px;
+  margin-top: 2rem;
+  overflow: hidden;
+}
+
+.api-reference-appendix__trigger {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  color: inherit;
+  text-align: left;
+  transition: background-color 0.15s ease;
+}
+
+.api-reference-appendix__trigger:hover {
+  background-color: rgba(8, 145, 178, 0.05);
+}
+
+[data-theme='dark'] .api-reference-appendix__trigger:hover {
+  background-color: rgba(9, 255, 250, 0.05);
+}
+
+.api-reference-appendix__trigger--open {
+  border-radius: 10px 10px 0 0;
+}
+
+.api-reference-appendix__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.api-reference-appendix__chevron {
+  flex-shrink: 0;
+  opacity: 0.55;
+  transition: transform 0.25s ease;
+}
+
+.api-reference-appendix__chevron--open {
+  transform: rotate(180deg);
+}
+
+.api-reference-appendix__content {
+  padding-inline: 18px;
+  padding-block-start: 18px;
+  border-top: 1px solid var(--ifm-toc-border-color);
+}
