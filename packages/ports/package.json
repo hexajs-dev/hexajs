@@ -1,6 +1,6 @@
 {
   "name": "@hexajs/ports",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "HexaJS platform ports for background/content/ui contexts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
