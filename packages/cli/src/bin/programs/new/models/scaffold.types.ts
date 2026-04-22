@@ -1,3 +1,5 @@
+import type { PackageManager } from '../../../../shared/package-manager';
+
 export interface ScaffoldContext {
   /** Raw project name, e.g. "my-cool-ext" */
   name: string;
@@ -13,4 +15,8 @@ export interface ScaffoldContext {
   reactDevtools: boolean;
   /** Whether to scaffold a minimal blank project (no store, no services, no contract demo) */
   blank: boolean;
+  /** Selected package manager, used to set packageManager metadata in package.json */
+  packageManager: PackageManager;
+  /** Selected package manager version used in package.json (e.g. "10.9.0") */
+  packageManagerVersion: string;
 }
