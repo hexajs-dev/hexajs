@@ -1,14 +1,41 @@
 import { Command } from 'commander';
+import { spawn } from 'child_process';
 // enquirer uses `export = Enquirer` — must use default import + Enquirer.prompt()
 import Enquirer from 'enquirer';
 import chalk from 'chalk';
 import { printError, printSuccess } from '../../shared/reporter';
 import { scaffold } from './services/scaffold.service';
+import { ALL_PACKAGE_MANAGERS, detectAvailablePMs, getInstallCommand, getPackageManagerVersion, getRunScriptCommand, PackageManager } from '../../../shared/package-manager';
 
 const VALID_NAME_RE = /^[a-z0-9][a-z0-9-_]*$/i;
 
 const ALL_PLATFORMS = ['chrome', 'firefox', 'safari', 'opera', 'edge', 'brave'] as const;
 type Platform = (typeof ALL_PLATFORMS)[number];
+
+function installDependencies(projectDir: string, packageManager: PackageManager): Promise<void> {
+  const install = getInstallCommand(packageManager);
+
+  return new Promise((resolve, reject) => {
+    const child = spawn(install.command, install.args, {
+      cwd: projectDir,
+      stdio: 'inherit',
+      shell: process.platform === 'win32',
+    });
+
+    child.on('error', (error) => {
+      reject(error);
+    });
+
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve();
+        return;
+      }
+
+      reject(new Error(`Dependency installation failed with exit code ${code ?? 'unknown'}.`));
+    });
+  });
+}
 
 /** Parse a comma-separated platform string into a validated list */
 function parsePlatforms(raw: string): Platform[] {
@@ -128,15 +155,40 @@ export const newCommand = (program: Command): void => {
         const managedDevtools = devtoolsAnswer.managedDevtools;
         const reactDevtools = managedDevtools;
 
-        // ── 6. Scaffold ──────────────────────────────────────────────────────
+        // ── 6. Package manager ───────────────────────────────────────────────
+        const availablePMs = detectAvailablePMs();
+        const packageManagerChoices = (availablePMs.length ? availablePMs : ALL_PACKAGE_MANAGERS).map((pm) => ({
+          name: pm,
+          value: pm,
+        }));
+        const packageManagerDefaultIndex = packageManagerChoices.findIndex((choice) => choice.value === (availablePMs[0] ?? 'npm'));
+
+        const packageManagerAnswer = await Enquirer.prompt<{ packageManager: PackageManager }>({
+          type: 'select',
+          name: 'packageManager',
+          message: 'Select package manager',
+          choices: packageManagerChoices,
+          initial: packageManagerDefaultIndex >= 0 ? packageManagerDefaultIndex : 0,
+        } as any);
+
+        const packageManager = packageManagerAnswer.packageManager;
+        const packageManagerVersion = getPackageManagerVersion(packageManager);
+
+        // ── 7. Scaffold ──────────────────────────────────────────────────────
         console.log('');
         console.log(chalk.cyan(`  Creating project ${chalk.bold(name)}…`));
         console.log('');
 
-        const projectDir = await scaffold({ name, platforms, reactPopup, managedDevtools, reactDevtools, blank });
+        const projectDir = await scaffold({ name, platforms, reactPopup, managedDevtools, reactDevtools, blank, packageManager, packageManagerVersion });
 
         console.log(chalk.dim(`  Platforms : ${platforms.join(', ')}`));
         console.log(chalk.dim(`  Location  : ${projectDir}`));
+        console.log(chalk.dim(`  PM        : ${packageManager}`));
+        console.log('');
+        console.log(chalk.cyan(`  Installing dependencies with ${packageManager}…`));
+        console.log('');
+
+        await installDependencies(projectDir, packageManager);
         console.log('');
 
         printSuccess(Date.now() - start, projectDir);
@@ -144,8 +196,7 @@ export const newCommand = (program: Command): void => {
         console.log('');
         console.log('  Next steps:');
         console.log(chalk.cyan(`    cd ${name}`));
-        console.log(chalk.cyan('    pnpm install'));
-        console.log(chalk.cyan('    pnpm build'));
+        console.log(chalk.cyan(`    ${getRunScriptCommand(packageManager, 'build')}`));
         console.log('');
       } catch (error) {
         // Enquirer throws '' when the user cancels with Ctrl-C
