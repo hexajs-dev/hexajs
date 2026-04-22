@@ -21,6 +21,7 @@ import { BuildActionOptions, BuildTarget, GeneratedArtifactRow } from './build/t
 import { withQuietLogs, writeGeneratedFile } from './build/runtime';
 import { printGeneratedTable, printInfoLine, printWarningLine } from './shared/logging';
 import { relativePathFromCwd } from './shared/path-utils';
+import { detectProjectPM, getAddDependencyCommand } from './shared/package-manager';
 
 export { prepareOutputDirForTarget } from './build/output';
 
@@ -188,7 +189,8 @@ export async function buildAction(files: string[], resolved: ResolvedBuildConfig
         if (hasViews) {
             const reactPlugin = loadReactPlugin(process.cwd());
             if (!reactPlugin) {
-                printWarningLine('@View detected but @vitejs/plugin-react is not installed. Run: pnpm add -D @vitejs/plugin-react');
+                const packageManager = detectProjectPM(process.cwd());
+                printWarningLine(`@View detected but @vitejs/plugin-react is not installed. Run: ${getAddDependencyCommand(packageManager, '@vitejs/plugin-react', true)}`);
             } else {
                 const plugins = Array.isArray(reactPlugin) ? reactPlugin : [reactPlugin];
                 contentPlugins.push(...plugins);

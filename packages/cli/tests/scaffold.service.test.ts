@@ -27,14 +27,14 @@ describe('scaffold service', () => {
     const writtenFiles = writeFileMock.mock.calls.map(call => call[0] as string);
 
     expect(result).toBe(projectDir);
-    expect(writeFileMock).toHaveBeenCalledTimes(16);
+    expect(writeFileMock).toHaveBeenCalledTimes(17);
     expect(writtenFiles).toContain(path.join(projectDir, 'package.json'));
     expect(writtenFiles).toContain(path.join(projectDir, 'hexa-cli.config.json'));
     expect(writtenFiles).toContain(path.join(projectDir, 'src/background/main.ts'));
     expect(writtenFiles).toContain(path.join(projectDir, 'src/content/handler.ts'));
     expect(writtenFiles).toContain(path.join(projectDir, 'ui/popup/index.html'));
     expect(writeFileMock.mock.calls.every(call => call[2] === 'utf8')).toBe(true);
-    expect(vi.mocked(fs.ensureDir)).toHaveBeenCalledTimes(16);
+    expect(vi.mocked(fs.ensureDir)).toHaveBeenCalledTimes(17);
   });
 
   it('adds popup react files when reactPopup is enabled', async () => {
@@ -50,7 +50,7 @@ describe('scaffold service', () => {
     const writeFileMock = vi.mocked(fs.writeFile);
     const writtenFiles = writeFileMock.mock.calls.map(call => call[0] as string);
 
-    expect(writeFileMock).toHaveBeenCalledTimes(21);
+    expect(writeFileMock).toHaveBeenCalledTimes(22);
     expect(writtenFiles).toContain(path.join(projectDir, 'ui/popup/vite.config.ts'));
     expect(writtenFiles).toContain(path.join(projectDir, 'ui/popup/src/main.tsx'));
     expect(writtenFiles).toContain(path.join(projectDir, 'ui/popup/src/App.tsx'));
@@ -71,7 +71,7 @@ describe('scaffold service', () => {
     const writeFileMock = vi.mocked(fs.writeFile);
     const writtenFiles = writeFileMock.mock.calls.map(call => call[0] as string);
 
-    expect(writeFileMock).toHaveBeenCalledTimes(17);
+    expect(writeFileMock).toHaveBeenCalledTimes(18);
     expect(writtenFiles).toContain(path.join(projectDir, 'ui/devtools/index.html'));
   });
 
@@ -89,7 +89,7 @@ describe('scaffold service', () => {
     const writeFileMock = vi.mocked(fs.writeFile);
     const writtenFiles = writeFileMock.mock.calls.map(call => call[0] as string);
 
-    expect(writeFileMock).toHaveBeenCalledTimes(24);
+    expect(writeFileMock).toHaveBeenCalledTimes(25);
     expect(writtenFiles).toContain(path.join(projectDir, 'ui/devtools/vite.config.ts'));
     expect(writtenFiles).toContain(path.join(projectDir, 'ui/devtools/devtools.ts'));
     expect(writtenFiles).toContain(path.join(projectDir, 'ui/devtools/devtools.html'));

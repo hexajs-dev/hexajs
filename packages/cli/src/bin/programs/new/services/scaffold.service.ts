@@ -37,6 +37,7 @@ import { devtoolsEntryTemplate } from '../templates/devtools-entry.template';
 import { devtoolsBridgeHtmlTemplate } from '../templates/devtools-bridge-html.template';
 import { popupViteConfigTemplate } from '../templates/popup-vite-config.template';
 import { devtoolsViteConfigTemplate } from '../templates/devtools-vite-config.template';
+import type { PackageManager } from '../../../../shared/package-manager';
 
 /** Convert a kebab-case / snake_case name to PascalCase */
 function toPascalCase(name: string): string {
@@ -48,6 +49,8 @@ function toPascalCase(name: string): string {
 export interface ScaffoldOptions {
   name: string;
   platforms: string[];
+  packageManager?: PackageManager;
+  packageManagerVersion?: string;
   /** Whether to scaffold a managed React popup (default: false → plain HTML) */
   reactPopup?: boolean;
   /** Whether to scaffold a managed devtools panel (default: false) */
@@ -65,7 +68,7 @@ export interface ScaffoldOptions {
  * Returns the absolute path to the created project directory.
  */
 export async function scaffold(options: ScaffoldOptions): Promise<string> {
-  const { name, platforms } = options;
+  const { name, platforms, packageManager = 'npm', packageManagerVersion = '0.0.0' } = options;
   const projectDir = options.destRoot ?? path.resolve(process.cwd(), name);
 
   const ctx: ScaffoldContext = {
@@ -76,6 +79,8 @@ export async function scaffold(options: ScaffoldOptions): Promise<string> {
     managedDevtools: options.managedDevtools ?? false,
     reactDevtools: options.reactDevtools ?? false,
     blank: options.blank ?? false,
+    packageManager,
+    packageManagerVersion,
   };
 
   const files: Array<{ rel: string; content: string }> = [
