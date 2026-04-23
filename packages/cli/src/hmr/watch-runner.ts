@@ -121,7 +121,7 @@ export async function runWatchMode(options: WatchRunnerOptions): Promise<void> {
     // Track latest content script outputs for re-injection when background restarts
     let latestContentPatches: { filename: string; matches: string[]; allFrames: boolean }[] = [];
 
-    const initialContentBootstraps = await options.onInitialBuild(hmrAddress.url);
+    const initialContentBootstraps = await options.onInitialBuild(hmrAddress.url, hmrAddress.sessionToken);
     if (initialContentBootstraps && initialContentBootstraps.length > 0) {
         latestContentPatches = initialContentBootstraps.map(cs => ({
             filename: `content/${cs.name}.js`,
@@ -232,14 +232,14 @@ export async function runWatchMode(options: WatchRunnerOptions): Promise<void> {
                     let contentBootstraps: any[] | undefined;
                     
                     if (affectedContexts.includes('ui')) {
-                        rebuildPromises.push(options.onUiRebuild(hmrAddress.url));
+                        rebuildPromises.push(options.onUiRebuild(hmrAddress.url, hmrAddress.sessionToken));
                     }
                     if (affectedContexts.includes('background') && options.onBackgroundRebuild) {
-                        rebuildPromises.push(options.onBackgroundRebuild(hmrAddress.url));
+                        rebuildPromises.push(options.onBackgroundRebuild(hmrAddress.url, hmrAddress.sessionToken));
                     }
                     if (affectedContexts.includes('content') && options.onContentRebuild) {
                         rebuildPromises.push(
-                            options.onContentRebuild(hmrAddress.url).then(outputs => {
+                            options.onContentRebuild(hmrAddress.url, hmrAddress.sessionToken).then(outputs => {
                                 contentBootstraps = outputs;
                             })
                         );
@@ -325,11 +325,11 @@ export async function runWatchMode(options: WatchRunnerOptions): Promise<void> {
                     let contentBootstraps: any[] | undefined;
                     
                     if (affectedContexts.includes('background') && options.onBackgroundRebuild) {
-                        rebuildPromises.push(options.onBackgroundRebuild(hmrAddress.url));
+                        rebuildPromises.push(options.onBackgroundRebuild(hmrAddress.url, hmrAddress.sessionToken));
                     }
                     if (affectedContexts.includes('content') && options.onContentRebuild) {
                         rebuildPromises.push(
-                            options.onContentRebuild(hmrAddress.url).then(outputs => {
+                            options.onContentRebuild(hmrAddress.url, hmrAddress.sessionToken).then(outputs => {
                                 contentBootstraps = outputs;
                             })
                         );

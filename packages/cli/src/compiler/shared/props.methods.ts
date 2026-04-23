@@ -51,29 +51,113 @@ function resolveSymbolValue(checker: ts.TypeChecker, sym?: ts.Symbol): any {
 
 
 export const getDecoratorName = (decorator: ts.Decorator): string | undefined => {
-    const expression = decorator.expression;
-    if (ts.isCallExpression(expression)) {
-        return expression.expression.getText();
+    const expression = ts.isCallExpression(decorator.expression)
+        ? decorator.expression.expression
+        : decorator.expression;
+
+    if (ts.isIdentifier(expression)) {
+        return expression.text;
     }
-    return expression.getText();
+
+    if (ts.isPropertyAccessExpression(expression)) {
+        return expression.name.text;
+    }
+
+    return undefined;
+}
+
+function getDecoratorExpression(decorator: ts.Decorator): ts.Expression {
+    return ts.isCallExpression(decorator.expression) ? decorator.expression.expression : decorator.expression;
+}
+
+function getImportSourceFromDeclarations(declarations: readonly ts.Declaration[]): string | undefined {
+    for (const declaration of declarations) {
+        if (ts.isImportSpecifier(declaration)) {
+            const importDecl = declaration.parent.parent.parent;
+            if (ts.isImportDeclaration(importDecl) && ts.isStringLiteral(importDecl.moduleSpecifier)) {
+                return importDecl.moduleSpecifier.text;
+            }
+        }
+
+        if (ts.isImportClause(declaration)) {
+            const importDecl = declaration.parent;
+            if (ts.isImportDeclaration(importDecl) && ts.isStringLiteral(importDecl.moduleSpecifier)) {
+                return importDecl.moduleSpecifier.text;
+            }
+        }
+
+        if (ts.isNamespaceImport(declaration)) {
+            const importDecl = declaration.parent.parent;
+            if (ts.isImportDeclaration(importDecl) && ts.isStringLiteral(importDecl.moduleSpecifier)) {
+                return importDecl.moduleSpecifier.text;
+            }
+        }
+    }
+
+    return undefined;
+}
+
+function hasExpectedNamedDeclaration(symbol: ts.Symbol, decoratorName: string): boolean {
+    const declarations = symbol.getDeclarations() || [];
+
+    return declarations.some(declaration => {
+        if (ts.isFunctionDeclaration(declaration) || ts.isMethodDeclaration(declaration) || ts.isClassDeclaration(declaration)) {
+            return declaration.name?.getText() === decoratorName;
+        }
+
+        return false;
+    });
+}
+
+export function isDecoratorNamed(decorator: ts.Decorator, checker: ts.TypeChecker, decoratorName: string, allowedImportSources?: readonly string[]): boolean {
+    const expression = getDecoratorExpression(decorator);
+    const decoratorLocalName = getDecoratorName(decorator);
+    const symbol = checker.getSymbolAtLocation(expression);
+    if (!symbol) {
+        return ts.isIdentifier(expression) && decoratorLocalName === decoratorName;
+    }
+
+    const resolvedSymbol = (symbol.flags & ts.SymbolFlags.Alias) ? checker.getAliasedSymbol(symbol) : symbol;
+    const importSource = getImportSourceFromDeclarations(symbol.getDeclarations() || []);
+    if (resolvedSymbol.getName() !== decoratorName || (!hasExpectedNamedDeclaration(resolvedSymbol, decoratorName) && importSource)) {
+        return false;
+    }
+
+    if (allowedImportSources && importSource && !allowedImportSources.includes(importSource)) {
+        return false;
+    }
+
+    if (!importSource && allowedImportSources && ts.isPropertyAccessExpression(expression)) {
+        const namespaceSymbol = checker.getSymbolAtLocation(expression.expression);
+        if (namespaceSymbol) {
+            const namespaceImportSource = getImportSourceFromDeclarations(namespaceSymbol.getDeclarations() || []);
+            if (namespaceImportSource && !allowedImportSources.includes(namespaceImportSource)) {
+                return false;
+            }
+        }
+    }
+
+    return decoratorLocalName === decoratorName;
+}
+
+export function findDecorator(node: ts.Node, checker: ts.TypeChecker, decoratorName: string, allowedImportSources?: readonly string[]): ts.Decorator | null {
+    const decorators = ts.canHaveDecorators(node) ? ts.getDecorators(node) : undefined;
+    if (!decorators) return null;
+
+    return decorators.find(decorator => isDecoratorNamed(decorator, checker, decoratorName, allowedImportSources)) || null;
 }
 
 
 // Helper to extract the string argument from a decorator
-export const getDecoratorArgument = (node: ts.Node, decoratorName: string, checker?: ts.TypeChecker): string | null => {
-    const decorators = ts.canHaveDecorators(node) ? ts.getDecorators(node) : undefined;
-    if (!decorators) return null;
-
-    const decorator = decorators.find(d =>
-        d.expression.getText().startsWith(decoratorName)
-    );
+export const getDecoratorArgument = (node: ts.Node, decoratorName: string, checker: ts.TypeChecker, allowedImportSources?: readonly string[]): string | null => {
+    const decorator = findDecorator(node, checker, decoratorName, allowedImportSources);
 
     if (decorator && ts.isCallExpression(decorator.expression)) {
         const arg = decorator.expression.arguments[0];
         if (arg && ts.isStringLiteral(arg)) {
             return arg.text;
         }
-        if (arg && checker) {
+        if (arg) {
             const value = evalNode(checker, arg as ts.Expression);
             if (typeof value === 'string') return value;
         }
@@ -81,13 +165,8 @@ export const getDecoratorArgument = (node: ts.Node, decoratorName: string, check
     return null;
 }
 
-export const getDecorator = (node: ts.Node, decoratorName: string): ts.Decorator | null => {
-    const decorators = ts.canHaveDecorators(node) ? ts.getDecorators(node) : undefined;
-    if (!decorators) return null;
-    const decorator = decorators.find(d =>
-        d.expression.getText().startsWith(decoratorName)
-    );
-    return decorator || null;
+export const getDecorator = (node: ts.Node, checker: ts.TypeChecker, decoratorName: string, allowedImportSources?: readonly string[]): ts.Decorator | null => {
+    return findDecorator(node, checker, decoratorName, allowedImportSources);
 }
 
 export const hasLifecycleMethod = (node: ts.ClassDeclaration, methodName: 'onInit' | 'onDestroy'): boolean => {

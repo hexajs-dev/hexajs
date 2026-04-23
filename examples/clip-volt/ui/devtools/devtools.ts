@@ -5,7 +5,7 @@ import { DevtoolsPort } from '@hexajs/ports';
 // This file runs as the devtools_page (bridge) — its only job is to register the panel.
 const devtools = inject(DevtoolsPort);
 
-devtools.panels.create('ClipVolt', '', 'ui/devtools/index.html').then((panel) => {
+devtools.panels.create('ClipVolt', 'ui/devtools/devtools-icon.png', 'ui/devtools/index.html').then((panel) => {
   panel.onShown.addListener((_panelWindow: Window) => {
     console.log('[HexaJS] DevTools panel shown');
   });

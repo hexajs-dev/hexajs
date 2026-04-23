@@ -2,9 +2,20 @@
 import * as ts from "typescript";
 import * as fs from "fs";
 import * as path from "path";
+import * as crypto from "crypto";
+import { HEXA_METADATA_HMAC_KEY } from "@hexajs/common";
 import { HexaContext, ServiceMetadata, TokenMetadata, TokenDependency, ViewPropertyDependency } from "./types";
 import { ViewDependency } from "../content/view/types";
-import { extractProp, getDecoratorName, hasLifecycleMethod } from "../shared/props.methods";
+import { extractProp, findDecorator, hasLifecycleMethod, isDecoratorNamed } from "../shared/props.methods";
+
+/** Workspace root markers: stop filesystem walk at these files/dirs */
+const WORKSPACE_ROOT_MARKERS = ['.git', 'pnpm-workspace.yaml', 'package-lock.json', 'yarn.lock', 'bun.lockb'];
+
+/** Keys that must never appear in untrusted metadata to prevent prototype pollution */
+const FORBIDDEN_METADATA_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
+/** Accepted context values produced by the generator */
+const VALID_CONTEXTS = new Set(['background', 'content', 'ui', 'general', 'empty']);
 
 export interface HexaPackageMetadata {
   [className: string]: {
@@ -14,7 +25,7 @@ export interface HexaPackageMetadata {
 }
 
 export class DIScanner {
-  private packageMetadata: HexaPackageMetadata = {};
+  private packageMetadata: HexaPackageMetadata = Object.create(null);
 
   constructor(private checker: ts.TypeChecker, private debug?: boolean) {
     this.loadPackageMetadata();
@@ -26,7 +37,9 @@ export class DIScanner {
    * 1) package direct dist subpath from target project (process.cwd())
    * 2) package.json lookup + dist/hexa-metadata.json sibling
    * 3) package root hexa-metadata.json sibling to package.json
-   * 4) monorepo workspace fallback: <repo>/packages/<name>/dist/hexa-metadata.json
+   * 4) monorepo workspace fallback: walk up from cwd to the workspace root
+   *
+   * Each loaded file is signature-verified and schema-validated before use.
    */
   private loadPackageMetadata(): void {
     const packageNames: Array<'@hexajs/core' | '@hexajs/ports' | '@hexajs/ui'> = ['@hexajs/core', '@hexajs/ports', '@hexajs/ui'];
@@ -39,12 +52,15 @@ export class DIScanner {
         if (!metadataPath || !fs.existsSync(metadataPath)) continue;
         try {
           const content = fs.readFileSync(metadataPath, 'utf-8');
-          const parsed = JSON.parse(content) as HexaPackageMetadata;
+          const parsed = JSON.parse(content) as unknown;
+          const validated = this.verifyAndValidateMetadata(parsed, metadataPath);
 
-          for (const [className, metadata] of Object.entries(parsed)) {
-            if (this.packageMetadata[className] && this.debug) {
-              console.warn(`[DIScanner] Duplicate package metadata class "${className}". Keeping first loaded value.`);
-              continue;
+          for (const [className, metadata] of Object.entries(validated)) {
+            if (Object.prototype.hasOwnProperty.call(this.packageMetadata, className)) {
+              throw new Error(
+                `[DIScanner] Duplicate package metadata class "${className}" found while loading "${metadataPath}". ` +
+                `Package metadata class names must be globally unique across HexaJS runtime packages.`
+              );
             }
             this.packageMetadata[className] = metadata;
           }
@@ -56,7 +72,7 @@ export class DIScanner {
           break;
         } catch (error) {
           if (this.debug) {
-            console.warn(`[DIScanner] Failed to parse metadata at ${metadataPath}:`, error);
+            console.warn(`[DIScanner] Failed to load metadata at ${metadataPath}:`, error);
           }
         }
       }
@@ -65,14 +81,89 @@ export class DIScanner {
     if (loadedFrom.length === 0) {
       if (this.debug) {
         console.warn('[DIScanner] No Hexa package metadata files could be loaded.');
+        console.warn('[DIScanner] Could not load Hexa package metadata from any known location.');
       }
-      console.warn('[DIScanner] Could not load Hexa package metadata from any known location.');
       return;
     }
 
     if (this.debug) {
       console.log('[DIScanner] Loaded package metadata from:', loadedFrom);
     }
+  }
+
+  /**
+   * Verify HMAC signature and validate schema of a parsed metadata file.
+   * Throws if the signature is invalid or the structure is not trusted.
+   */
+  private verifyAndValidateMetadata(parsed: unknown, filePath: string): HexaPackageMetadata {
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+      throw new Error(`[DIScanner] "${filePath}": metadata file must be a JSON object.`);
+    }
+
+    const raw = parsed as Record<string, unknown>;
+
+    // ── Signed format: { v, signature, metadata } ────────────────────────────
+    if ('v' in raw && 'signature' in raw && 'metadata' in raw) {
+      if (typeof raw['signature'] !== 'string') {
+        throw new Error(`[DIScanner] "${filePath}": "signature" field must be a string.`);
+      }
+
+      const metadataJson = JSON.stringify(raw['metadata']);
+      const hmac = crypto.createHmac('sha256', HEXA_METADATA_HMAC_KEY);
+      hmac.update(metadataJson, 'utf8');
+      const expected = hmac.digest('hex');
+      const provided = raw['signature'] as string;
+
+      if (expected.length !== provided.length ||
+          !crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(provided))) {
+        throw new Error(
+          `[DIScanner] "${filePath}": HMAC signature verification failed. ` +
+          `Rebuild @hexajs/core, @hexajs/ports, and @hexajs/ui packages to regenerate signed metadata.`
+        );
+      }
+
+      return this.validateMetadataSchema(raw['metadata'], filePath);
+    }
+
+    // ── Unsigned (legacy) format ──────────────────────────────────────────────
+    throw new Error(
+      `[DIScanner] "${filePath}": metadata file is not signed. ` +
+      `Rebuild @hexajs/core, @hexajs/ports, and @hexajs/ui packages to generate signed metadata.`
+    );
+  }
+
+  /**
+   * Validate that metadata is a safe plain-object map of injectable class descriptors.
+   * Rejects prototype-polluting keys and any entry that does not match the expected shape.
+   */
+  private validateMetadataSchema(raw: unknown, filePath: string): HexaPackageMetadata {
+    if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) {
+      throw new Error(`[DIScanner] "${filePath}": "metadata" value must be a plain object.`);
+    }
+
+    const result: HexaPackageMetadata = Object.create(null);
+
+    for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+      if (FORBIDDEN_METADATA_KEYS.has(key)) {
+        throw new Error(`[DIScanner] "${filePath}": forbidden key "${key}" in metadata. Metadata rejected.`);
+      }
+      if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        throw new Error(`[DIScanner] "${filePath}": entry "${key}" must be an object.`);
+      }
+      const entry = value as Record<string, unknown>;
+      if (entry['injectable'] !== true) {
+        throw new Error(`[DIScanner] "${filePath}": entry "${key}" must have injectable: true.`);
+      }
+      if (typeof entry['context'] !== 'string' || !VALID_CONTEXTS.has(entry['context'])) {
+        throw new Error(
+          `[DIScanner] "${filePath}": entry "${key}" has invalid context "${entry['context']}". ` +
+          `Expected one of: ${[...VALID_CONTEXTS].join(', ')}.`
+        );
+      }
+      result[key] = { injectable: true, context: entry['context'] as string };
+    }
+
+    return result;
   }
 
   private getMetadataCandidates(packageName: '@hexajs/core' | '@hexajs/ports' | '@hexajs/ui'): string[] {
@@ -89,7 +180,7 @@ export class DIScanner {
       candidates.push(path.join(path.dirname(packageJsonFromCwd), 'hexa-metadata.json'));
     }
 
-    // 4) Monorepo fallback for local development (walk up from cwd).
+    // 4) Monorepo fallback for local development (walk up to workspace root).
     const packageDirName = packageName === '@hexajs/core' ? 'core' : packageName === '@hexajs/ports' ? 'ports' : 'ui';
     const workspaceFallback = this.findWorkspacePackageMetadata(process.cwd(), packageDirName);
     if (workspaceFallback) candidates.push(workspaceFallback);
@@ -105,6 +196,11 @@ export class DIScanner {
     }
   }
 
+  /**
+   * Walk upward from startDir looking for the workspace monorepo fallback path.
+   * Stops at the workspace/git root (detected by WORKSPACE_ROOT_MARKERS) so the
+   * walk is bounded and cannot escape the project hierarchy.
+   */
   private findWorkspacePackageMetadata(startDir: string, packageDirName: string): string | undefined {
     let currentDir = path.resolve(startDir);
 
@@ -114,8 +210,13 @@ export class DIScanner {
         return workspaceCandidate;
       }
 
+      // Stop at any recognised workspace or git root – never walk above it.
+      if (WORKSPACE_ROOT_MARKERS.some(marker => fs.existsSync(path.join(currentDir, marker)))) {
+        break;
+      }
+
       const parentDir = path.dirname(currentDir);
-      if (parentDir === currentDir) break;
+      if (parentDir === currentDir) break; // reached filesystem root
       currentDir = parentDir;
     }
 
@@ -141,8 +242,7 @@ export class DIScanner {
 
   private processClass(node: ts.ClassDeclaration): ServiceMetadata | null {
     // 1. Check if class has @Injectable decorator
-    const decorators = ts.getDecorators(node);
-    const injectable = decorators?.find((d: ts.Decorator) => getDecoratorName(d) === 'Injectable');
+    const injectable = findDecorator(node, this.checker, 'Injectable', ['@hexajs/common']);
 
     if (!injectable) return null;
 
@@ -367,32 +467,7 @@ export class DIScanner {
    * Check if a constructor parameter has an @Inject() decorator and return the token key.
    */
   private getInjectTokenKey(param: ts.ParameterDeclaration): string | null {
-    const decorators = this.getNodeDecorators(param);
-    if (decorators.length === 0) return null;
-
-    const injectDecorator = decorators.find(d => {
-      const rawText = d.expression.getText();
-      const expr = this.getDecoratorExpression(d);
-      const exprText = expr.getText();
-
-      if (rawText.startsWith('Inject(') || rawText.includes('.Inject(')) return true;
-      if (exprText === 'Inject' || exprText.endsWith('.Inject')) return true;
-
-      if (ts.isIdentifier(expr) && expr.text === 'Inject') return true;
-      if (ts.isPropertyAccessExpression(expr) && expr.name.getText() === 'Inject') return true;
-
-      const sym = this.checker.getSymbolAtLocation(expr);
-      if (!sym) return false;
-      const realSym = (sym.flags & ts.SymbolFlags.Alias) ? this.checker.getAliasedSymbol(sym) : sym;
-      if (realSym.getName() === 'Inject') return true;
-
-      const decls = realSym.getDeclarations() || [];
-      return decls.some((decl: ts.Declaration) => {
-        if (!('name' in decl) || !(decl as ts.Declaration & { name?: ts.Node }).name) return false;
-        const nameNode = (decl as ts.Declaration & { name?: ts.Node }).name!;
-        return nameNode.getText() === 'Inject';
-      });
-    });
+    const injectDecorator = findDecorator(param, this.checker, 'Inject', ['@hexajs/common']);
     if (!injectDecorator) return null;
 
     if (ts.isCallExpression(injectDecorator.expression)) {
@@ -502,60 +577,40 @@ export class DIScanner {
 
 
   // analyze types
-  private getDecoratorExpression(decorator: ts.Decorator): ts.Expression {
-    const expr = decorator.expression;
-    return ts.isCallExpression(expr) ? expr.expression : expr;
+  private getDecoratorImportSources(name: string): readonly string[] | undefined {
+    switch (name) {
+      case 'Injectable':
+      case 'Inject':
+      case 'InjectWorker':
+        return ['@hexajs/common'];
+      case 'Worker':
+      case 'Background':
+      case 'Content':
+      case 'Controller':
+      case 'Action':
+      case 'On':
+      case 'Handler':
+      case 'Handle':
+      case 'Subscribe':
+      case 'View':
+      case 'InjectView':
+      case 'Reducer':
+      case 'Reduce':
+      case 'State':
+        return ['@hexajs/core'];
+      default:
+        return undefined;
+    }
   }
 
   private isInjectableDecorator(decorator: ts.Decorator): boolean {
-    const expr = this.getDecoratorExpression(decorator);
-
-    if (ts.isIdentifier(expr) && expr.text === 'Injectable') return true;
-    if (ts.isPropertyAccessExpression(expr) && expr.name.getText() === 'Injectable') return true;
-
-    const symbol = this.checker.getSymbolAtLocation(expr);
-    if (!symbol) {
-      return false;
-    }
-
-    const realSymbol = (symbol.flags & ts.SymbolFlags.Alias) ? this.checker.getAliasedSymbol(symbol) : symbol;
-    if (realSymbol.getName() === 'Injectable') return true;
-
-    const decls = realSymbol.getDeclarations() || [];
-    return decls.some((d: ts.Declaration) => {
-      if (!('name' in d) || !(d as ts.Declaration & { name?: ts.Node }).name) return false;
-      const nameNode = (d as ts.Declaration & { name?: ts.Node }).name!;
-      return nameNode.getText() === 'Injectable';
-    });
+    return isDecoratorNamed(decorator, this.checker, 'Injectable', ['@hexajs/common']);
   }
 
   private hasDecoratorNamed(node: ts.Node, name: string): boolean {
-    return this.getNodeDecorators(node).some((decorator: ts.Decorator) => {
-      const rawText = decorator.expression.getText();
-      const expr = this.getDecoratorExpression(decorator);
-      const exprText = expr.getText();
-
-      if (rawText.startsWith(`${name}(`) || rawText.includes(`.${name}(`)) return true;
-      if (exprText === name || exprText.endsWith(`.${name}`)) return true;
-
-      if (ts.isIdentifier(expr) && expr.text === name) return true;
-      if (ts.isPropertyAccessExpression(expr) && expr.name.getText() === name) return true;
-
-      const symbol = this.checker.getSymbolAtLocation(expr);
-      if (!symbol) {
-        return false;
-      }
-
-      const realSymbol = (symbol.flags & ts.SymbolFlags.Alias) ? this.checker.getAliasedSymbol(symbol) : symbol;
-      if (realSymbol.getName() === name) return true;
-
-      const decls = realSymbol.getDeclarations() || [];
-      return decls.some((decl: ts.Declaration) => {
-        if (!('name' in decl) || !(decl as ts.Declaration & { name?: ts.Node }).name) return false;
-        const nameNode = (decl as ts.Declaration & { name?: ts.Node }).name!;
-        return nameNode.getText() === name;
-      });
-    });
+    return this.getNodeDecorators(node).some((decorator: ts.Decorator) =>
+      isDecoratorNamed(decorator, this.checker, name, this.getDecoratorImportSources(name))
+    );
   }
 
   private getNodeDecorators(node: ts.Node): readonly ts.Decorator[] {
@@ -719,18 +774,7 @@ export class DIScanner {
   }
 
   private isWorkerDecorator(decorator: ts.Decorator): boolean {
-    const expression = decorator.expression;
-
-    if (ts.isCallExpression(expression)) {
-      const expr = expression.expression;
-      if (ts.isIdentifier(expr)) return expr.text === 'Worker';
-      if (ts.isPropertyAccessExpression(expr)) return expr.name.getText() === 'Worker';
-      return false;
-    }
-
-    if (ts.isIdentifier(expression)) return expression.text === 'Worker';
-    if (ts.isPropertyAccessExpression(expression)) return expression.name.getText() === 'Worker';
-    return false;
+    return isDecoratorNamed(decorator, this.checker, 'Worker', ['@hexajs/core']);
   }
 }
 

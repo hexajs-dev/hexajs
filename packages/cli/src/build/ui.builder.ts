@@ -13,13 +13,26 @@ import { normalizeManifestPath } from '../shared/path-utils';
 import { detectProjectPM, getAddDependencyCommand } from '../shared/package-manager';
 
 interface HexaUiModule {
-    buildManagedPopup: (config: UiSurfaceConfig | undefined, outputDir: string, minify: boolean, bootstrapPath: string, platform: string, watch?: boolean, hmrAddress?: string) => Promise<string>;
-    buildManagedDevtools: (config: UiSurfaceConfig | undefined, outputDir: string, minify: boolean, bootstrapPath: string, platform: string, watch?: boolean, hmrAddress?: string) => Promise<string>;
+    buildManagedPopup: (config: UiSurfaceConfig | undefined, outputDir: string, minify: boolean, bootstrapPath: string, platform: string, watch?: boolean, hmrAddress?: string, hmrSessionToken?: string) => Promise<string>;
+    buildManagedDevtools: (config: UiSurfaceConfig | undefined, outputDir: string, minify: boolean, bootstrapPath: string, platform: string, watch?: boolean, hmrAddress?: string, hmrSessionToken?: string) => Promise<string>;
 }
 
 interface UiBootstrapBuildOutput {
     hasManagedUi: boolean;
     uiBootstrapContent?: string;
+}
+
+function resolveForComparison(filePath: string): string {
+    try {
+        return fs.realpathSync(filePath);
+    } catch {
+        return path.resolve(filePath);
+    }
+}
+
+function isPathWithinRoot(rootPath: string, candidatePath: string): boolean {
+    const relative = path.relative(rootPath, candidatePath);
+    return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
 }
 
 function runUiBuildCommand(surface: 'popup' | 'devtools', command: string): void {
@@ -39,9 +52,21 @@ function copyExternalSurface(surface: 'popup' | 'devtools', config: UiSurfaceCon
     if (!fs.existsSync(sourceDist) || !fs.statSync(sourceDist).isDirectory()) {
         throw new Error(`UI ${surface} distDir does not exist or is not a directory: ${sourceDist}`);
     }
-    const sourceIndex = path.join(sourceDist, config.indexFile);
+
+    const projectRoot = resolveForComparison(process.cwd());
+    const realSourceDist = fs.realpathSync(sourceDist);
+    if (!isPathWithinRoot(projectRoot, realSourceDist)) {
+        throw new Error(`UI ${surface} distDir must stay within the project root: ${config.distDir}`);
+    }
+
+    const sourceIndex = path.resolve(sourceDist, config.indexFile);
     if (!fs.existsSync(sourceIndex)) {
         throw new Error(`UI ${surface} indexFile not found inside distDir: ${sourceIndex}`);
+    }
+
+    const realSourceIndex = fs.realpathSync(sourceIndex);
+    if (!isPathWithinRoot(realSourceDist, realSourceIndex)) {
+        throw new Error(`UI ${surface} indexFile must stay within distDir: ${config.indexFile}`);
     }
 
     const targetBase = path.join(outputDir, 'ui', surface);
@@ -77,14 +102,14 @@ export function buildUiBootstrap(registry: MetadataRegistry, storeOutputs: Store
     return { hasManagedUi: true, uiBootstrapContent: uiBootstrap.content };
 }
 
-export async function buildUiEntries(resolved: ResolvedBuildConfig, outputDir: string, bootstrapPath: string, watch?: boolean, hmrAddress?: string): Promise<ManifestUiEntries> {
+export async function buildUiEntries(resolved: ResolvedBuildConfig, outputDir: string, bootstrapPath: string, watch?: boolean, hmrAddress?: string, hmrSessionToken?: string): Promise<ManifestUiEntries> {
     const entries: ManifestUiEntries = {};
 
     const popupConfig = resolved.ui?.popup;
     const popupMode = popupConfig?.mode ?? 'none';
     if (popupMode === 'managed') {
         const { buildManagedPopup } = loadHexaUi(process.cwd());
-        entries.popup = await buildManagedPopup(popupConfig, outputDir, resolved.compilerOptions.minify, bootstrapPath, resolved.platform, watch, hmrAddress);
+        entries.popup = await buildManagedPopup(popupConfig, outputDir, resolved.compilerOptions.minify, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken);
     } else if (popupMode === 'external') {
         if (popupConfig?.buildCommand) runUiBuildCommand('popup', popupConfig.buildCommand);
         entries.popup = copyExternalSurface('popup', popupConfig!, outputDir);
@@ -94,7 +119,7 @@ export async function buildUiEntries(resolved: ResolvedBuildConfig, outputDir: s
     const devtoolsMode = devtoolsConfig?.mode ?? 'none';
     if (devtoolsMode === 'managed') {
         const { buildManagedDevtools } = loadHexaUi(process.cwd());
-        entries.devtools = await buildManagedDevtools(devtoolsConfig, outputDir, resolved.compilerOptions.minify, bootstrapPath, resolved.platform, watch, hmrAddress);
+        entries.devtools = await buildManagedDevtools(devtoolsConfig, outputDir, resolved.compilerOptions.minify, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken);
     } else if (devtoolsMode === 'external') {
         if (devtoolsConfig?.buildCommand) runUiBuildCommand('devtools', devtoolsConfig.buildCommand);
         entries.devtools = copyExternalSurface('devtools', devtoolsConfig!, outputDir);

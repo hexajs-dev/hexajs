@@ -5,18 +5,37 @@ import { WorkerMetadata } from '../src/compiler/background/worker/types';
 import { DIScanner } from '../src/compiler/di/scanner';
 
 function createProgram(source: string): ts.Program {
-  const fileName = '/test.ts';
+  return createProgramFromFiles({ '/test.ts': source });
+}
+
+function createProgramFromFiles(files: Record<string, string>): ts.Program {
+  const fileNames = Object.keys(files);
   const host = ts.createCompilerHost({ target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext });
   const originalGetSourceFile = host.getSourceFile;
   host.getSourceFile = (name, languageVersion) => {
-    if (name === fileName) {
-      return ts.createSourceFile(name, source, languageVersion, true);
+    if (name in files) {
+      return ts.createSourceFile(name, files[name], languageVersion, true);
     }
     return originalGetSourceFile.call(host, name, languageVersion);
   };
-  host.fileExists = (name) => name === fileName || ts.sys.fileExists(name);
-  host.readFile = (name) => (name === fileName ? source : ts.sys.readFile(name));
-  return ts.createProgram([fileName], { target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext }, host);
+  host.fileExists = (name) => name in files || ts.sys.fileExists(name);
+  host.readFile = (name) => (name in files ? files[name] : ts.sys.readFile(name));
+  host.resolveModuleNames = (moduleNames, containingFile) => {
+    return moduleNames.map(moduleName => {
+      if (!moduleName.startsWith('.')) {
+        return ts.resolveModuleName(moduleName, containingFile, { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ESNext }, ts.sys).resolvedModule;
+      }
+
+      const resolvedFileName = ts.resolvePath(ts.combinePaths(ts.getDirectoryPath(containingFile), `${moduleName}.ts`));
+      if (resolvedFileName in files) {
+        return { resolvedFileName, extension: ts.Extension.Ts };
+      }
+
+      return ts.resolveModuleName(moduleName, containingFile, { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ESNext }, ts.sys).resolvedModule;
+    });
+  };
+
+  return ts.createProgram(fileNames, { target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext, moduleResolution: ts.ModuleResolutionKind.NodeJs }, host);
 }
 
 function scanWorker(source: string) {
@@ -184,5 +203,32 @@ describe('WorkerScanner', () => {
     `;
 
     expect(() => scanWorker(source)).toThrow(/can only be used with classes decorated by @Worker/);
+  });
+
+  it('ignores a Worker decorator imported from a non-Hexa module', () => {
+    const program = createProgramFromFiles({
+      '/other.ts': `export function Worker(opts: any): ClassDecorator { return (t) => t; }`,
+      '/test.ts': `
+        import { Worker } from './other';
+
+        @Worker({ name: 'wrong-worker' })
+        class WrongWorker {
+          run(): void {}
+        }
+      `,
+    });
+
+    const checker = program.getTypeChecker();
+    const diScanner = new DIScanner(checker, false);
+    const workerScanner = new WorkerScanner(checker, diScanner);
+    const sourceFile = program.getSourceFile('/test.ts')!;
+    let result: WorkerMetadata | null = null;
+
+    ts.forEachChild(sourceFile, (node) => {
+      const meta = workerScanner.scan(node);
+      if (meta) result = meta;
+    });
+
+    expect(result).toBeNull();
   });
 });

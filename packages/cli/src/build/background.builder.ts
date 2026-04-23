@@ -6,9 +6,9 @@ import { WorkerGenerator } from '../generators/background/worker/generator';
 import { StoreScriptOutput } from '../generators/store/generator';
 import { BackgroundBuildOutput } from './types';
 
-export function buildBackgroundArtifacts(registry: MetadataRegistry, storeOutputs: StoreScriptOutput[], tokens: ConfigToken[], outputDir: string, watch: boolean = false, hmrAddress: string = '', platform: string = 'chrome'): BackgroundBuildOutput {
+export function buildBackgroundArtifacts(registry: MetadataRegistry, storeOutputs: StoreScriptOutput[], tokens: ConfigToken[], outputDir: string, watch: boolean = false, hmrAddress: string = '', hmrSessionToken: string = '', platform: string = 'chrome'): BackgroundBuildOutput {
     const backgroundOutputDir = path.join(outputDir, 'background');
-    const backgroundGenerator = new BackgroundGenerator(registry, storeOutputs, tokens, backgroundOutputDir, watch, hmrAddress);
+    const backgroundGenerator = new BackgroundGenerator(registry, storeOutputs, tokens, backgroundOutputDir, watch, hmrAddress, hmrSessionToken);
     const workerGenerator = new WorkerGenerator(registry, storeOutputs, tokens, backgroundOutputDir, platform);
     const workerOutput = workerGenerator.generate();
 
