@@ -1,5 +1,11 @@
 # @hexajs/common
 
+## 2.0.0
+
+### Minor Changes
+
+- 2b9af51: Changing worker injection
+
 ## 1.0.0
 
 ### Minor Changes
