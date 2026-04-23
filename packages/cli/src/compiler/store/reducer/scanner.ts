@@ -1,7 +1,7 @@
 import ts from "typescript";
 import { DIScanner } from "../../di/scanner";
 import { ReduceMetadata, ReducerMetadata } from "./types";
-import { getDecorator, getDecoratorName } from "../../shared/props.methods";
+import { findDecorator, getDecorator } from "../../shared/props.methods";
 
 
 export class ReducerScanner {
@@ -20,8 +20,7 @@ export class ReducerScanner {
     
             processClass(node: ts.ClassDeclaration): ReducerMetadata | null {
         // 1. Check if class has @Background decorator
-        const decorators = ts.getDecorators(node);
-        const reducer = decorators?.find(d => getDecoratorName(d) === 'Reducer' );
+        const reducer = findDecorator(node, this.checker, 'Reducer', ['@hexajs/core']);
 
         if (!reducer) return null;
         const methods: ReduceMetadata[] = [];
@@ -31,7 +30,7 @@ export class ReducerScanner {
             if (ts.isMethodDeclaration(member)) {
                 const methodName = member.name.getText();
 
-                const decorator = getDecorator(member, 'Reduce');
+                const decorator = getDecorator(member, this.checker, 'Reduce', ['@hexajs/core']);
                 if (decorator) {
                     const actionName = this.extractOptions(decorator);
                     if (!actionName) {

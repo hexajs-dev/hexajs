@@ -102,6 +102,7 @@ export async function buildAction(files: string[], resolved: ResolvedBuildConfig
     foundation.rebuild = {...(foundation.rebuild ?? {}), ui: isUiWatchRebuild};
     foundation.watch = !!buildOptions?.watch;
     foundation.hmrAddress = buildOptions?.hmrAddress;
+    foundation.hmrSessionToken = buildOptions?.hmrSessionToken;
     const { storeOutputs, program, registry } = foundation;
 
     storeOutputs

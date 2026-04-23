@@ -72,7 +72,7 @@ export class ContentGenerator {
       
       return {
         name,
-        content: this.generateBootstrapFile(entries),
+        content: this.generateBootstrapFile(entries, name),
         matches,
         runAt,
         allFrames: allFrames ?? false,
@@ -109,7 +109,7 @@ export class ContentGenerator {
   /**
    * Generates a complete bootstrap file for a group of content entries
    */
-  private generateBootstrapFile(entries: ContentEntryMetadata[]): string {
+  private generateBootstrapFile(entries: ContentEntryMetadata[], bundleName: string): string {
     const services = this.getContentServices();
     const contentStore = this.storeOutputs.find(s => s.context === HexaContext.Content);
     
@@ -140,7 +140,8 @@ export class ContentGenerator {
       handlerRegistrations,
       contentInits,
       lifecycleBootstrap,
-      effectSubscriptions
+      effectSubscriptions,
+      bundleName
     });
   }
 
@@ -334,6 +335,7 @@ export class ContentGenerator {
     contentInits: string;
     lifecycleBootstrap: string;
     effectSubscriptions: string;
+    bundleName: string;
   }): string {
     if (this.watch) {
       // HMR-aware dual-mode bootstrap
@@ -345,7 +347,8 @@ export class ContentGenerator {
 ${parts.imports}
 
 // Check for existing shell (HMR path)
-const __existingShell__ = window.__HEXA_SHELL__;
+const __HEXA_SHELL_KEY__ = ${JSON.stringify(`__HEXA_SHELL__:${parts.bundleName}`)};
+const __existingShell__ = window[__HEXA_SHELL_KEY__];
 
 // Initialize DI Container
 export const container = new Container();
@@ -422,7 +425,7 @@ void runOnInit(onInitTargets).catch(error => {
 registerOnDestroy(onDestroyTargets${parts.effectSubscriptions ? `, effectSubs` : ''});
 
 // Register shell for HMR updates
-window.__HEXA_SHELL__ = {
+window[__HEXA_SHELL_KEY__] = {
   container,
   handlerContainer: container.resolve(HandlerContainer),
   onDestroyTargets,
@@ -430,7 +433,7 @@ ${parts.effectSubscriptions ? `  effectSubs,` : ''}
   version: (__existingShell__?.version ?? 0) + 1,
 };
 
-console.log('[HexaJS] Content script ' + (__existingShell__ ? 'hot-replaced (v' + window.__HEXA_SHELL__.version + ')' : 'initialized'));
+console.log('[HexaJS] Content script ' + (__existingShell__ ? 'hot-replaced (v' + window[__HEXA_SHELL_KEY__].version + ')' : 'initialized'));
 `;
     } else {
       // Non-HMR bootstrap (production)

@@ -29,7 +29,6 @@ export class ClipperUiService {
         this.startPayload = payload;
         this.mountOverlay();
         this.mode = 'armed';
-        console.log('[smart-clipper] Clipping mode armed:', payload);
         return new StartClippingAckMessage('armed');
     }
 

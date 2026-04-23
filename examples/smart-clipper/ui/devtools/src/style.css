@@ -112,6 +112,12 @@ html, body, #root { height: 100%; }
 
 .dt-logo { color: var(--dt-header-text); flex-shrink: 0; }
 
+.dt-logo img {
+  width: 40px;
+  height: 40px;
+  display: block;
+}
+
 .dt-header-text h1 {
   font-size: 22px; font-weight: 700;
   letter-spacing: -.3px;
@@ -278,6 +284,12 @@ html, body, #root { height: 100%; }
 .dt-footer-brand {
   display: flex; align-items: center; gap: 7px;
   font-size: 12px; color: var(--dt-foot-text);
+}
+
+.dt-footer-brand-logo {
+  width: 13px;
+  height: 13px;
+  display: block;
 }
 
 .dt-footer-links { display: flex; gap: 16px; }

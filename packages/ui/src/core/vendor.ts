@@ -6,16 +6,18 @@ const BOOTSTRAP_ALIAS = '@hexa/bootstrap';
 export interface HexaBootstrapPluginOptions {
   watch?: boolean;
   hmrAddress?: string;
+  hmrSessionToken?: string;
   surface?: 'popup' | 'devtools';
 }
 
-function createHMRRuntime(hmrAddress: string, surface?: string): string {
+function createHMRRuntime(hmrAddress: string, hmrSessionToken: string, surface?: string): string {
   const surfaceJson = surface ? JSON.stringify(surface) : 'undefined';
   return `
 const __HEXA_HMR_URL__ = ${JSON.stringify(hmrAddress)};
+const __HEXA_HMR_SESSION_TOKEN__ = ${JSON.stringify(hmrSessionToken)};
 const __HEXA_HMR_SURFACE__ = ${surfaceJson};
 (() => {
-  if (typeof window === 'undefined' || !__HEXA_HMR_URL__) {
+  if (typeof window === 'undefined' || !__HEXA_HMR_URL__ || !__HEXA_HMR_SESSION_TOKEN__) {
     return;
   }
 
@@ -27,6 +29,9 @@ const __HEXA_HMR_SURFACE__ = ${surfaceJson};
   }
 
   const ws = new WebSocket(__HEXA_HMR_URL__);
+  ws.addEventListener('open', () => {
+    ws.send(JSON.stringify({ type: 'auth', token: __HEXA_HMR_SESSION_TOKEN__, timestamp: Date.now() }));
+  });
   ws.addEventListener('message', (event) => {
     let payload;
     try {
@@ -88,8 +93,8 @@ const __HEXA_HMR_SURFACE__ = ${surfaceJson};
  */
 export function hexaBootstrapPlugin(bootstrapPath: string, options: HexaBootstrapPluginOptions = {}): Plugin {
   const normalizedBootstrap = bootstrapPath.replace(/\\/g, '/');
-  const injectHMR = !!options.watch && !!options.hmrAddress;
-  const hmrRuntime = injectHMR ? createHMRRuntime(options.hmrAddress!, options.surface) : '';
+  const injectHMR = !!options.watch && !!options.hmrAddress && !!options.hmrSessionToken;
+  const hmrRuntime = injectHMR ? createHMRRuntime(options.hmrAddress!, options.hmrSessionToken!, options.surface) : '';
 
   return {
     name: 'hexa-bootstrap-inject',

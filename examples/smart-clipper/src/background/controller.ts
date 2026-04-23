@@ -1,26 +1,73 @@
 import { Action, Controller, HexaBackgroundClient } from '@hexajs/core';
 import { BackgroundActionsApi, backgroundClipprtNamespace, contentScriptApi } from '@contract/api';
 import { ClippingCancelledMessage, ClippingCompleteMessage, OcrCompleteMessage, OcrProgressMessage, PopupGetRecentClipsMessage, PopupStartClippingMessage, RecentClipItem, RecentClipsMessage, StartClippingAckMessage } from '@contract/messages/messages';
-import { serializeOcrLanguageSelection } from '@contract/ocr-language';
-import { DownloadsPort, TabsPort, NotificationsPort, StoragePort } from '@hexajs/ports';
+import { DEFAULT_OCR_LANGUAGE, OCR_LANGUAGE_SELECTION_STORAGE_KEY, serializeOcrLanguageSelection } from '@contract/ocr-language';
+import { CommandsPort, DownloadsPort, TabsPort, NotificationsPort, StoragePort } from '@hexajs/ports';
 import { ClipperCaptureService } from './services/clipper-capture.service';
 import { ClipperSessionService } from './services/clipper-session.service';
 import { ClipperOcrService } from './services/clipper-ocr.service';
 
 const RECENT_CLIPS_STORAGE_KEY = 'smart-clipper.recent-clips';
 const MAX_RECENT_CLIPS = 4;
+const START_OCR_CLIPPING_COMMAND = 'start-ocr-clipping';
 /**
  * Background controller for the "smart-clipper" namespace.
  * Add @Action methods here to handle messages from content scripts and the popup.
  */
 @Controller({ namespace: backgroundClipprtNamespace })
 export class SmartClipperController {
-	constructor(private hexaClient: HexaBackgroundClient, private tabsPort: TabsPort, private downloadsPort: DownloadsPort, private notificationsPort: NotificationsPort, private storagePort: StoragePort, private clipperSession: ClipperSessionService, private clipperCapture: ClipperCaptureService, private clipperOcr: ClipperOcrService) {
+	constructor(
+		private hexaClient: HexaBackgroundClient,
+		private tabsPort: TabsPort,
+		private downloadsPort: DownloadsPort,
+		private notificationsPort: NotificationsPort,
+		private storagePort: StoragePort,
+		private clipperSession: ClipperSessionService,
+		private clipperCapture: ClipperCaptureService,
+		private clipperOcr: ClipperOcrService,
+		private commandsPort: CommandsPort,
+	) {
 		console.log('SmartClipperController initialized');
+		try {
+			this.commandsPort.onCommandRemoveListener(this.onCommand);
+			this.commandsPort.onCommandAddListener(this.onCommand);
+		} catch (error) {
+			console.warn('[smart-clipper] Command shortcuts are not available in this browser context.', error);
+		}
 	}
 
 	@Action(BackgroundActionsApi.StartClipping)
 	async onStartClipping(payload: PopupStartClippingMessage): Promise<StartClippingAckMessage> {
+		return this.startClippingOnActiveTab(payload);
+	}
+
+	private readonly onCommand = (command: string): void => {
+		if (command !== START_OCR_CLIPPING_COMMAND) {
+			return;
+		}
+
+		void this.startClippingFromShortcut();
+	};
+
+	private async startClippingFromShortcut(): Promise<void> {
+		try {
+			await this.startClippingOnActiveTab(await this.createShortcutPayload());
+		} catch (error) {
+			console.error('[smart-clipper] Failed to start clipping from shortcut.', error);
+		}
+	}
+
+	private async createShortcutPayload(): Promise<PopupStartClippingMessage> {
+		try {
+			const stored = await this.storagePort.get('local', [OCR_LANGUAGE_SELECTION_STORAGE_KEY]);
+			return new PopupStartClippingMessage(Date.now(), 'shortcut', serializeOcrLanguageSelection(stored[OCR_LANGUAGE_SELECTION_STORAGE_KEY] ?? DEFAULT_OCR_LANGUAGE));
+		} catch (error) {
+			console.warn('[smart-clipper] Failed to read OCR language selection for shortcut.', error);
+			return new PopupStartClippingMessage(Date.now(), 'shortcut', serializeOcrLanguageSelection(DEFAULT_OCR_LANGUAGE));
+		}
+	}
+
+	private async startClippingOnActiveTab(payload: PopupStartClippingMessage): Promise<StartClippingAckMessage> {
 		const tabs = await this.tabsPort.queryTabs({ active: true, currentWindow: true });
 		const activeTab = tabs.find(tab => typeof tab.id === 'number');
 		if (!activeTab?.id) {
@@ -33,11 +80,11 @@ export class SmartClipperController {
 		}
 
 		await this.hexaClient.sendToTab<PopupStartClippingMessage, StartClippingAckMessage>(activeTab.id, contentScriptApi.StartClipping, payload);
-		this.clipperSession.startSession(activeTab.id);
-		return new StartClippingAckMessage('armed');
+		this.clipperSession.startSession(activeTab.id); 
+		return new StartClippingAckMessage('armed'); 
 	}
 
-	@Action(BackgroundActionsApi.ClippingComplete)
+	@Action(BackgroundActionsApi.ClippingComplete)   
 	async onClippingComplete(payload: ClippingCompleteMessage, sender: webExt.runtime.MessageSender): Promise<StartClippingAckMessage> {
 		const tabId = sender.tab?.id;
 		try {

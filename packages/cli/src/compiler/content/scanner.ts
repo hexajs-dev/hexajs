@@ -1,7 +1,7 @@
 import ts from "typescript";
 import { DIScanner } from "../di/scanner";
 import { ContentEntryMetadata, ContentOptions } from "./types";
-import { extractProp, getDecoratorName, hasLifecycleMethod } from "../shared/props.methods";
+import { extractProp, findDecorator, hasLifecycleMethod } from "../shared/props.methods";
 
 
 export class ContentScanner {
@@ -20,15 +20,14 @@ export class ContentScanner {
 
     private processClass(node: ts.ClassDeclaration): ContentEntryMetadata | null {
         // 1. Check if class has @Content decorator
-        const decorators = ts.getDecorators(node);
-        const content = decorators?.find(d => getDecoratorName(d) === 'Content');
+        const content = findDecorator(node, this.checker, 'Content', ['@hexajs/core']);
 
         if (!content) return null;
 
         // 3. Extract dependencies from constructor (using shared method)
         const { dependencies, tokenDependencies, viewDependencies } = this.diScanner.extractConstructorDeps(node);
         const viewPropertyDependencies = this.diScanner.extractViewPropertyDeps(node);
-        const options = this.extractOptions(content!);
+        const options = this.extractOptions(content);
         if (!options) {
             throw new Error(`@Content decorator is missing or has invalid options.`);
         }

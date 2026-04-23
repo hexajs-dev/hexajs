@@ -13,6 +13,7 @@ export interface BuildActionOptions {
     target?: BuildTarget;
     watch?: boolean;
     hmrAddress?: string;
+    hmrSessionToken?: string;
 }
 
 export interface GeneratedArtifactRow {
@@ -30,6 +31,7 @@ export interface BuildFoundationOutput {
     storeOutputs: StoreScriptOutput[];
     watch?: boolean;
     hmrAddress?: string;
+    hmrSessionToken?: string;
     rebuild?: {ui: boolean};
 }
 
@@ -68,8 +70,8 @@ export type BuildContext = 'background' | 'content' | 'ui';
 export type BuildContextMapRecord = Record<string, Partial<Record<BuildContext, true>>>;
 
 export interface WatchRunnerCallbacks {
-    onInitialBuild: (hmrAddress: string) => Promise<ContentScriptOutput[]>;
-    onUiRebuild: (hmrAddress: string) => Promise<void>;
-    onBackgroundRebuild?: (hmrAddress: string) => Promise<void>;
-    onContentRebuild?: (hmrAddress: string) => Promise<ContentScriptOutput[]>;
+    onInitialBuild: (hmrAddress: string, hmrSessionToken: string) => Promise<ContentScriptOutput[]>;
+    onUiRebuild: (hmrAddress: string, hmrSessionToken: string) => Promise<void>;
+    onBackgroundRebuild?: (hmrAddress: string, hmrSessionToken: string) => Promise<void>;
+    onContentRebuild?: (hmrAddress: string, hmrSessionToken: string) => Promise<ContentScriptOutput[]>;
 }

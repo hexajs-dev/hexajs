@@ -8,6 +8,9 @@ import { StateMetadata } from "./store/types";
 import { DtoValidationMetadata } from './dto/types';
 import { ViewMetadata } from './content/view/types';
 import { PackageMetadata } from '../shared/models';
+import { HEXA_BUILD_MODE, HEXA_DEBUG, HEXA_PLATFORM } from '@hexajs/common';
+
+const RESERVED_FRAMEWORK_TOKEN_KEYS = new Set([HEXA_PLATFORM, HEXA_BUILD_MODE, HEXA_DEBUG]);
 
 export class MetadataRegistry {
   private services = new Map<string, ServiceMetadata>();
@@ -30,10 +33,22 @@ export class MetadataRegistry {
 
   // --- Adders ---
   public addService(meta: ServiceMetadata) {
+    if (this.services.has(meta.className)) {
+      throw new Error(
+        `HexaJS Build Error: Duplicate @Injectable class "${meta.className}" found. ` +
+        `Each injectable class must have a unique name across the entire application.`
+      );
+    }
     this.services.set(meta.className, meta);
   }
 
   public addBackgroundEntry(meta: BackgroundEntryMetadata) {
+    if (this.backgroundEntries.has(meta.className)) {
+      throw new Error(
+        `HexaJS Build Error: Duplicate @Background class "${meta.className}" found. ` +
+        `Background entry class names must be unique across the entire application.`
+      );
+    }
     this.backgroundEntries.set(meta.className, meta);
   }
 
@@ -169,10 +184,15 @@ export class MetadataRegistry {
 
   // Tokens
   public addToken(meta: TokenMetadata) {
+    if (RESERVED_FRAMEWORK_TOKEN_KEYS.has(meta.key)) {
+      throw new Error(
+        `HexaJS Build Error: Token key "${meta.key}" is reserved by the framework and cannot be redefined by user code.`
+      );
+    }
     if (this.tokens.has(meta.key)) {
-      console.warn(
-        `[HexaJS] Warning: Duplicate token key "${meta.key}" found. ` +
-        `Later definition will override earlier one.`
+      throw new Error(
+        `HexaJS Build Error: Duplicate token key "${meta.key}" found. ` +
+        `Token keys must be unique across the entire application.`
       );
     }
     this.tokens.set(meta.key, meta);
@@ -191,6 +211,11 @@ export class MetadataRegistry {
   }
 
   public addDtoValidation(meta: DtoValidationMetadata) {
+    if (this.dtoValidations.has(meta.className)) {
+      throw new Error(
+        `HexaJS Build Error: Duplicate DTO validation metadata for class "${meta.className}" found.`
+      );
+    }
     this.dtoValidations.set(meta.className, meta);
   }
 
@@ -212,6 +237,12 @@ export class MetadataRegistry {
 
   // Views
   public addView(meta: ViewMetadata) {
+    if (this.views.has(meta.className)) {
+      throw new Error(
+        `HexaJS Build Error: Duplicate @View class "${meta.className}" found. ` +
+        `View class names must be unique across the entire application.`
+      );
+    }
     if (this.viewIds.has(meta.id)) {
       throw new Error(
         `HexaJS Build Error: Duplicate @View id "${meta.id}" found in class "${meta.className}". ` +

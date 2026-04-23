@@ -19,7 +19,7 @@
       "mode": "managed",
       "sourceDir": "ui/popup",
       "indexFile": "index.html",
-      "icons": "src/assets/hexa-logo.svg"
+      "icons": "src/assets/smart-clipper.logo.svg"
     },
     "devtools": {
       "mode": "managed",
