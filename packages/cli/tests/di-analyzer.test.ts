@@ -4,12 +4,12 @@ import { WorkerMetadata } from '../src/compiler/background/worker/types';
 import { HexaContext, ServiceMetadata, TokenMetadata } from '../src/compiler/di/types';
 import { PackageMetadata } from '../src/shared/models';
 
-function makeService(className: string, context: HexaContext, dependencies: string[] = []): ServiceMetadata {
-	return { className, context, dependencies, tokenDependencies: [], viewDependencies: [], importPath: `src/${className}.ts`, hasOnInit: false, hasOnDestroy: false };
+function makeService(className: string, context: HexaContext, dependencies: string[] = [], workerPropertyDependencies: ServiceMetadata['workerPropertyDependencies'] = []): ServiceMetadata {
+	return { className, context, dependencies, tokenDependencies: [], viewDependencies: [], viewPropertyDependencies: [], workerPropertyDependencies, importPath: `src/${className}.ts`, hasOnInit: false, hasOnDestroy: false };
 }
 
 function makeWorker(className: string): WorkerMetadata {
-	return { className, name: className.toLowerCase(), environment: 'dom', importPath: `src/${className}.ts`, dependencies: [], tokenDependencies: [], publicMethods: ['run'] };
+	return { className, name: className.toLowerCase(), environment: 'dom', importPath: `src/${className}.ts`, dependencies: [], tokenDependencies: [], workerPropertyDependencies: [], publicMethods: ['run'] };
 }
 
 describe('DIAnalyzer', () => {
@@ -84,6 +84,28 @@ describe('DIAnalyzer', () => {
 
 			const contextErrors = result.errors.filter(e => e.type === 'context-violation');
 			expect(contextErrors).toHaveLength(0);
+		});
+
+		it('allows background services to use @InjectWorker() properties', () => {
+			const services = [
+				makeService('ClipperOcrService', HexaContext.Background, [], [{ propertyName: 'ocrWorker', workerClassName: 'OcrWorker' }]),
+			];
+			const analyzer = new DIAnalyzer(services, {}, [], [makeWorker('OcrWorker')]);
+			const result = analyzer.analyze();
+
+			expect(result.errors.filter(e => e.type === 'context-violation')).toHaveLength(0);
+		});
+
+		it('rejects non-background services that use @InjectWorker() properties', () => {
+			const services = [
+				makeService('GeneralUtil', HexaContext.General, [], [{ propertyName: 'ocrWorker', workerClassName: 'OcrWorker' }]),
+			];
+			const analyzer = new DIAnalyzer(services, {}, [], [makeWorker('OcrWorker')]);
+			const result = analyzer.analyze();
+
+			const contextErrors = result.errors.filter(e => e.type === 'context-violation');
+			expect(contextErrors).toHaveLength(1);
+			expect(contextErrors[0].dependency).toBe('OcrWorker');
 		});
 	});
 

@@ -136,6 +136,17 @@ export class DIAnalyzer {
           });
         }
       }
+
+      for (const workerDep of service.workerPropertyDependencies) {
+        if (!this.isWorkerRegistered(workerDep.workerClassName)) {
+          errors.push({
+            type: 'missing-service',
+            message: `Service "${className}" uses @InjectWorker() on property "${workerDep.propertyName}" but worker "${workerDep.workerClassName}" is not registered with @Worker`,
+            className,
+            dependency: workerDep.workerClassName,
+          });
+        }
+      }
     }
 
     return errors;
@@ -153,11 +164,11 @@ export class DIAnalyzer {
     const errors: AnalysisError[] = [];
 
     for (const [className, service] of this.services) {
-      if (service.context === HexaContext.General) {
-        continue;
-      }
-
       for (const dep of service.dependencies) {
+        if (service.context === HexaContext.General) {
+          continue;
+        }
+
         const depContext = this.getServiceContext(dep);
         if (!depContext) {
           continue;
@@ -177,9 +188,29 @@ export class DIAnalyzer {
           });
         }
       }
+
+      if (service.workerPropertyDependencies.length === 0) {
+        continue;
+      }
+
+      if (service.context !== HexaContext.Background) {
+        service.workerPropertyDependencies.forEach(workerDep => {
+          errors.push({
+            type: 'context-violation',
+            message: `Service "${className}" in "${service.context}" context cannot use @InjectWorker() on property "${workerDep.propertyName}". Worker injection is only available in background services`,
+            className,
+            dependency: workerDep.workerClassName,
+            context: service.context,
+          });
+        });
+      }
     }
 
     return errors;
+  }
+
+  public isWorkerRegistered(className: string): boolean {
+    return this.workers.has(className);
   }
 
   /**

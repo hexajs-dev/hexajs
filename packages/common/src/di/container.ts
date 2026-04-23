@@ -102,9 +102,9 @@ export function inject<T>(token: ClassToken<T> | string): T {
 /**
  * Resolves a worker proxy from the DI container of the current context.
  *
- * Use this for property-style worker access, for example:
+ * Use this for on-demand worker access, for example:
  * `readonly ocrWorker = injectWorker(OcrWorker)`.
- * Constructor parameters should prefer `@InjectWorker()` for build-time validation.
+ * Prefer `@InjectWorker()` on class properties when you want build-time validation.
  */
 export function injectWorker<C extends ClassToken>(token: C): InstanceType<C> {
   return inject(token);

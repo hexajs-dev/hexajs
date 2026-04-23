@@ -5,11 +5,11 @@ import { HexaContext, ServiceMetadata } from '../src/compiler/di/types';
 import { WorkerMetadata } from '../src/compiler/background/worker/types';
 
 function makeService(className: string, context: HexaContext, dependencies: string[] = []): ServiceMetadata {
-  return { className, context, dependencies, tokenDependencies: [], viewDependencies: [], importPath: `src/${className}.ts`, hasOnInit: false, hasOnDestroy: false };
+  return { className, context, dependencies, tokenDependencies: [], viewDependencies: [], viewPropertyDependencies: [], workerPropertyDependencies: [], importPath: `src/${className}.ts`, hasOnInit: false, hasOnDestroy: false };
 }
 
-function makeWorker(name: string, className: string, dependencies: string[] = [], publicMethods: string[] = ['run']): WorkerMetadata {
-  return { className, name, environment: 'compute', importPath: `src/${className}.ts`, dependencies, tokenDependencies: [], publicMethods };
+function makeWorker(name: string, className: string, dependencies: string[] = [], publicMethods: string[] = ['run'], workerPropertyDependencies: WorkerMetadata['workerPropertyDependencies'] = []): WorkerMetadata {
+  return { className, name, environment: 'compute', importPath: `src/${className}.ts`, dependencies, tokenDependencies: [], workerPropertyDependencies, publicMethods };
 }
 
 describe('WorkerAnalyzer', () => {
@@ -88,5 +88,30 @@ describe('WorkerAnalyzer', () => {
 
     expect(result.isValid).toBe(true);
     expect(result.errors).toHaveLength(0);
+  });
+
+  it('passes when worker uses @InjectWorker() property for another worker', () => {
+    const workers = [
+      makeWorker('ocr', 'OcrWorker'),
+      makeWorker('pipeline', 'PipelineWorker', [], ['run'], [{ propertyName: 'ocrWorker', workerClassName: 'OcrWorker' }]),
+    ];
+
+    const diAnalyzer = new DIAnalyzer([], {}, [], workers);
+    const analyzer = new WorkerAnalyzer(workers, diAnalyzer);
+    const result = analyzer.analyze();
+
+    expect(result.isValid).toBe(true);
+  });
+
+  it('fails when @InjectWorker() property references an unregistered worker', () => {
+    const workers = [makeWorker('pipeline', 'PipelineWorker', [], ['run'], [{ propertyName: 'ocrWorker', workerClassName: 'OcrWorker' }])];
+
+    const diAnalyzer = new DIAnalyzer([], {});
+    const analyzer = new WorkerAnalyzer(workers, diAnalyzer);
+    const result = analyzer.analyze();
+
+    expect(result.isValid).toBe(false);
+    expect(result.errors[0].type).toBe('missing-service');
+    expect(result.errors[0].dependency).toBe('OcrWorker');
   });
 });

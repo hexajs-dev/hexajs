@@ -21,6 +21,7 @@ export class WorkerScanner {
     if (!options || !options.name) return null;
 
     const { dependencies, tokenDependencies } = this.diScanner.extractConstructorDeps(node);
+    const workerPropertyDependencies = this.diScanner.extractWorkerPropertyDeps(node);
     const publicMethods = this.collectPublicMethods(node);
 
     return {
@@ -30,6 +31,7 @@ export class WorkerScanner {
       importPath: node.getSourceFile().fileName,
       dependencies,
       tokenDependencies,
+      workerPropertyDependencies,
       publicMethods,
     };
   }
