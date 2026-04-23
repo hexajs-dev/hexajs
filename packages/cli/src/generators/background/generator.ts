@@ -15,15 +15,17 @@ export class BackgroundGenerator {
   private outputDir: string;
   private watch: boolean;
   private hmrAddress: string;
+  private hmrSessionToken: string;
   private controllerGenerator: BackgroundControllerGenerator;
 
-  constructor(registry: MetadataRegistry, storeOutputs: StoreScriptOutput[] = [], tokens: ConfigToken[] = [], outputDir: string = '', watch: boolean = false, hmrAddress: string = '') {
+  constructor(registry: MetadataRegistry, storeOutputs: StoreScriptOutput[] = [], tokens: ConfigToken[] = [], outputDir: string = '', watch: boolean = false, hmrAddress: string = '', hmrSessionToken: string = '') {
     this.registry = registry;
     this.storeOutputs = storeOutputs;
     this.tokens = tokens;
     this.outputDir = outputDir;
     this.watch = watch;
     this.hmrAddress = hmrAddress;
+    this.hmrSessionToken = hmrSessionToken;
     this.controllerGenerator = new BackgroundControllerGenerator();
   }
 
@@ -520,6 +522,7 @@ console.log('[HexaJS] Background context initialized');
 
   ws.addEventListener('open', () => {
     console.log('[HexaJS HMR] Background client connected');
+    ws.send(JSON.stringify({ type: 'auth', token: '${this.hmrSessionToken}', timestamp: Date.now() }));
     ws.send(JSON.stringify({ type: 'background:online', timestamp: Date.now() }));
   });
 

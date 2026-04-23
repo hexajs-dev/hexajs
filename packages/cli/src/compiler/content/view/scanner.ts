@@ -1,11 +1,14 @@
 import ts from 'typescript';
 import * as path from 'path';
+import * as fs from 'fs';
 import { DIScanner } from '../../di/scanner';
 import { ViewMetadata } from './types';
-import { extractProp, getDecoratorName, hasLifecycleMethod } from '../../shared/props.methods';
+import { extractProp, findDecorator, hasLifecycleMethod } from '../../shared/props.methods';
+
+const ALLOWED_VIEW_IMPORT_QUERY_KEYS = new Set(['raw', 'inline', 'url']);
 
 export class ViewScanner {
-  constructor(private checker: ts.TypeChecker, private diScanner: DIScanner) {}
+  constructor(private checker: ts.TypeChecker, private diScanner: DIScanner, private projectRoot?: string) {}
 
   public scan(node: ts.Node): ViewMetadata | null {
     if (ts.isClassDeclaration(node) && node.name) {
@@ -15,8 +18,7 @@ export class ViewScanner {
   }
 
   private processClass(node: ts.ClassDeclaration): ViewMetadata | null {
-    const decorators = ts.getDecorators(node);
-    const viewDec = decorators?.find(d => getDecoratorName(d) === 'View');
+    const viewDec = findDecorator(node, this.checker, 'View', ['@hexajs/core']);
     if (!viewDec) return null;
 
     const options = this.extractViewOptions(viewDec, node.getSourceFile());
@@ -186,13 +188,76 @@ export class ViewScanner {
   }
 
   private resolveImportPath(sourceFile: ts.SourceFile, moduleSpecifier: string): string {
-    if (!moduleSpecifier.startsWith('.')) {
-      return moduleSpecifier;
+    const [basePath, query] = moduleSpecifier.split('?');
+    const normalizedQuery = this.validateQuerySuffix(moduleSpecifier, query);
+
+    if (path.isAbsolute(basePath)) {
+      throw new Error(
+        `@View: absolute import paths are not allowed for component/style imports. ` +
+        `Found "${moduleSpecifier}". Use project-relative imports instead.`
+      );
     }
 
-    const [basePath, query] = moduleSpecifier.split('?');
+    if (!basePath.startsWith('.')) {
+      return normalizedQuery ? `${basePath}?${normalizedQuery}` : basePath;
+    }
+
     const absoluteBasePath = path.resolve(path.dirname(sourceFile.fileName), basePath);
-    return query ? `${absoluteBasePath}?${query}` : absoluteBasePath;
+    const resolvedPath = this.resolveRealPathBestEffort(absoluteBasePath);
+
+    if (this.projectRoot) {
+      const trustedRoot = this.resolveRealPathBestEffort(path.resolve(this.projectRoot));
+      const relative = path.relative(trustedRoot, resolvedPath);
+      const escapesRoot = relative.startsWith('..') || path.isAbsolute(relative);
+
+      if (escapesRoot) {
+        throw new Error(
+          `@View: import path "${moduleSpecifier}" resolves outside the project root. ` +
+          `Resolved: "${resolvedPath}". Root: "${trustedRoot}". ` +
+          `All view component and style imports must reference files within the project.`
+        );
+      }
+    }
+
+    return normalizedQuery ? `${resolvedPath}?${normalizedQuery}` : resolvedPath;
+  }
+
+  private validateQuerySuffix(moduleSpecifier: string, query?: string): string | undefined {
+    if (!query) return undefined;
+
+    const params = new URLSearchParams(query);
+    if ([...params.keys()].length === 0 && query.trim().length > 0) {
+      throw new Error(`@View: invalid query suffix in import path "${moduleSpecifier}".`);
+    }
+
+    for (const [key] of params.entries()) {
+      if (!ALLOWED_VIEW_IMPORT_QUERY_KEYS.has(key)) {
+        throw new Error(
+          `@View: unsupported import query key "${key}" in "${moduleSpecifier}". ` +
+          `Allowed keys: ${[...ALLOWED_VIEW_IMPORT_QUERY_KEYS].join(', ')}.`
+        );
+      }
+    }
+
+    return query;
+  }
+
+  private resolveRealPathBestEffort(targetPath: string): string {
+    try {
+      if (fs.existsSync(targetPath)) {
+        return fs.realpathSync(targetPath);
+      }
+
+      const targetDir = path.dirname(targetPath);
+      if (fs.existsSync(targetDir)) {
+        const realDir = fs.realpathSync(targetDir);
+        return path.join(realDir, path.basename(targetPath));
+      }
+    } catch {
+      // Fall through to normalized absolute path if realpath cannot be resolved.
+    }
+
+    return path.resolve(targetPath);
   }
 
   private getPropertyExpression(prop: ts.ObjectLiteralElementLike): ts.Expression | null {

@@ -65,4 +65,39 @@ describe('ContentGenerator', () => {
     expect(names.size).toBeGreaterThanOrEqual(2);
     expect(names.has(baseName)).toBe(true);
   });
+
+  it('uses a bundle-specific HMR shell key in watch mode', () => {
+    const registry = createRegistry();
+
+    registry.addContentEntry({
+      className: 'GoogleClipperContent',
+      importPath: 'src/content/google-clipper.content.ts',
+      dependencies: [],
+      tokenDependencies: [],
+      viewDependencies: [],
+      viewPropertyDependencies: [],
+      hasOnInit: false,
+      hasOnDestroy: false,
+      options: {
+        matches: ['https://www.google.com/*'],
+        runAt: ContentRunAt.DocumentIdle,
+        allFrames: false,
+      },
+    });
+
+    const outputs = new ContentGenerator(registry, [], [], '', true).generate();
+
+    expect(outputs).toHaveLength(2);
+
+    const shellKeys = outputs.map(output => output.content.match(/const __HEXA_SHELL_KEY__ = "([^"]+)";/)?.[1]);
+
+    expect(shellKeys[0]).toBe(`__HEXA_SHELL__:${outputs[0].name}`);
+    expect(shellKeys[1]).toBe(`__HEXA_SHELL__:${outputs[1].name}`);
+    expect(shellKeys[0]).not.toBe(shellKeys[1]);
+
+    outputs.forEach(output => {
+      expect(output.content).toContain('window[__HEXA_SHELL_KEY__]');
+      expect(output.content).not.toContain('window.__HEXA_SHELL__');
+    });
+  });
 });

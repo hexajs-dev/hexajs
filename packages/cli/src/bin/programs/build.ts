@@ -107,40 +107,44 @@ program
                     files: parsedConfig.fileNames,
                     compilerOptions: parsedConfig.options,
                     verbose: !!options.verbose,
-                    onInitialBuild: async (hmrAddress: string) => {
+                    onInitialBuild: async (hmrAddress: string, hmrSessionToken: string) => {
                         const buildDone = startStep('Building HexaJS Pipeline');
                         const result = await buildAction(parsedConfig.fileNames, resolved, parsedConfig.options, {
                             verbose: options.verbose,
                             target,
                             watch: true,
                             hmrAddress,
+                            hmrSessionToken,
                         });
                         buildDone('Store, Background, Content & Manifest generated');
                         return result.contentBootstraps;
                     },
-                    onUiRebuild: async (hmrAddress: string) => {
+                    onUiRebuild: async (hmrAddress: string, hmrSessionToken: string) => {
                         await buildAction(parsedConfig.fileNames, resolved, parsedConfig.options, {
                             verbose: false,
                             target: 'ui',
                             watch: true,
                             hmrAddress,
+                            hmrSessionToken,
                         });
                     },
-                    onBackgroundRebuild: async (hmrAddress: string) => {
+                    onBackgroundRebuild: async (hmrAddress: string, hmrSessionToken: string) => {
                         // Background rebuild implementation staged for future phases
                         await buildAction(parsedConfig.fileNames, resolved, parsedConfig.options, {
                             verbose: false,
                             target: 'background',
                             watch: true,
                             hmrAddress,
+                            hmrSessionToken,
                         });
                     },
-                    onContentRebuild: async (hmrAddress: string) => {
+                    onContentRebuild: async (hmrAddress: string, hmrSessionToken: string) => {
                         const result = await buildAction(parsedConfig.fileNames, resolved, parsedConfig.options, {
                             verbose: false,
                             target: 'content',
                             watch: true,
                             hmrAddress,
+                            hmrSessionToken,
                         });
                         return result.contentBootstraps;
                     },

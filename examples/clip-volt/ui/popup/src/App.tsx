@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { inject } from '@hexajs/common';
 import { HexaUIClient } from '@hexajs/ui';
-import { Moon, Shield, SunMedium } from 'lucide-react';
+import { Moon, SunMedium } from 'lucide-react';
 import { configApi } from '../../../src/contract/api';
 import { ClipVaultConfig, DEFAULT_CONFIG } from '../../../src/contract/config';
 import { ConfigResponseMessage, GetConfigMessage, UpdateConfigMessage } from '../../../src/contract/messages';
 import { normalizeDomainInput } from '../../shared/utils/domain';
 import { hasHexaError } from '../../shared/utils/message';
 import { isMacPlatform } from '../../shared/utils/platform';
+import clipVoltLogoUrl from '../../../src/assets/clip-volt.svg';
 import { PrivacySection } from './components/PrivacySection/PrivacySection';
 import { ShortcutSection } from './components/ShortcutSection/ShortcutSection';
 import { StorageSection } from './components/StorageSection/StorageSection';
@@ -100,7 +101,7 @@ export function App() {
       <header className="cv-header">
         <div className="cv-header-brand">
           <div className="cv-header-brand-icon">
-            <Shield size={16} strokeWidth={2.25} />
+            <img src={clipVoltLogoUrl} alt="" aria-hidden="true" />
           </div>
           <div>
             <h1 className="cv-header-title">ClipVault</h1>

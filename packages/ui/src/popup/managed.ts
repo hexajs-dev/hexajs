@@ -21,6 +21,7 @@ export async function buildManagedPopup(
   platform: string,
   watch: boolean = false,
   hmrAddress?: string,
+  hmrSessionToken?: string,
   cwd: string = process.cwd()
 ): Promise<string> {
   const sourceDir = path.resolve(cwd, config?.sourceDir ?? path.join('ui', 'popup'));
@@ -40,7 +41,7 @@ export async function buildManagedPopup(
   const targetBase = path.join(outputDir, 'ui', 'popup');
   const normalizedIndex = indexFile.replace(/\\/g, '/');
   const react = loadReactPlugin(cwd);
-  const bootstrap = hexaBootstrapPlugin(bootstrapPath, { watch, hmrAddress, surface: 'popup' });
+  const bootstrap = hexaBootstrapPlugin(bootstrapPath, { watch, hmrAddress, hmrSessionToken, surface: 'popup' });
 
   const defaultViteConfig = getDefaultViteConfig(
     sourceDir,

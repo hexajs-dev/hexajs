@@ -31,7 +31,7 @@ export class Scanner {
         this.handlerScanner = new HandlerScanner(program.getTypeChecker(), this.diScanner);
         this.storeScanner = new StoreScanner(program.getTypeChecker(), this.diScanner);
         this.dtoScanner = new DtoScanner(program.getTypeChecker());
-        this.viewScanner = new ViewScanner(program.getTypeChecker(), this.diScanner);
+        this.viewScanner = new ViewScanner(program.getTypeChecker(), this.diScanner, process.cwd());
     }
 
     /**

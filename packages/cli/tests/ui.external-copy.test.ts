@@ -79,4 +79,72 @@ describe('external popup ui copy', () => {
     expect(fs.readFileSync(copiedPopupIndex, 'utf-8')).toContain('<div id="root"></div>');
     expect(fs.readFileSync(copiedPopupScript, 'utf-8')).toContain('console.log("popup");');
   });
+
+  it('rejects config files that contain prototype-polluting keys', async () => {
+    const projectDir = path.join(tempRoot, 'polluted-config-app');
+    fs.mkdirSync(projectDir, { recursive: true });
+
+    fs.writeFileSync(
+      path.join(projectDir, 'hexa-cli.config.json'),
+      [
+        '{',
+        '  "project": {',
+        '    "name": "Polluted App",',
+        '    "version": "1.0.0",',
+        '    "sourceRoot": "src"',
+        '  },',
+        '  "__proto__": {',
+        '    "polluted": true',
+        '  }',
+        '}',
+      ].join('\n'),
+      'utf-8'
+    );
+
+    await expect(loadHexaConfigFrom(projectDir)).rejects.toThrow(/forbidden key/i);
+    expect(Object.prototype).not.toHaveProperty('polluted');
+  });
+
+  it('rejects external ui distDir paths that resolve outside the project root', async () => {
+    const projectDir = path.join(tempRoot, 'external-ui-escape-app');
+    const sharedUiDir = path.join(tempRoot, 'shared-ui-build');
+    fs.mkdirSync(projectDir, { recursive: true });
+    fs.mkdirSync(sharedUiDir, { recursive: true });
+    fs.writeFileSync(path.join(sharedUiDir, 'index.html'), '<html>outside</html>', 'utf-8');
+
+    fs.writeFileSync(
+      path.join(projectDir, 'hexa-cli.config.json'),
+      JSON.stringify({
+        project: {
+          name: 'External Escape App',
+          version: '1.0.0',
+          sourceRoot: 'src',
+        },
+        ui: {
+          popup: {
+            mode: 'external',
+            distDir: '../shared-ui-build',
+            indexFile: 'index.html',
+          },
+          devtools: {
+            mode: 'none',
+          },
+        },
+      }, null, 2),
+      'utf-8'
+    );
+
+    const config = await loadHexaConfigFrom(projectDir);
+    const resolved = resolveConfig(config, 'chrome', 'development');
+    const outputDir = path.join(projectDir, resolved.outDir);
+    fs.mkdirSync(outputDir, { recursive: true });
+
+    vi.spyOn(process, 'cwd').mockReturnValue(projectDir);
+
+    await expect(buildUiEntries(
+      resolved,
+      outputDir,
+      path.join(outputDir, 'ui', 'ui.bootstrap.js')
+    )).rejects.toThrow(/within the project root/i);
+  });
 });

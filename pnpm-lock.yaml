@@ -90,7 +90,7 @@ importers:
     devDependencies:
       '@hexajs/cli':
         specifier: file:../../packages/cli
-        version: link:../../packages/cli
+        version: file:packages/cli(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0)(typescript@5.5.4)
       '@types/react':
         specifier: ^18.3.1
         version: 18.3.28
@@ -136,7 +136,7 @@ importers:
     devDependencies:
       '@hexajs/cli':
         specifier: file:../../packages/cli
-        version: link:../../packages/cli
+        version: file:packages/cli(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0)(typescript@5.5.4)
       '@types/react':
         specifier: ^18.3.1
         version: 18.3.28
@@ -179,7 +179,7 @@ importers:
     devDependencies:
       '@hexajs/cli':
         specifier: file:../../packages/cli
-        version: link:../../packages/cli
+        version: file:packages/cli(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0)(typescript@5.5.4)
       '@types/react':
         specifier: ^18.3.1
         version: 18.3.28
@@ -201,6 +201,9 @@ importers:
 
   packages/cli:
     dependencies:
+      '@hexajs/common':
+        specifier: workspace:*
+        version: link:../common
       boxen:
         specifier: ^8.0.1
         version: 8.0.1
@@ -1894,6 +1897,12 @@ packages:
 
   '@hapi/topo@5.1.0':
     resolution: {integrity: sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==}
+
+  '@hexajs/cli@file:packages/cli':
+    resolution: {directory: packages/cli, type: directory}
+    hasBin: true
+    peerDependencies:
+      typescript: ^5.0.0
 
   '@hexajs/common@file:packages/common':
     resolution: {directory: packages/common, type: directory}
@@ -9384,6 +9393,35 @@ snapshots:
   '@hapi/topo@5.1.0':
     dependencies:
       '@hapi/hoek': 9.3.0
+
+  '@hexajs/cli@file:packages/cli(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0)(typescript@5.5.4)':
+    dependencies:
+      '@hexajs/common': link:packages/common
+      boxen: 8.0.1
+      chalk: 5.6.2
+      commander: 14.0.3
+      enquirer: 2.4.1
+      fast-glob: 3.3.3
+      fs-extra: 11.3.4
+      ora: 9.3.0
+      sharp: 0.34.5
+      typescript: 5.5.4
+      vite: 7.3.2(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0)
+      ws: 8.20.0
+    transitivePeerDependencies:
+      - '@types/node'
+      - bufferutil
+      - jiti
+      - less
+      - lightningcss
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - terser
+      - tsx
+      - utf-8-validate
+      - yaml
 
   '@hexajs/common@file:packages/common(typescript@5.5.4)':
     dependencies:

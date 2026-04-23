@@ -1,3 +1,5 @@
+import { brandToken, getInjectMetadata, getWorkerInjectMetadata, isBrandedToken, setInjectMetadata, setInjectableMetadata, setWorkerInjectMetadata } from './metadata';
+
 export enum InjectableContext {
   Empty = 'empty',
   Content = 'content',
@@ -13,7 +15,7 @@ export interface InjectableOptions {
 // for local testing, but it is NOT used for reflection.
 export function Injectable(options: InjectableOptions = {}): ClassDecorator {
   return (target: any) => {
-    target.__hexa_metadata__ = options;
+    setInjectableMetadata(target, options);
     return target;
   };
 }
@@ -25,21 +27,25 @@ export interface HexaTokenRef<T> {
 }
 
 export const createToken = <T>(key: string, value: T, context?: InjectableContext): HexaTokenRef<T> => 
-    ({ __hexa_token__: true, key, value, context } as HexaTokenRef<T>);
+    brandToken({ key, value, context } as HexaTokenRef<T>);
 
 export function Inject(token: string | HexaTokenRef<any>): ParameterDecorator {
   return (target: any, propertyKey: string | symbol | undefined, parameterIndex: number) => {
+    if (typeof token !== 'string' && !isBrandedToken(token)) {
+      throw new Error('[HexaJS] Inject() token objects must be created via createToken().');
+    }
+
     // Always store the string key, regardless of whether a string or HexaTokenRef was passed
-    const existingInjects = target.__hexa_injects__ || [];
+    const existingInjects = [...getInjectMetadata(target)];
     existingInjects[parameterIndex] = typeof token === 'string' ? token : token.key;
-    target.__hexa_injects__ = existingInjects;
+    setInjectMetadata(target, existingInjects);
   };
 }
 
 export function InjectWorker(): ParameterDecorator {
   return (target: any, propertyKey: string | symbol | undefined, parameterIndex: number) => {
-    const existingInjects = target.__hexa_worker_injects__ || [];
+    const existingInjects = [...getWorkerInjectMetadata(target)];
     existingInjects[parameterIndex] = true;
-    target.__hexa_worker_injects__ = existingInjects;
+    setWorkerInjectMetadata(target, existingInjects);
   };
 }

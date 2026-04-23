@@ -127,9 +127,15 @@ function isPlainObject(value: unknown): value is Record<string, any> {
     return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+const FORBIDDEN_CONFIG_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
 function deepMerge<T extends Record<string, any>>(target: T, source: Partial<T>): T {
     const result = { ...target };
     for (const key of Object.keys(source) as (keyof T)[]) {
+        if (FORBIDDEN_CONFIG_KEYS.has(String(key))) {
+            throw new Error(`Hexa config contains forbidden key "${String(key)}".`);
+        }
+
         const sourceVal = source[key] as any;
         const targetVal = result[key] as any;
 

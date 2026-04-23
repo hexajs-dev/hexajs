@@ -1,7 +1,9 @@
 import * as ts from 'typescript';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as crypto from 'crypto';
 import type { Plugin } from 'vite';
+import { HEXA_METADATA_HMAC_KEY } from '../src/constants.ts';
 
 interface HexaServiceMetadata {
   injectable: true;
@@ -125,10 +127,17 @@ export function hexaMetadataPlugin(): Plugin {
       console.log('[hexa-metadata] Scanning source files...');
       const metadata = scanMetadata(srcDir);
 
-      fs.mkdirSync(path.dirname(outFile), { recursive: true });
-      fs.writeFileSync(outFile, JSON.stringify(metadata, null, 2));
+      const metadataJson = JSON.stringify(metadata);
+      const hmac = crypto.createHmac('sha256', HEXA_METADATA_HMAC_KEY);
+      hmac.update(metadataJson, 'utf8');
+      const signature = hmac.digest('hex');
 
-      console.log(`[hexa-metadata] ✓ Generated metadata for ${Object.keys(metadata).length} services`);
+      const signedOutput = JSON.stringify({ v: 1, signature, metadata }, null, 2);
+
+      fs.mkdirSync(path.dirname(outFile), { recursive: true });
+      fs.writeFileSync(outFile, signedOutput);
+
+      console.log(`[hexa-metadata] ✓ Generated and signed metadata for ${Object.keys(metadata).length} services`);
       console.log(`[hexa-metadata] → ${outFile}`);
     }
   };

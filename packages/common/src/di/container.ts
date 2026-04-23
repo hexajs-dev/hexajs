@@ -1,9 +1,12 @@
+import { getInjectMetadata } from './metadata';
+
 export type Factory<T> = (container: Container) => T;
 type ClassToken<T = unknown> = abstract new (...args: any[]) => T;
 
 export class Container {
   private providers = new Map<any, Factory<any>>();
   private instances = new Map<any, any>();
+  private resolving = new Set<any>();
 
   register<T>(token: any, factory: Factory<T>): this {
     this.providers.set(token, factory);
@@ -21,18 +24,28 @@ export class Container {
       throw new Error(`DI Error: No provider for ${label}.`);
     }
 
-    const instance = factory(this);
-    this.instances.set(token, instance);
-    return instance;
+    if (this.resolving.has(token)) {
+      const label = typeof token === 'string' ? token : (token?.name ?? String(token));
+      throw new Error(`DI Error: Circular dependency detected while resolving ${label}.`);
+    }
+
+    this.resolving.add(token);
+    try {
+      const instance = factory(this);
+      this.instances.set(token, instance);
+      return instance;
+    } finally {
+      this.resolving.delete(token);
+    }
   }
 
   /**
    * If `token` is a class constructor decorated with @Injectable, build a
-   * factory automatically by reading its `__hexa_injects__` metadata.
+   * factory automatically by reading its internal injection metadata.
    */
   private _autoFactory<T>(token: any): Factory<T> | undefined {
     if (typeof token !== 'function') return undefined;
-    const injects: (string | undefined)[] = token.__hexa_injects__ ?? [];
+    const injects = getInjectMetadata(token);
     return (c: Container) => {
       const args = injects.map((dep) => dep !== undefined ? c.resolve(dep) : undefined);
       return new (token as any)(...args);

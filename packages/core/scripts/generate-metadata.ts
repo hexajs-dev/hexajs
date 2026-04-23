@@ -1,6 +1,8 @@
 import * as ts from 'typescript';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as crypto from 'crypto';
+import { HEXA_METADATA_HMAC_KEY } from '@hexajs/common';
 
 interface HexaServiceMetadata {
   injectable: true;
@@ -78,7 +80,15 @@ function scan(): HexaMetadata {
 }
 
 const metadata = scan();
+
+const metadataJson = JSON.stringify(metadata);
+const hmac = crypto.createHmac('sha256', HEXA_METADATA_HMAC_KEY);
+hmac.update(metadataJson, 'utf8');
+const signature = hmac.digest('hex');
+
+const signedOutput = JSON.stringify({ v: 1, signature, metadata }, null, 2);
+
 fs.mkdirSync(path.dirname(outFile), { recursive: true });
-fs.writeFileSync(outFile, JSON.stringify(metadata, null, 2));
-console.log(`[hexa] metadata written → ${outFile}`);
+fs.writeFileSync(outFile, signedOutput);
+console.log(`[hexa] signed metadata written → ${outFile}`);
 console.log(metadata);

@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "build": "pnpm run build:chrome",
     "dev:chrome": "hexa build --platform chrome --watch ",
     "build:chrome": "hexa build --platform chrome",
     "production:chrome": "hexa build --platform chrome --mode production",

@@ -1,4 +1,5 @@
 import { Copy, Globe, Hash, Moon, SunMedium } from 'lucide-react';
+import clipVoltLogoUrl from '../../../../../src/assets/clip-volt.svg';
 import { ThemeMode } from '../../types/ui';
 
 type TopBarProps = { clipsCount: number; uniqueCount: number; domainCount: number; theme: ThemeMode; onToggleTheme: () => void };
@@ -7,7 +8,9 @@ export function TopBar({ clipsCount, uniqueCount, domainCount, theme, onToggleTh
   return (
     <header className="dt-topbar">
       <div className="dt-brand">
-        <div className="dt-brand-logo" />
+        <div className="dt-brand-logo">
+          <img src={clipVoltLogoUrl} alt="" aria-hidden="true" />
+        </div>
         <h1>ClipVault Management</h1>
       </div>
       <div className="dt-chip-row">

@@ -5,6 +5,7 @@ import { ResolvedBuildConfig } from '../../bin/config/resolve';
 import { ContentScriptOutput } from '../content/generator';
 import { ManifestV3 } from './types';
 import { getTemplateForPlatform } from './templates';
+import { normalizeLoopbackWebSocketOrigin } from '../../shared/network-security';
 
 export interface ManifestUiEntries {
     popup?: string;
@@ -132,6 +133,8 @@ export class ManifestGenerator {
             manifest.permissions.push('scripting');
         }
 
+        this.patchWatchModeHostPermissions(manifest);
+
         if (this.resolved.platform === 'firefox') {
             this.patchFirefoxScriptSrc(manifest);
         }
@@ -144,15 +147,17 @@ export class ManifestGenerator {
             return;
         }
 
+        const hmrOrigin = normalizeLoopbackWebSocketOrigin(this.options.hmrAddress, 'Safari HMR address');
+
         const existing = manifest.content_security_policy?.extension_pages ?? "script-src 'self'; object-src 'self';";
         const connectValue = this.extractConnectSrcValue(existing);
-        if (connectValue.includes(this.options.hmrAddress)) {
+        if (connectValue.includes(hmrOrigin)) {
             return;
         }
 
         const appendedConnect = connectValue.length > 0
-            ? `${connectValue} ${this.options.hmrAddress}`
-            : `${this.options.hmrAddress}`;
+            ? `${connectValue} ${hmrOrigin}`
+            : `${hmrOrigin}`;
         const nextPolicy = this.upsertConnectSrc(existing, appendedConnect);
 
         manifest.content_security_policy = {
@@ -181,6 +186,22 @@ export class ManifestGenerator {
             ...(manifest.content_security_policy || {}),
             extension_pages: nextPolicy,
         };
+    }
+
+    private patchWatchModeHostPermissions(manifest: ManifestV3): void {
+        const nextHostPermissions = new Set(manifest.host_permissions || []);
+
+        for (const contentBootstrap of this.contentBootstraps) {
+            for (const match of contentBootstrap.matches) {
+                nextHostPermissions.add(match);
+            }
+        }
+
+        if (nextHostPermissions.size === 0) {
+            return;
+        }
+
+        manifest.host_permissions = [...nextHostPermissions];
     }
 
     private extractConnectSrcValue(policy: string): string {

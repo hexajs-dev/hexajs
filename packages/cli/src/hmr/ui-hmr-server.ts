@@ -1,7 +1,9 @@
+import { randomBytes } from 'crypto';
 import type { AddressInfo } from 'net';
 import { WebSocketServer, WebSocket } from 'ws';
-import { HMRServerEvent, ManagedUISurface, ContentPatchInfo, BackgroundReloadEvent } from './events';
+import { HMRClientEvent, HMRServerEvent, ManagedUISurface, ContentPatchInfo, BackgroundReloadEvent } from './events';
 import { printInfoLine } from '../shared/logging';
+import { assertLocalPort, assertLoopbackHost, formatHostForUrl, isLoopbackSocketAddress } from '../shared/network-security';
 
 export interface UIHMRServerOptions {
     host?: string;
@@ -12,25 +14,30 @@ export interface UIHMRServerAddress {
     host: string;
     port: number;
     url: string;
+    sessionToken: string;
 }
 
 export const DEFAULT_HMR_HOST = '127.0.0.1';
 export const DEFAULT_HMR_PORT = 55333;
+const HMR_AUTH_TIMEOUT_MS = 1000;
 
 export function resolveHMRServerAddress(options: UIHMRServerOptions = {}): UIHMRServerAddress {
-    const host = options.host ?? DEFAULT_HMR_HOST;
-    const port = options.port ?? DEFAULT_HMR_PORT;
+    const host = assertLoopbackHost(options.host ?? DEFAULT_HMR_HOST, 'HMR server host');
+    const port = assertLocalPort(options.port ?? DEFAULT_HMR_PORT, 'HMR server port');
 
     return {
         host,
         port,
-        url: `ws://${host}:${port}`,
+        url: `ws://${formatHostForUrl(host)}:${port}`,
+        sessionToken: '',
     };
 }
 
 export class UIHMRServer {
     private server?: WebSocketServer;
     private pendingContentPatches: ContentPatchInfo[] | null = null;
+    private readonly sessionToken = randomBytes(24).toString('hex');
+    private readonly authenticatedClients = new WeakSet<WebSocket>();
 
     constructor(private options: UIHMRServerOptions = {}) {}
 
@@ -59,7 +66,8 @@ export class UIHMRServer {
             return {
                 host: address.host,
                 port: existingPort,
-                url: `ws://${address.host}:${existingPort}`,
+                url: `ws://${formatHostForUrl(address.host)}:${existingPort}`,
+                sessionToken: this.sessionToken,
             };
         }
 
@@ -75,10 +83,41 @@ export class UIHMRServer {
 
         this.server = server;
 
-        this.server.on('connection', (ws: WebSocket) => {
+        this.server.on('connection', (ws: WebSocket, request) => {
+            if (!isLoopbackSocketAddress(request.socket.remoteAddress)) {
+                ws.terminate();
+                return;
+            }
+
+            const authTimeout = setTimeout(() => {
+                if (!this.authenticatedClients.has(ws)) {
+                    ws.close(1008, 'HMR auth required');
+                }
+            }, HMR_AUTH_TIMEOUT_MS);
+
+            ws.once('close', () => {
+                clearTimeout(authTimeout);
+            });
+
             ws.on('message', (data: Buffer | string) => {
                 try {
-                    const msg = JSON.parse(typeof data === 'string' ? data : data.toString('utf-8'));
+                    const msg = JSON.parse(typeof data === 'string' ? data : data.toString('utf-8')) as HMRClientEvent;
+
+                    if (msg?.type === 'auth') {
+                        if (msg.token !== this.sessionToken) {
+                            ws.close(1008, 'Invalid HMR token');
+                            return;
+                        }
+
+                        this.authenticatedClients.add(ws);
+                        clearTimeout(authTimeout);
+                        return;
+                    }
+
+                    if (!this.authenticatedClients.has(ws)) {
+                        return;
+                    }
+
                     if (msg?.type === 'background:online' && this.pendingContentPatches) {
                         const patches = this.pendingContentPatches;
                         this.pendingContentPatches = null;
@@ -97,7 +136,8 @@ export class UIHMRServer {
         return {
             host: address.host,
             port: actualPort,
-            url: `ws://${address.host}:${actualPort}`,
+            url: `ws://${formatHostForUrl(address.host)}:${actualPort}`,
+            sessionToken: this.sessionToken,
         };
     }
 
@@ -179,7 +219,7 @@ export class UIHMRServer {
 
         const payload = JSON.stringify(event);
         this.server.clients.forEach((client: WebSocket) => {
-            if (client.readyState === client.OPEN) {
+            if (client.readyState === client.OPEN && this.authenticatedClients.has(client)) {
                 client.send(payload);
             }
         });

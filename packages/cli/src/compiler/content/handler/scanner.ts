@@ -1,6 +1,6 @@
 import ts from "typescript";
 import { HandlerMetadata, MethodMetadata } from "./types";
-import { evalNode, hasLifecycleMethod } from "../../shared/props.methods";
+import { evalNode, getDecoratorArgument, findDecorator, hasLifecycleMethod } from "../../shared/props.methods";
 
 
 export class HandlerScanner {
@@ -29,7 +29,7 @@ export class HandlerScanner {
                 const methodName = member.name.getText();
 
                 // Check for @handle
-                const handleName = this.getDecoratorArgument(member, 'Handle');
+                const handleName = getDecoratorArgument(member, 'Handle', this.checker, ['@hexajs/core']);
                 if (handleName) {
                     const payloadDtoType = this.getFirstPayloadDtoType(member);
                     const responseDtoType = this.getResponseDtoType(member);
@@ -42,7 +42,7 @@ export class HandlerScanner {
                 }
 
                 // Check for @On
-                const eventName = this.getDecoratorArgument(member, 'Subscribe');
+                const eventName = getDecoratorArgument(member, 'Subscribe', this.checker, ['@hexajs/core']);
                 if (eventName) {
                     methods.push({
                         methodName,
@@ -75,12 +75,7 @@ export class HandlerScanner {
      * Extracts Handler decorator options (namespace and contents)
      */
     private getHandlerOptions(node: ts.ClassDeclaration): { namespace: string; contents: string[] } | null {
-        const decorators = ts.canHaveDecorators(node) ? ts.getDecorators(node) : undefined;
-        if (!decorators) return null;
-
-        const decorator = decorators.find(d =>
-            d.expression.getText().startsWith('Handler')
-        );
+        const decorator = findDecorator(node, this.checker, 'Handler', ['@hexajs/core']);
 
         if (decorator && ts.isCallExpression(decorator.expression)) {
             const arg = decorator.expression.arguments[0];
@@ -115,31 +110,6 @@ export class HandlerScanner {
                 });
                 
                 return namespace ? { namespace, contents } : null;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Helper to extract the string argument from a method decorator
-     * Used for @Handle and @Subscribe decorators
-     */
-    private getDecoratorArgument(node: ts.Node, decoratorName: string): string | null {
-        const decorators = ts.canHaveDecorators(node) ? ts.getDecorators(node) : undefined;
-        if (!decorators) return null;
-
-        const decorator = decorators.find(d =>
-            d.expression.getText().startsWith(decoratorName)
-        );
-
-        if (decorator && ts.isCallExpression(decorator.expression)) {
-            const arg = decorator.expression.arguments[0];
-            if (arg && ts.isStringLiteral(arg)) {
-                return arg.text;
-            }
-            if (arg) {
-                const value = evalNode(this.checker, arg as ts.Expression);
-                if (typeof value === 'string') return value;
             }
         }
         return null;
