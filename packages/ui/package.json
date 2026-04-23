@@ -1,6 +1,6 @@
 {
   "name": "@hexajs/ui",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "HexaJS UI support package",
   "main": "dist/index.js",
   "browser": "dist/browser.js",
