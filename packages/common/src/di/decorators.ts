@@ -1,4 +1,4 @@
-import { brandToken, getInjectMetadata, getWorkerInjectMetadata, isBrandedToken, setInjectMetadata, setInjectableMetadata, setWorkerInjectMetadata } from './metadata';
+import { brandToken, getInjectMetadata, isBrandedToken, setInjectMetadata, setInjectableMetadata } from './metadata';
 
 export enum InjectableContext {
   Empty = 'empty',
@@ -42,10 +42,11 @@ export function Inject(token: string | HexaTokenRef<any>): ParameterDecorator {
   };
 }
 
-export function InjectWorker(): ParameterDecorator {
-  return (target: any, propertyKey: string | symbol | undefined, parameterIndex: number) => {
-    const existingInjects = [...getWorkerInjectMetadata(target)];
-    existingInjects[parameterIndex] = true;
-    setWorkerInjectMetadata(target, existingInjects);
+export function InjectWorker(): PropertyDecorator {
+  return (target: any, propertyKey: string | symbol) => {
+    const ctor = target.constructor;
+    const existing: string[] = ctor.__hexa_worker_property_injects__ || [];
+    existing.push(String(propertyKey));
+    ctor.__hexa_worker_property_injects__ = existing;
   };
 }

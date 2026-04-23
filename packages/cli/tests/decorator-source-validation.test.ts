@@ -123,6 +123,30 @@ describe('Decorator source validation', () => {
     expect(result?.viewPropertyDependencies).toEqual([]);
   });
 
+  it('ignores an InjectWorker decorator imported from a non-Hexa module', () => {
+    const result = scanFirstService({
+      '/foreign.ts': `export function InjectWorker(): PropertyDecorator { return () => undefined; }`,
+      '/test.ts': `
+        import { InjectWorker } from './foreign';
+
+        function Injectable(): ClassDecorator { return (target) => target; }
+        function Worker(opts: any): ClassDecorator { return (target) => target; }
+
+        @Worker({ name: 'ocr-worker' })
+        class OcrWorker {}
+
+        @Injectable()
+        class LocalService {
+          @InjectWorker()
+          ocrWorker!: OcrWorker;
+        }
+      `,
+    });
+
+    expect(result).not.toBeNull();
+    expect(result?.workerPropertyDependencies).toEqual([]);
+  });
+
   it('ignores a View decorator imported from a non-Hexa module', () => {
     const result = scanFirstView({
       '/foreign.ts': `export function View(opts: any): ClassDecorator { return (target) => target; }`,

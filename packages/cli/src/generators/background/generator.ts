@@ -191,11 +191,30 @@ export class BackgroundGenerator {
 
     // Register user services
     services.forEach(service => {
-      const deps = buildDependencyArgs(service);
-      registrations.push(`  container.register(${service.className}, (c) => new ${service.className}(${deps}));`);
+      registrations.push(this.generateServiceRegistration(service));
     });
 
     return registrations.join('\n');
+  }
+
+  private generateServiceRegistration(service: ServiceMetadata): string {
+    const deps = buildDependencyArgs(service);
+
+    if (service.workerPropertyDependencies.length === 0) {
+      return `  container.register(${service.className}, (c) => new ${service.className}(${deps}));`;
+    }
+
+    const lines = [
+      `  container.register(${service.className}, (c) => {`,
+      `    const instance = new ${service.className}(${deps});`,
+    ];
+
+    service.workerPropertyDependencies.forEach(workerDep => {
+      lines.push(`    instance.${workerDep.propertyName} = c.resolve(${workerDep.workerClassName});`);
+    });
+
+    lines.push(`    return instance;`, `  });`);
+    return lines.join('\n');
   }
 
   private resolveRequiredPorts(services: ServiceMetadata[], controllers: ControllerMetadata[], backgroundEntries: BackgroundEntryMetadata[]): string[] {

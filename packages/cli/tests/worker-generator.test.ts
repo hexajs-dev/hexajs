@@ -3,7 +3,10 @@ import { WorkerGenerator } from '../src/generators/background/worker/generator';
 import { MetadataRegistry } from '../src/compiler/registry';
 import { HexaContext } from '../src/compiler/di/types';
 
-function createRegistryWithWorkers(workers: Array<{ name: string; className: string; environment?: string; dependencies?: string[]; publicMethods?: string[] }>, services: Array<{ className: string; context: HexaContext; dependencies?: string[] }> = []) {
+function createRegistryWithWorkers(
+  workers: Array<{ name: string; className: string; environment?: string; dependencies?: string[]; publicMethods?: string[]; workerPropertyDependencies?: { propertyName: string; workerClassName: string }[] }>,
+  services: Array<{ className: string; context: HexaContext; dependencies?: string[]; workerPropertyDependencies?: { propertyName: string; workerClassName: string }[] }> = []
+) {
   const registry = new MetadataRegistry();
 
   for (const s of services) {
@@ -12,6 +15,9 @@ function createRegistryWithWorkers(workers: Array<{ name: string; className: str
       context: s.context,
       dependencies: s.dependencies ?? [],
       tokenDependencies: [],
+      viewDependencies: [],
+      viewPropertyDependencies: [],
+      workerPropertyDependencies: s.workerPropertyDependencies ?? [],
       importPath: `src/${s.className}.ts`,
       hasOnInit: false,
       hasOnDestroy: false,
@@ -26,6 +32,7 @@ function createRegistryWithWorkers(workers: Array<{ name: string; className: str
       importPath: `src/${w.className}.ts`,
       dependencies: w.dependencies ?? [],
       tokenDependencies: [],
+      workerPropertyDependencies: w.workerPropertyDependencies ?? [],
       publicMethods: w.publicMethods ?? ['run'],
     });
   }
@@ -122,6 +129,35 @@ describe('WorkerGenerator', () => {
       expect(result.workerScripts[0].content).toContain('Container');
       expect(result.workerScripts[0].content).toContain('CryptoService');
       expect(result.workerScripts[0].content).toContain('setupDependencies');
+    });
+
+    it('assigns worker properties on background services used inside worker scripts', () => {
+      const registry = createRegistryWithWorkers(
+        [
+          { name: 'ocr-worker', className: 'OcrWorker', publicMethods: ['recognize'] },
+          { name: 'pipeline-worker', className: 'PipelineWorker', dependencies: ['ClipperOcrService'], publicMethods: ['run'] },
+        ],
+        [{ className: 'ClipperOcrService', context: HexaContext.Background, workerPropertyDependencies: [{ propertyName: 'ocrWorker', workerClassName: 'OcrWorker' }] }],
+      );
+
+      const generator = new WorkerGenerator(registry);
+      const result = generator.generate();
+
+      expect(result.workerScripts[1].content).toContain("instance.ocrWorker = c.resolve(OcrWorker);");
+    });
+
+    it('registers and assigns worker proxies for worker @InjectWorker() properties', () => {
+      const registry = createRegistryWithWorkers([
+        { name: 'ocr-worker', className: 'OcrWorker', publicMethods: ['recognize'] },
+        { name: 'pipeline-worker', className: 'PipelineWorker', publicMethods: ['run'], workerPropertyDependencies: [{ propertyName: 'ocrWorker', workerClassName: 'OcrWorker' }] },
+      ]);
+
+      const generator = new WorkerGenerator(registry);
+      const result = generator.generate();
+      const pipelineScript = result.workerScripts.find(script => script.name === 'worker-pipeline-worker')?.content ?? '';
+
+      expect(pipelineScript).toContain("container.register(OcrWorker, () => createWorkerProxy('ocr-worker', WorkerEnvironment.Compute));");
+      expect(pipelineScript).toContain('instance.ocrWorker = container.resolve(OcrWorker);');
     });
   });
 });

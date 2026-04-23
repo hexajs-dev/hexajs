@@ -143,10 +143,10 @@ describe('WorkerScanner', () => {
     expect(result).toBeNull();
   });
 
-  it('extracts worker dependencies only when constructor uses @InjectWorker()', () => {
+  it('extracts worker dependencies from @InjectWorker() properties', () => {
     const source = `
       function Worker(opts: any): ClassDecorator { return (t) => t; }
-      function InjectWorker(): ParameterDecorator { return () => undefined; }
+      function InjectWorker(): PropertyDecorator { return () => undefined; }
 
       @Worker({ name: 'ocr-worker' })
       class OcrWorker {
@@ -155,14 +155,16 @@ describe('WorkerScanner', () => {
 
       @Worker({ name: 'pipeline-worker' })
       class PipelineWorker {
-        constructor(@InjectWorker() private ocrWorker: OcrWorker) {}
+        @InjectWorker()
+        private ocrWorker!: OcrWorker;
 
         run(): void {}
       }
     `;
 
     const result = expectWorker(scanWorker(source));
-    expect(result!.dependencies).toEqual(['OcrWorker']);
+    expect(result!.dependencies).toEqual([]);
+    expect(result!.workerPropertyDependencies).toEqual([{ propertyName: 'ocrWorker', workerClassName: 'OcrWorker' }]);
   });
 
   it('throws when a worker dependency omits @InjectWorker()', () => {
@@ -185,24 +187,63 @@ describe('WorkerScanner', () => {
     expect(() => scanWorker(source)).toThrow(/must use @InjectWorker\(\)/);
   });
 
+  it('throws when constructor uses @InjectWorker()', () => {
+    const source = `
+      function Worker(opts: any): ClassDecorator { return (t) => t; }
+      function InjectWorker(): ParameterDecorator { return () => undefined; }
+
+      @Worker({ name: 'ocr-worker' })
+      class OcrWorker {
+        recognize(): void {}
+      }
+
+      @Worker({ name: 'pipeline-worker' })
+      class PipelineWorker {
+        constructor(@InjectWorker() private ocrWorker: OcrWorker) {}
+
+        run(): void {}
+      }
+    `;
+
+    expect(() => scanWorker(source)).toThrow(/Constructor @InjectWorker\(\) is no longer supported/);
+  });
+
   it('throws when @InjectWorker() targets a non-worker class', () => {
     const source = `
       function Worker(opts: any): ClassDecorator { return (t) => t; }
       function Injectable(): ClassDecorator { return (t) => t; }
-      function InjectWorker(): ParameterDecorator { return () => undefined; }
+      function InjectWorker(): PropertyDecorator { return () => undefined; }
 
       @Injectable()
       class LoggerService {}
 
       @Worker({ name: 'pipeline-worker' })
       class PipelineWorker {
-        constructor(@InjectWorker() private logger: LoggerService) {}
+        @InjectWorker()
+        private logger!: LoggerService;
 
         run(): void {}
       }
     `;
 
     expect(() => scanWorker(source)).toThrow(/can only be used with classes decorated by @Worker/);
+  });
+
+  it('throws when @InjectWorker() property omits a type annotation', () => {
+    const source = `
+      function Worker(opts: any): ClassDecorator { return (t) => t; }
+      function InjectWorker(): PropertyDecorator { return () => undefined; }
+
+      @Worker({ name: 'pipeline-worker' })
+      class PipelineWorker {
+        @InjectWorker()
+        private ocrWorker;
+
+        run(): void {}
+      }
+    `;
+
+    expect(() => scanWorker(source)).toThrow(/requires an explicit worker class type annotation/);
   });
 
   it('ignores a Worker decorator imported from a non-Hexa module', () => {

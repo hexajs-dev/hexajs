@@ -40,6 +40,17 @@ export class WorkerAnalyzer implements BaseAnalyzer {
         }
       }
 
+      for (const workerDep of worker.workerPropertyDependencies) {
+        if (!this.diAnalyzer.isWorkerRegistered(workerDep.workerClassName)) {
+          errors.push({
+            type: 'missing-service',
+            message: `Worker "${worker.className}" uses @InjectWorker() on property "${workerDep.propertyName}" but worker "${workerDep.workerClassName}" is not registered with @Worker`,
+            className: worker.className,
+            dependency: workerDep.workerClassName,
+          });
+        }
+      }
+
       if (worker.publicMethods.length === 0) {
         warnings.push({
           type: 'invalid-config',

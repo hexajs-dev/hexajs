@@ -9,7 +9,7 @@ description: Advanced patterns for @Worker in HexaJS, including lifecycle, routi
 > **Target Audience:** Advanced
 > **Goal:** Build robust worker pipelines with predictable lifecycle, message boundaries, and performance characteristics.
 
-HexaJS workers let you isolate CPU-heavy or latency-sensitive logic from your primary runtime surfaces (background, content, and UI). Workers are declared with `@Worker({ ... })` and can be wired into other workers via `@InjectWorker()`.
+HexaJS workers let you isolate CPU-heavy or latency-sensitive logic from your primary runtime surfaces (background, content, and UI). Workers are declared with `@Worker({ ... })` and can be wired into background services or other workers via `@InjectWorker()` properties.
 
 ## Why Workers Matter
 
@@ -95,7 +95,8 @@ export class NormalizeOcrResponse {
 ### 2. Worker class
 
 ```ts
-import { Worker, InjectWorker } from '@hexajs/core';
+import { InjectWorker } from '@hexajs/common';
+import { Worker } from '@hexajs/core';
 
 @Worker({ name: 'ocr-normalizer', environment: 'compute' })
 export class OcrNormalizationWorker {
@@ -111,13 +112,16 @@ export class OcrNormalizationWorker {
 
 @Worker({ name: 'ocr-pipeline', environment: 'compute' })
 export class OcrPipelineWorker {
-  constructor(@InjectWorker() private readonly normalizer: OcrNormalizationWorker) {}
+  @InjectWorker()
+  private normalizer!: OcrNormalizationWorker;
 
   async run(payload: NormalizeOcrRequest): Promise<NormalizeOcrResponse> {
     return this.normalizer.normalize(payload);
   }
 }
 ```
+
+If you need to resolve a worker lazily at runtime instead of declaring a property, use `injectWorker(WorkerClass)` from `@hexajs/common`.
 
 ### 3. Controller integration
 
@@ -198,7 +202,7 @@ This allows controller/handler callers to implement deterministic UX behavior.
 - Keep payloads serializable and minimal.
 - Keep operation names versionable (`ocr.normalize.v1`) for long-lived contracts.
 - Keep worker logic pure where possible; isolate side effects at boundaries.
-- Keep worker-to-worker injection explicit with `@InjectWorker()` only.
+- Keep worker-to-worker injection explicit with `@InjectWorker()` properties or `injectWorker(WorkerClass)` when you need on-demand resolution.
 
 ## Related Reading
 
