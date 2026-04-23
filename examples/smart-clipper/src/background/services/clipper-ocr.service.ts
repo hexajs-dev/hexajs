@@ -15,8 +15,9 @@ export interface OcrResult {
 
 @Injectable({ context: InjectableContext.Background })
 export class ClipperOcrService {
-	
-	constructor(@InjectWorker() private ocrWorker: OcrWorker, private readonly modelService: ClipperOcrModelService) {}
+	@InjectWorker() private ocrWorker!: OcrWorker;
+
+	constructor(private readonly modelService: ClipperOcrModelService) {}
 
 	async recognize(imageDataUrl: string, language?: string, onProgress?: (progress: OcrProgress) => void): Promise<OcrResult> {
 		const model = await this.modelService.resolve(language);

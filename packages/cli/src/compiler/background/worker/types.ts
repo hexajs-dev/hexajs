@@ -1,4 +1,4 @@
-import { TokenDependency } from '../../di/types';
+import { TokenDependency, WorkerPropertyDependency } from '../../di/types';
 
 export interface WorkerMetadata {
   className: string;
@@ -7,5 +7,6 @@ export interface WorkerMetadata {
   importPath: string;
   dependencies: string[];
   tokenDependencies: TokenDependency[];
+  workerPropertyDependencies: WorkerPropertyDependency[];
   publicMethods: string[];
 }

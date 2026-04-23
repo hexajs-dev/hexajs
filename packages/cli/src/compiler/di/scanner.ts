@@ -4,7 +4,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as crypto from "crypto";
 import { HEXA_METADATA_HMAC_KEY } from "@hexajs/common";
-import { HexaContext, ServiceMetadata, TokenMetadata, TokenDependency, ViewPropertyDependency } from "./types";
+import { HexaContext, ServiceMetadata, TokenMetadata, TokenDependency, ViewPropertyDependency, WorkerPropertyDependency } from "./types";
 import { ViewDependency } from "../content/view/types";
 import { extractProp, findDecorator, hasLifecycleMethod, isDecoratorNamed } from "../shared/props.methods";
 
@@ -254,6 +254,7 @@ export class DIScanner {
 
     // 4. Extract @InjectView() property dependencies
     const viewPropertyDependencies = this.extractViewPropertyDeps(node);
+    const workerPropertyDependencies = this.extractWorkerPropertyDeps(node);
 
     return {
       className: node.name!.text,
@@ -262,6 +263,7 @@ export class DIScanner {
       tokenDependencies,
       viewDependencies,
       viewPropertyDependencies,
+      workerPropertyDependencies,
       importPath: node.getSourceFile().fileName,
       hasOnInit: hasLifecycleMethod(node, 'onInit'),
       hasOnDestroy: hasLifecycleMethod(node, 'onDestroy')
@@ -360,8 +362,10 @@ export class DIScanner {
         }
 
         if (hasInjectWorkerDecorator) {
-          dependencies.push(this.getInjectWorkerClassName(node, param));
-          return;
+          const typeName = this.getParameterTypeName(param);
+          throw new Error(
+            `Constructor @InjectWorker() is no longer supported. Move worker dependency ${typeName} to a class property with @InjectWorker() or use injectWorker(${typeName}). [${node.name?.text ?? '<anonymous>'}::${this.getParameterName(param)} in ${node.getSourceFile().fileName}]`
+          );
         }
 
         // Check for @Inject decorator on this parameter
@@ -378,7 +382,9 @@ export class DIScanner {
           const fileName = node.getSourceFile().fileName;
           const paramName = this.getParameterName(param);
           if (this.isTypeWorker(type, param.type)) {
-            throw new Error(`Worker dependency ${typeName} must use @InjectWorker(). [${className}::${paramName} in ${fileName}]`);
+            throw new Error(
+              `Worker dependency ${typeName} must use @InjectWorker() on a class property or injectWorker(${typeName}). Constructor worker injection is not supported. [${className}::${paramName} in ${fileName}]`
+            );
           }
           if (!this.isTypeInjectable(type, param.type)) {
             if (this.isFromCorePackage(type, param.type)) {
@@ -438,29 +444,56 @@ export class DIScanner {
     return deps;
   }
 
-  private getInjectWorkerClassName(node: ts.ClassDeclaration, param: ts.ParameterDeclaration): string {
-    if (!param.type) {
+  public extractWorkerPropertyDeps(node: ts.ClassDeclaration): WorkerPropertyDependency[] {
+    const deps: WorkerPropertyDependency[] = [];
+
+    for (const member of node.members) {
+      if (!ts.isPropertyDeclaration(member) || !member.name) {
+        continue;
+      }
+
+      if (!this.hasDecoratorNamed(member, 'InjectWorker')) {
+        continue;
+      }
+
+      const propertyName = member.name.getText();
+      const workerClassName = this.getInjectWorkerClassName(node, member, propertyName);
+      deps.push({ propertyName, workerClassName });
+    }
+
+    return deps;
+  }
+
+  private getInjectWorkerClassName(node: ts.ClassDeclaration, member: ts.PropertyDeclaration, propertyName: string): string {
+    if (!member.type) {
       throw new Error(
-        `@InjectWorker() requires an explicit worker class type annotation. [${node.name?.text ?? '<anonymous>'}::${this.getParameterName(param)} in ${node.getSourceFile().fileName}]`
+        `@InjectWorker() property "${propertyName}" requires an explicit worker class type annotation. [${node.name?.text ?? '<anonymous>'} in ${node.getSourceFile().fileName}]`
       );
     }
 
-    const type = this.checker.getTypeAtLocation(param);
-    const typeSymbol = this.getTypeSymbol(type, param.type);
+    const type = this.checker.getTypeAtLocation(member);
+    const typeSymbol = this.getTypeSymbol(type, member.type);
     const typeName = this.checker.typeToString(type);
     const className = node.name?.text ?? '<anonymous>';
     const fileName = node.getSourceFile().fileName;
-    const paramName = this.getParameterName(param);
 
-    if (!this.isTypeWorker(type, param.type)) {
-      throw new Error(`@InjectWorker() can only be used with classes decorated by @Worker. Found ${typeName}. [${className}::${paramName} in ${fileName}]`);
+    if (!this.isTypeWorker(type, member.type)) {
+      throw new Error(`@InjectWorker() can only be used with classes decorated by @Worker. Found ${typeName}. [${className}.${propertyName} in ${fileName}]`);
     }
 
     if (!typeSymbol) {
-      throw new Error(`Worker dependency ${typeName} cannot be resolved to a symbol. [${className}::${paramName} in ${fileName}]`);
+      throw new Error(`Worker dependency ${typeName} cannot be resolved to a symbol. [${className}.${propertyName} in ${fileName}]`);
     }
 
     return typeSymbol.getName();
+  }
+
+  private getParameterTypeName(param: ts.ParameterDeclaration): string {
+    if (!param.type) {
+      return 'UnknownWorker';
+    }
+
+    return this.checker.typeToString(this.checker.getTypeAtLocation(param));
   }
 
   /**
