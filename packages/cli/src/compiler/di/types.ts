@@ -28,6 +28,11 @@ export interface ViewPropertyDependency {
   viewClassName: string;
 }
 
+export interface WorkerPropertyDependency {
+  propertyName: string;
+  workerClassName: string;
+}
+
 export interface ServiceMetadata {
   className: string;
   importPath: string;
@@ -36,6 +41,7 @@ export interface ServiceMetadata {
   tokenDependencies: TokenDependency[];
   viewDependencies: { paramIndex: number; viewClassName: string }[];
   viewPropertyDependencies: ViewPropertyDependency[];
+  workerPropertyDependencies: WorkerPropertyDependency[];
   hasOnInit: boolean;
   hasOnDestroy: boolean;
 }
