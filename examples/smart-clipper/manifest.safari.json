@@ -8,6 +8,15 @@
     "tabs",
     "downloads"
   ],
+  "commands": {
+    "start-ocr-clipping": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y"
+      },
+      "description": "Start OCR clipping on the active tab"
+    }
+  },
   "web_accessible_resources": [
     {
       "resources": [

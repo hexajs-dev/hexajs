@@ -17,6 +17,7 @@ export interface OcrLanguageDefinition {
 }
 
 export const DEFAULT_OCR_LANGUAGE = OcrLanguageCode.English;
+export const OCR_LANGUAGE_SELECTION_STORAGE_KEY = 'smart-clipper.popup.ocr-languages';
 export const OCR_MODEL_CACHE_PATH = 'smart-clipper-ocr-cache';
 
 export const SUPPORTED_OCR_LANGUAGES: ReadonlyArray<OcrLanguageDefinition> = [

@@ -14,6 +14,6 @@ export async function runUiOrchestrator(foundation: BuildFoundationOutput): Prom
         generatedRows.push(writeGeneratedFile(uiBootstrapPath, uiBootstrapContent));
     }
 
-    const uiEntries = await withQuietLogs(true, async () => buildUiEntries(resolved, outputDir, uiBootstrapPath, foundation.watch, foundation.hmrAddress));
+    const uiEntries = await withQuietLogs(true, async () => buildUiEntries(resolved, outputDir, uiBootstrapPath, foundation.watch, foundation.hmrAddress, foundation.hmrSessionToken));
     return { uiEntries, generatedRows };
 }

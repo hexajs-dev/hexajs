@@ -1,7 +1,7 @@
 import { createServer, Server } from 'net';
 import { afterEach, describe, expect, it } from 'vitest';
 import WebSocket from 'ws';
-import { UIHMRServer } from '../src/hmr/ui-hmr-server';
+import { resolveHMRServerAddress, UIHMRServer } from '../src/hmr/ui-hmr-server';
 
 async function occupyPort(): Promise<{ server: Server; port: number }> {
   return new Promise((resolve, reject) => {
@@ -55,6 +55,10 @@ async function waitForWebSocketOpen(ws: WebSocket): Promise<void> {
     ws.on('open', onOpen);
     ws.on('error', onError);
   });
+}
+
+function authenticateClient(ws: WebSocket, token: string): void {
+  ws.send(JSON.stringify({ type: 'auth', token, timestamp: Date.now() }));
 }
 
 async function waitForContentReload(ws: WebSocket): Promise<any> {
@@ -150,6 +154,11 @@ describe('UIHMRServer', () => {
     }
   });
 
+  it('rejects non-loopback hosts and privileged ports', () => {
+    expect(() => resolveHMRServerAddress({ host: '0.0.0.0', port: 55333 })).toThrow(/loopback host/i);
+    expect(() => resolveHMRServerAddress({ host: '127.0.0.1', port: 80 })).toThrow(/non-privileged tcp port/i);
+  });
+
   it('publishes queued content patches on background:online and consumes queue once', async () => {
     const hmrServer = new UIHMRServer({ host: '127.0.0.1', port: 0 });
     serversToClose.push(hmrServer);
@@ -167,6 +176,7 @@ describe('UIHMRServer', () => {
       },
     ]);
 
+    authenticateClient(client, address.sessionToken);
     client.send(JSON.stringify({ type: 'background:online', timestamp: Date.now() }));
 
     const first = await waitForContentReload(client);
@@ -180,5 +190,32 @@ describe('UIHMRServer', () => {
 
     client.send(JSON.stringify({ type: 'background:online', timestamp: Date.now() }));
     await assertNoContentReload(client, 150);
+  });
+
+  it('ignores background:online until the client authenticates with the session token', async () => {
+    const hmrServer = new UIHMRServer({ host: '127.0.0.1', port: 0 });
+    serversToClose.push(hmrServer);
+
+    const address = await hmrServer.start();
+    const client = new WebSocket(address.url);
+    socketsToClose.push(client);
+    await waitForWebSocketOpen(client);
+
+    hmrServer.setPendingContentPatches([
+      {
+        filename: 'content/secure.js',
+        matches: ['<all_urls>'],
+        allFrames: false,
+      },
+    ]);
+
+    client.send(JSON.stringify({ type: 'background:online', timestamp: Date.now() }));
+    await assertNoContentReload(client, 150);
+
+    authenticateClient(client, address.sessionToken);
+    client.send(JSON.stringify({ type: 'background:online', timestamp: Date.now() }));
+
+    const message = await waitForContentReload(client);
+    expect(message.patches[0].filename).toBe('content/secure.js');
   });
 });

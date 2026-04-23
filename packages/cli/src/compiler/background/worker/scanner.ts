@@ -1,6 +1,6 @@
 import * as ts from 'typescript';
 import { WorkerMetadata } from './types';
-import { getDecoratorName, evalNode } from '../../shared/props.methods';
+import { evalNode, findDecorator } from '../../shared/props.methods';
 import { DIScanner } from '../../di/scanner';
 
 export class WorkerScanner {
@@ -14,8 +14,7 @@ export class WorkerScanner {
   }
 
   private processClass(node: ts.ClassDeclaration): WorkerMetadata | null {
-    const decorators = ts.getDecorators(node);
-    const workerDecorator = decorators?.find(d => getDecoratorName(d) === 'Worker');
+    const workerDecorator = findDecorator(node, this.checker, 'Worker', ['@hexajs/core']);
     if (!workerDecorator) return null;
 
     const options = this.extractWorkerOptions(workerDecorator);

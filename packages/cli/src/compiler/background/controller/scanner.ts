@@ -1,6 +1,6 @@
 import ts from "typescript";
 import { ControllerMetadata, MethodMetadata } from "./types";
-import { evalNode, getDecoratorArgument, hasLifecycleMethod } from "../../shared/props.methods";
+import { evalNode, findDecorator, getDecoratorArgument, hasLifecycleMethod } from "../../shared/props.methods";
 
 
 export class ControllerScanner {
@@ -28,7 +28,7 @@ export class ControllerScanner {
                 const methodName = member.name.getText();
 
                 // Check for @Action
-                const actionName = getDecoratorArgument(member, 'Action', this.checker);
+                const actionName = getDecoratorArgument(member, 'Action', this.checker, ['@hexajs/core']);
                 if (actionName) {
                     const payloadDtoType = this.getFirstPayloadDtoType(member);
                     const responseDtoType = this.getResponseDtoType(member);
@@ -41,7 +41,7 @@ export class ControllerScanner {
                 }
 
                 // Check for @On
-                const eventName = getDecoratorArgument(member, 'On', this.checker);
+                const eventName = getDecoratorArgument(member, 'On', this.checker, ['@hexajs/core']);
                 if (eventName) {
                     methods.push({
                         methodName,
@@ -67,12 +67,7 @@ export class ControllerScanner {
     }
 
     private getControllerOptions(node: ts.ClassDeclaration): { namespace: string } | null {
-        const decorators = ts.canHaveDecorators(node) ? ts.getDecorators(node) : undefined;
-        if (!decorators) return null;
-
-        const decorator = decorators.find(d =>
-            d.expression.getText().startsWith('Controller')
-        );
+        const decorator = findDecorator(node, this.checker, 'Controller', ['@hexajs/core']);
 
         if (decorator && ts.isCallExpression(decorator.expression)) {
             const arg = decorator.expression.arguments[0];

@@ -54,4 +54,12 @@ export interface BackgroundOnlineEvent {
     timestamp: number;
 }
 
-export type HMRServerEvent = UIUpdateEvent | UIReloadEvent | BuildErrorEvent | BackgroundReloadEvent | ContentReloadEvent | BackgroundOnlineEvent | FirefoxBackgroundPatchEvent;
+export interface HMRAuthorizeEvent {
+    type: 'auth';
+    token: string;
+    timestamp: number;
+}
+
+export type HMRClientEvent = HMRAuthorizeEvent | BackgroundOnlineEvent;
+
+export type HMRServerEvent = UIUpdateEvent | UIReloadEvent | BuildErrorEvent | BackgroundReloadEvent | ContentReloadEvent | FirefoxBackgroundPatchEvent;

@@ -3,13 +3,13 @@ import { inject } from '@hexajs/common';
 import { HexaUIClient } from '@hexajs/ui';
 import { backgroundApi } from '@contract/api';
 import { PopupGetRecentClipsMessage, PopupStartClippingMessage, RecentClipItem, RecentClipsMessage, StartClippingAckMessage } from '@contract/messages/messages';
-import { areAllSelectedLanguagesBundled, DEFAULT_OCR_LANGUAGE, getOcrLanguageSummary, getOcrLanguageTag, OcrLanguageCode, parseOcrLanguageSelection, serializeOcrLanguageSelection } from '@contract/ocr-language';
+import { areAllSelectedLanguagesBundled, DEFAULT_OCR_LANGUAGE, getOcrLanguageSummary, getOcrLanguageTag, OcrLanguageCode, OCR_LANGUAGE_SELECTION_STORAGE_KEY, parseOcrLanguageSelection, serializeOcrLanguageSelection } from '@contract/ocr-language';
+import smartClipperLogoUrl from '../../../src/assets/smart-clipper.logo.svg';
 import { LanguageSelect } from './components/language-select/LanguageSelect';
 import { RecentSection } from './components/recent/RecentSection';
-import { LogoIcon, MoonIcon, SunIcon } from './components/shared/icons/Icons';
+import { MoonIcon, SunIcon } from './components/shared/icons/Icons';
 import './App.scss';
 
-const POPUP_OCR_LANGUAGE_STORAGE_KEY = 'smart-clipper.popup.ocr-languages';
 const POPUP_THEME_STORAGE_KEY = 'smart-clipper.popup.theme';
 
 export function App() {
@@ -27,7 +27,7 @@ export function App() {
     if (typeof window === 'undefined') {
       return parseOcrLanguageSelection(DEFAULT_OCR_LANGUAGE);
     }
-    return parseOcrLanguageSelection(window.localStorage.getItem(POPUP_OCR_LANGUAGE_STORAGE_KEY) ?? DEFAULT_OCR_LANGUAGE);
+    return parseOcrLanguageSelection(window.localStorage.getItem(OCR_LANGUAGE_SELECTION_STORAGE_KEY) ?? DEFAULT_OCR_LANGUAGE);
   });
 
   useEffect(() => {
@@ -45,6 +45,27 @@ export function App() {
     };
     loadRecentClips();
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const serializedLanguages = serializeOcrLanguageSelection(ocrLanguages);
+    window.localStorage.setItem(OCR_LANGUAGE_SELECTION_STORAGE_KEY, serializedLanguages);
+
+    try {
+      const extensionApi = (globalThis as any).chrome ?? (globalThis as any).browser;
+      const setResult = extensionApi?.storage?.local?.set?.({ [OCR_LANGUAGE_SELECTION_STORAGE_KEY]: serializedLanguages });
+      if (setResult && typeof setResult.catch === 'function') {
+        setResult.catch((error: unknown) => {
+          console.warn('Failed to persist OCR language selection.', error);
+        });
+      }
+    } catch (error) {
+      console.warn('Failed to persist OCR language selection.', error);
+    }
+  }, [ocrLanguages]);
 
   const selectedLanguageSummary = getOcrLanguageSummary(ocrLanguages);
   const selectedLanguagesBundled = areAllSelectedLanguagesBundled(ocrLanguages);
@@ -70,7 +91,6 @@ export function App() {
     const nextLanguages = exists ? ocrLanguages.filter(language => language !== normalizedLanguageCode) : [...ocrLanguages, normalizedLanguageCode];
     const normalizedLanguages = parseOcrLanguageSelection(nextLanguages.length > 0 ? nextLanguages : DEFAULT_OCR_LANGUAGE);
     setOcrLanguages(normalizedLanguages);
-    window.localStorage.setItem(POPUP_OCR_LANGUAGE_STORAGE_KEY, serializeOcrLanguageSelection(normalizedLanguages));
     setStatus('idle');
     setFeedback(areAllSelectedLanguagesBundled(normalizedLanguages) ? `${getOcrLanguageSummary(normalizedLanguages)} ready.` : `${getOcrLanguageSummary(normalizedLanguages)} selected. Missing models download on first use and are then cached.`);
   };
@@ -107,7 +127,7 @@ export function App() {
         <header className='popup-hero'>
           <div className='popup-brand'>
             <div className='popup-logo'>
-              <LogoIcon />
+              <img src={smartClipperLogoUrl} alt='' aria-hidden='true' />
             </div>
             <div>
               <h1>OCR Clipper</h1>

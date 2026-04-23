@@ -5,8 +5,8 @@ import { writeGeneratedFile } from './runtime';
 import { BackgroundOrchestratorOutput, BuildFoundationOutput } from './types';
 
 export function runBackgroundOrchestrator(foundation: BuildFoundationOutput): BackgroundOrchestratorOutput {
-    const { registry, resolved, storeOutputs, mergedTokens, outputDir, watch, hmrAddress } = foundation;
-    const { backgroundBootstrap, workerHostRouter, workerScripts, offscreenHtml } = buildBackgroundArtifacts(registry, storeOutputs, mergedTokens, outputDir, watch ?? false, hmrAddress ?? '', resolved.platform);
+    const { registry, resolved, storeOutputs, mergedTokens, outputDir, watch, hmrAddress, hmrSessionToken } = foundation;
+    const { backgroundBootstrap, workerHostRouter, workerScripts, offscreenHtml } = buildBackgroundArtifacts(registry, storeOutputs, mergedTokens, outputDir, watch ?? false, hmrAddress ?? '', hmrSessionToken ?? '', resolved.platform);
 
     const validatorGenerator = new ValidatorGenerator(registry);
     const validators = validatorGenerator.generate();

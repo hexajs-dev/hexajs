@@ -14,7 +14,6 @@ export function OcrStatusTooltipComponent({ controller }: OcrStatusTooltipProps)
     if (!state.visible) {
         return null;
     }
-    console.log('Rendering OcrStatusTooltipComponent with state:', state);
 
     return (
         <div className={`hexa-ocr-status hexa-ocr-status--${state.variant}`}>

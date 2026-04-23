@@ -3,6 +3,7 @@ import * as path from 'path';
 import type { Socket } from 'net';
 import { createServer, IncomingMessage, Server, ServerResponse } from 'http';
 import { printWarningLine } from '../shared/logging';
+import { assertLocalPort, assertLoopbackHost, formatHostForUrl, isLoopbackSocketAddress } from '../shared/network-security';
 
 export interface BackgroundPatchServerOptions {
     host?: string;
@@ -24,6 +25,11 @@ function normalizePathname(pathname: string): string {
         return '/';
     }
     return pathname.replace(/\\/g, '/');
+}
+
+function isPathWithinRoot(rootPath: string, candidatePath: string): boolean {
+    const relative = path.relative(rootPath, candidatePath);
+    return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
 }
 
 function resolveMimeType(filePath: string): string {
@@ -81,14 +87,19 @@ export class BackgroundPatchServer {
             return this.address;
         }
 
-        const host = this.options.host ?? DEFAULT_PATCH_SERVER_HOST;
-        const requestedPort = this.options.port ?? DEFAULT_PATCH_SERVER_PORT;
+        const host = assertLoopbackHost(this.options.host ?? DEFAULT_PATCH_SERVER_HOST, 'Patch server host');
+        const requestedPort = assertLocalPort(this.options.port ?? DEFAULT_PATCH_SERVER_PORT, 'Patch server port');
 
         this.server = createServer((request, response) => {
             this.handleRequest(request, response);
         });
 
         this.server.on('connection', (socket: Socket) => {
+            if (!isLoopbackSocketAddress(socket.remoteAddress)) {
+                socket.destroy();
+                return;
+            }
+
             this.sockets.add(socket);
             socket.once('close', () => this.sockets.delete(socket));
         });
@@ -98,7 +109,7 @@ export class BackgroundPatchServer {
         this.address = {
             host,
             port: actualPort,
-            url: `http://${host}:${actualPort}`,
+            url: `http://${formatHostForUrl(host)}:${actualPort}`,
         };
 
         return this.address;
@@ -143,7 +154,7 @@ export class BackgroundPatchServer {
         const absolute = path.resolve(this.options.rootDir, safeRelative);
         const root = path.resolve(this.options.rootDir);
 
-        if (!absolute.startsWith(root)) {
+        if (!isPathWithinRoot(root, absolute)) {
             response.statusCode = 403;
             response.end('Forbidden');
             return;

@@ -18,7 +18,7 @@ export class ClipperCaptureService {
 			currentTab = tabs.find(tab => typeof tab.id === 'number');
 		}
 		if (!currentTab?.id) {
-			throw new Error('No active tab found for screenshot capture.');
+			throw new Error('No active tab found for screenshot capture.'); 
 		}
 
 		

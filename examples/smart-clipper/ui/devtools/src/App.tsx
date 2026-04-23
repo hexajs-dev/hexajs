@@ -1,13 +1,7 @@
 ﻿import { inject } from "@hexajs/common";
 import { HexaUIClient } from "@hexajs/ui";
 import { useState } from "react";
-
-const HexaLogo = () => (
-  <svg width="40" height="40" viewBox="0 0 100 100" fill="none">
-    <polygon points="50,4 90,27 90,73 50,96 10,73 10,27" stroke="currentColor" strokeWidth="5" />
-    <path d="M35 42 L50 35 L65 42 M35 58 L50 65 L65 58 M50 35 L50 65 M38 46 L62 54 M62 46 L38 54" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
-  </svg>
-);
+import smartClipperLogoUrl from "../../../src/assets/smart-clipper.logo.svg";
 
 const GhostHexa = () => (
   <svg className="dt-ghost-hexa" width="200" height="200" viewBox="0 0 100 100" fill="none">
@@ -112,14 +106,14 @@ export function App() {
         <GhostHexa />
         <div className="dt-header-inner">
           <div className="dt-logo">
-            <HexaLogo />
+            <img src={smartClipperLogoUrl} alt="" aria-hidden="true" />
           </div>
           <div className="dt-header-text">
-            <h1>HexaJS DevTools</h1>
-            <p className="dt-tagline">Browser DevTools Extension Panel</p>
+            <h1>Smart Clipper DevTools</h1>
+            <p className="dt-tagline">Browser OCR capture panel</p>
           </div>
         </div>
-        <span className="dt-version-badge">DevTools Template &bull; v1.0.0</span>
+        <span className="dt-version-badge">Smart Clipper &bull; v1.0.0</span>
       </header>
 
       <main className="dt-content">
@@ -224,10 +218,8 @@ export function App() {
 
       <footer className="dt-footer">
         <span className="dt-footer-brand">
-          <svg width="13" height="13" viewBox="0 0 100 100" fill="none">
-            <polygon points="50,4 90,27 90,73 50,96 10,73 10,27" stroke="currentColor" strokeWidth="10" />
-          </svg>
-          HexaJS DevTools Template
+          <img className="dt-footer-brand-logo" src={smartClipperLogoUrl} alt="" aria-hidden="true" />
+          Smart Clipper DevTools
         </span>
         <a href="https://hexajs.io/docs" target="_blank" rel="noreferrer">
           <ExternalIcon />
