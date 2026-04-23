@@ -1,5 +1,16 @@
 # @hexajs/cli
 
+## 2.0.0
+
+### Minor Changes
+
+- 2b9af51: Changing worker injection
+
+### Patch Changes
+
+- Updated dependencies [2b9af51]
+  - @hexajs/common@2.0.0
+
 ## 1.0.0
 
 ### Minor Changes
