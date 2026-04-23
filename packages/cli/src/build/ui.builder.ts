@@ -22,6 +22,14 @@ interface UiBootstrapBuildOutput {
     uiBootstrapContent?: string;
 }
 
+function resolveForComparison(filePath: string): string {
+    try {
+        return fs.realpathSync(filePath);
+    } catch {
+        return path.resolve(filePath);
+    }
+}
+
 function isPathWithinRoot(rootPath: string, candidatePath: string): boolean {
     const relative = path.relative(rootPath, candidatePath);
     return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
@@ -45,7 +53,7 @@ function copyExternalSurface(surface: 'popup' | 'devtools', config: UiSurfaceCon
         throw new Error(`UI ${surface} distDir does not exist or is not a directory: ${sourceDist}`);
     }
 
-    const projectRoot = path.resolve(process.cwd());
+    const projectRoot = resolveForComparison(process.cwd());
     const realSourceDist = fs.realpathSync(sourceDist);
     if (!isPathWithinRoot(projectRoot, realSourceDist)) {
         throw new Error(`UI ${surface} distDir must stay within the project root: ${config.distDir}`);
