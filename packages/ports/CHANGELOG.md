@@ -4,6 +4,12 @@
 
 ### Patch Changes
 
+- @hexajs-dev/common@0.9.1
+
+## 0.9.1
+
+### Patch Changes
+
 - @hexajs/common@0.9.1
 
 ## 2.0.0

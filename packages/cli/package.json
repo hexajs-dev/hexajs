@@ -1,6 +1,6 @@
 {
   "name": "@hexajs-dev/cli",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "HexaJS CLI and compiler",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

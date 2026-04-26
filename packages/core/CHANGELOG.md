@@ -5,6 +5,14 @@
 ### Patch Changes
 
 - 861aa5e: Add support of debug vite properties, add devtools for smart-clipping, security patches
+  - @hexajs-dev/common@0.9.1
+  - @hexajs-dev/ports@0.9.1
+
+## 0.9.1
+
+### Patch Changes
+
+- 861aa5e: Add support of debug vite properties, add devtools for smart-clipping, security patches
   - @hexajs/common@0.9.1
   - @hexajs/ports@0.9.1
 
