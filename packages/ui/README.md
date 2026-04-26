@@ -1,4 +1,4 @@
-# @hexajs/ui
+# @hexajs-dev/ui
 
 UI support contracts for HexaJS.
 

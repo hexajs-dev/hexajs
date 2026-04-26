@@ -9,7 +9,7 @@ description: Public API model reference for ports module packages/ports/src/gene
 #### I18nPort
 
 ```ts
-import { I18nPort } from '@hexajs/ports';
+import { I18nPort } from '@hexajs-dev/ports';
 ```
 
 ```typescript

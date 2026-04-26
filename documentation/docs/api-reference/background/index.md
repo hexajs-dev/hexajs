@@ -1,7 +1,7 @@
-﻿---
+---
 title: Background Ports
 sidebar_position: 3
-description: Full background context API surface provided by @hexajs/ports.
+description: Full background context API surface provided by @hexajs-dev/ports.
 ---
 
 # Background Ports

@@ -29,7 +29,7 @@ export class HandlerScanner {
                 const methodName = member.name.getText();
 
                 // Check for @handle
-                const handleName = getDecoratorArgument(member, 'Handle', this.checker, ['@hexajs/core']);
+                const handleName = getDecoratorArgument(member, 'Handle', this.checker, ['@hexajs-dev/core']);
                 if (handleName) {
                     const payloadDtoType = this.getFirstPayloadDtoType(member);
                     const responseDtoType = this.getResponseDtoType(member);
@@ -42,7 +42,7 @@ export class HandlerScanner {
                 }
 
                 // Check for @On
-                const eventName = getDecoratorArgument(member, 'Subscribe', this.checker, ['@hexajs/core']);
+                const eventName = getDecoratorArgument(member, 'Subscribe', this.checker, ['@hexajs-dev/core']);
                 if (eventName) {
                     methods.push({
                         methodName,
@@ -75,7 +75,7 @@ export class HandlerScanner {
      * Extracts Handler decorator options (namespace and contents)
      */
     private getHandlerOptions(node: ts.ClassDeclaration): { namespace: string; contents: string[] } | null {
-        const decorator = findDecorator(node, this.checker, 'Handler', ['@hexajs/core']);
+        const decorator = findDecorator(node, this.checker, 'Handler', ['@hexajs-dev/core']);
 
         if (decorator && ts.isCallExpression(decorator.expression)) {
             const arg = decorator.expression.arguments[0];

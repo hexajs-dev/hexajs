@@ -1,4 +1,4 @@
-import { Inject, Injectable, InjectableContext, HEXA_PLATFORM } from '@hexajs/common';
+import { Inject, Injectable, InjectableContext, HEXA_PLATFORM } from '@hexajs-dev/common';
 import { PlatformType } from '../../shared/platforms.methods';
 import { throwUnsupportedApi } from '../../shared/methods/port-errors.methods';
 

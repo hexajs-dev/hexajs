@@ -14,7 +14,7 @@ export class WorkerScanner {
   }
 
   private processClass(node: ts.ClassDeclaration): WorkerMetadata | null {
-    const workerDecorator = findDecorator(node, this.checker, 'Worker', ['@hexajs/core']);
+    const workerDecorator = findDecorator(node, this.checker, 'Worker', ['@hexajs-dev/core']);
     if (!workerDecorator) return null;
 
     const options = this.extractWorkerOptions(workerDecorator);

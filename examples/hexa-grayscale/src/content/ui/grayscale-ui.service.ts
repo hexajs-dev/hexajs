@@ -1,5 +1,5 @@
-import { Injectable, InjectableContext } from '@hexajs/common';
-import { InjectView } from '@hexajs/core';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { InjectView } from '@hexajs-dev/core';
 import { GrayscaleToggleView } from './grayscale-toggle/grayscale-toggle-view';
 
 const HEXA_GRAYSCALE_CLASS = 'hexa-grayscale-enabled';

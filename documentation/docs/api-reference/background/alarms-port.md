@@ -1,4 +1,4 @@
-﻿---
+---
 title: AlarmsPort
 description: API reference for AlarmsPort in the background context.
 ---
@@ -28,8 +28,8 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 ## Usage
 
 ```typescript
-import { AlarmsPort } from '@hexajs/ports';
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { AlarmsPort } from '@hexajs-dev/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 
 @Injectable({ context: InjectableContext.Background })
 export class DataSyncSchedulerService {

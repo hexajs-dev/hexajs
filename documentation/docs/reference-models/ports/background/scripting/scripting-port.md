@@ -9,7 +9,7 @@ description: Public API model reference for ports module packages/ports/src/back
 #### ScriptingPort
 
 ```ts
-import { ScriptingPort } from '@hexajs/ports';
+import { ScriptingPort } from '@hexajs-dev/ports';
 ```
 
 ```typescript
@@ -29,7 +29,7 @@ executeScript(options: ScriptingExecuteOptions): Promise<void>
 #### ScriptingExecuteOptions
 
 ```ts
-import { ScriptingExecuteOptions } from '@hexajs/ports';
+import { ScriptingExecuteOptions } from '@hexajs-dev/ports';
 ```
 
 ```typescript

@@ -20,7 +20,7 @@ export class ContentScanner {
 
     private processClass(node: ts.ClassDeclaration): ContentEntryMetadata | null {
         // 1. Check if class has @Content decorator
-        const content = findDecorator(node, this.checker, 'Content', ['@hexajs/core']);
+        const content = findDecorator(node, this.checker, 'Content', ['@hexajs-dev/core']);
 
         if (!content) return null;
 

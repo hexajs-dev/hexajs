@@ -9,7 +9,7 @@ description: Public API model reference for core module packages/core/src/backgr
 #### ControllerContainer
 
 ```ts
-import { ControllerContainer } from '@hexajs/core';
+import { ControllerContainer } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -45,7 +45,7 @@ setPipedClient(client: HexaClientBase): (client: HexaClientBase) => void
 #### BackgroundHandlerFn
 
 ```ts
-import { BackgroundHandlerFn } from '@hexajs/core';
+import { BackgroundHandlerFn } from '@hexajs-dev/core';
 ```
 
 ```typescript

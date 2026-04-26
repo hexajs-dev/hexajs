@@ -1,5 +1,5 @@
-import { Injectable, InjectableContext } from '@hexajs/common';
-import { RuntimePort, StoragePort } from '@hexajs/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { RuntimePort, StoragePort } from '@hexajs-dev/ports';
 import { DEFAULT_OCR_LANGUAGE, areAllSelectedLanguagesBundled, OCR_MODEL_CACHE_PATH, parseOcrLanguageSelection, serializeOcrLanguageSelection } from '@contract/ocr-language';
 
 const OCR_MODEL_STATE_KEY = 'smart-clipper.ocr-model-state';

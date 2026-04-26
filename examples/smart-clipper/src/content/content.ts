@@ -1,5 +1,5 @@
-import { Content, ContentRunAt } from '@hexajs/core';
-import { OnInit, OnDestroy } from '@hexajs/common';
+import { Content, ContentRunAt } from '@hexajs-dev/core';
+import { OnInit, OnDestroy } from '@hexajs-dev/common';
 import { ClipperUiService } from './ui/clipper-ui.service';
 
 @Content({ matches: ['<all_urls>'], runAt: ContentRunAt.DocumentIdle })

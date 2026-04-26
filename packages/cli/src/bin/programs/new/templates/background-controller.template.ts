@@ -1,9 +1,9 @@
 import type { ScaffoldContext } from '../models/scaffold.types';
 
 export const backgroundControllerTemplate = (ctx: ScaffoldContext): string => `\
-import { Controller, Action } from '@hexajs/core';
-import { Inject, HEXA_PLATFORM } from '@hexajs/common';
-import { HexaBackgroundClient, HexaBackgroundStore } from '@hexajs/core';
+import { Controller, Action } from '@hexajs-dev/core';
+import { Inject, HEXA_PLATFORM } from '@hexajs-dev/common';
+import { HexaBackgroundClient, HexaBackgroundStore } from '@hexajs-dev/core';
 import { LoggerService } from '../services/logger.service';
 import { BackgroundState } from './store/background.reducer';
 import { contentCalled } from './store/background.actions';

@@ -1,4 +1,4 @@
-import { HexaReducer, Reduce, Reducer } from '@hexajs/core';
+import { HexaReducer, Reduce, Reducer } from '@hexajs-dev/core';
 import { ClipVaultConfig, DEFAULT_CONFIG } from '../../contract/config';
 import { ClipItem } from '../../contract/messages';
 import * as BackgroundActions from './background.actions';

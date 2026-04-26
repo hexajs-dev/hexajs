@@ -9,7 +9,7 @@ description: Public API model reference for ports module packages/ports/src/back
 #### BrowsingDataPort
 
 ```ts
-import { BrowsingDataPort } from '@hexajs/ports';
+import { BrowsingDataPort } from '@hexajs-dev/ports';
 ```
 
 ```typescript

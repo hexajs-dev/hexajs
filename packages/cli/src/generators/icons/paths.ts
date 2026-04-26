@@ -6,7 +6,7 @@ import { ResolvedBuildConfig } from '../../bin/config/resolve';
 export function resolveCoreDefaultIconPath(): string | undefined {
     try {
         const userRequire = createRequire(path.join(process.cwd(), 'package.json'));
-        const corePackageJsonPath = userRequire.resolve('@hexajs/core/package.json');
+        const corePackageJsonPath = userRequire.resolve('@hexajs-dev/core/package.json');
         const candidate = path.join(path.dirname(corePackageJsonPath), 'assets', 'hexa-logo.svg');
         if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
             return candidate;

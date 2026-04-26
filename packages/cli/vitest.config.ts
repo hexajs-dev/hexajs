@@ -2,10 +2,10 @@ import { resolve } from 'node:path';
 import { defineConfig } from 'vitest/config';
 
 const workspacePackageAliases = {
-  '@hexajs/common': resolve(__dirname, '../common/index.ts'),
-  '@hexajs/core': resolve(__dirname, '../core/index.ts'),
-  '@hexajs/ports': resolve(__dirname, '../ports/index.ts'),
-  '@hexajs/ui': resolve(__dirname, '../ui/index.ts'),
+  '@hexajs-dev/common': resolve(__dirname, '../common/index.ts'),
+  '@hexajs-dev/core': resolve(__dirname, '../core/index.ts'),
+  '@hexajs-dev/ports': resolve(__dirname, '../ports/index.ts'),
+  '@hexajs-dev/ui': resolve(__dirname, '../ui/index.ts'),
 };
 
 export default defineConfig({

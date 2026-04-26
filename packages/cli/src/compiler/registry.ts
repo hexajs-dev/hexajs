@@ -8,7 +8,7 @@ import { StateMetadata } from "./store/types";
 import { DtoValidationMetadata } from './dto/types';
 import { ViewMetadata } from './content/view/types';
 import { PackageMetadata } from '../shared/models';
-import { HEXA_BUILD_MODE, HEXA_DEBUG, HEXA_PLATFORM } from '@hexajs/common';
+import { HEXA_BUILD_MODE, HEXA_DEBUG, HEXA_PLATFORM } from '@hexajs-dev/common';
 
 const RESERVED_FRAMEWORK_TOKEN_KEYS = new Set([HEXA_PLATFORM, HEXA_BUILD_MODE, HEXA_DEBUG]);
 

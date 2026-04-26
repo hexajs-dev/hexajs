@@ -9,7 +9,7 @@ description: Public API model reference for ports module packages/ports/src/back
 #### MenusPort
 
 ```ts
-import { MenusPort } from '@hexajs/ports';
+import { MenusPort } from '@hexajs-dev/ports';
 ```
 
 ```typescript

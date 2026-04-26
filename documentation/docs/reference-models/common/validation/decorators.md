@@ -7,7 +7,7 @@ description: Public API model reference for common module packages/common/src/va
 #### @Equals
 
 ```ts
-import { Equals } from '@hexajs/common';
+import { Equals } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -17,7 +17,7 @@ import { Equals } from '@hexajs/common';
 #### @IsArray
 
 ```ts
-import { IsArray } from '@hexajs/common';
+import { IsArray } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -27,7 +27,7 @@ import { IsArray } from '@hexajs/common';
 #### @IsBoolean
 
 ```ts
-import { IsBoolean } from '@hexajs/common';
+import { IsBoolean } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -37,7 +37,7 @@ import { IsBoolean } from '@hexajs/common';
 #### @IsDateString
 
 ```ts
-import { IsDateString } from '@hexajs/common';
+import { IsDateString } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -51,7 +51,7 @@ These are pure metadata decorators—they do NOT enforce validation at runtime.
 Actual validation is performed by AOT-generated validators at compile time.
 
 ```ts
-import { IsDefined } from '@hexajs/common';
+import { IsDefined } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -61,7 +61,7 @@ import { IsDefined } from '@hexajs/common';
 #### @IsEmail
 
 ```ts
-import { IsEmail } from '@hexajs/common';
+import { IsEmail } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -71,7 +71,7 @@ import { IsEmail } from '@hexajs/common';
 #### @IsEmpty
 
 ```ts
-import { IsEmpty } from '@hexajs/common';
+import { IsEmpty } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -81,7 +81,7 @@ import { IsEmpty } from '@hexajs/common';
 #### @IsEnum
 
 ```ts
-import { IsEnum } from '@hexajs/common';
+import { IsEnum } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -91,7 +91,7 @@ import { IsEnum } from '@hexajs/common';
 #### @IsIn
 
 ```ts
-import { IsIn } from '@hexajs/common';
+import { IsIn } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -101,7 +101,7 @@ import { IsIn } from '@hexajs/common';
 #### @IsInt
 
 ```ts
-import { IsInt } from '@hexajs/common';
+import { IsInt } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -111,7 +111,7 @@ import { IsInt } from '@hexajs/common';
 #### @IsJSON
 
 ```ts
-import { IsJSON } from '@hexajs/common';
+import { IsJSON } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -121,7 +121,7 @@ import { IsJSON } from '@hexajs/common';
 #### @IsLowercase
 
 ```ts
-import { IsLowercase } from '@hexajs/common';
+import { IsLowercase } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -131,7 +131,7 @@ import { IsLowercase } from '@hexajs/common';
 #### @IsNegative
 
 ```ts
-import { IsNegative } from '@hexajs/common';
+import { IsNegative } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -141,7 +141,7 @@ import { IsNegative } from '@hexajs/common';
 #### @IsNotEmpty
 
 ```ts
-import { IsNotEmpty } from '@hexajs/common';
+import { IsNotEmpty } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -151,7 +151,7 @@ import { IsNotEmpty } from '@hexajs/common';
 #### @IsNotIn
 
 ```ts
-import { IsNotIn } from '@hexajs/common';
+import { IsNotIn } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -161,7 +161,7 @@ import { IsNotIn } from '@hexajs/common';
 #### @IsNumber
 
 ```ts
-import { IsNumber } from '@hexajs/common';
+import { IsNumber } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -171,7 +171,7 @@ import { IsNumber } from '@hexajs/common';
 #### @IsObject
 
 ```ts
-import { IsObject } from '@hexajs/common';
+import { IsObject } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -181,7 +181,7 @@ import { IsObject } from '@hexajs/common';
 #### @IsOptional
 
 ```ts
-import { IsOptional } from '@hexajs/common';
+import { IsOptional } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -191,7 +191,7 @@ import { IsOptional } from '@hexajs/common';
 #### @IsPositive
 
 ```ts
-import { IsPositive } from '@hexajs/common';
+import { IsPositive } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -201,7 +201,7 @@ import { IsPositive } from '@hexajs/common';
 #### @IsString
 
 ```ts
-import { IsString } from '@hexajs/common';
+import { IsString } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -211,7 +211,7 @@ import { IsString } from '@hexajs/common';
 #### @IsUppercase
 
 ```ts
-import { IsUppercase } from '@hexajs/common';
+import { IsUppercase } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -221,7 +221,7 @@ import { IsUppercase } from '@hexajs/common';
 #### @IsUrl
 
 ```ts
-import { IsUrl } from '@hexajs/common';
+import { IsUrl } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -231,7 +231,7 @@ import { IsUrl } from '@hexajs/common';
 #### @IsUUID
 
 ```ts
-import { IsUUID } from '@hexajs/common';
+import { IsUUID } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -241,7 +241,7 @@ import { IsUUID } from '@hexajs/common';
 #### @Length
 
 ```ts
-import { Length } from '@hexajs/common';
+import { Length } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -251,7 +251,7 @@ import { Length } from '@hexajs/common';
 #### @Matches
 
 ```ts
-import { Matches } from '@hexajs/common';
+import { Matches } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -261,7 +261,7 @@ import { Matches } from '@hexajs/common';
 #### @Max
 
 ```ts
-import { Max } from '@hexajs/common';
+import { Max } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -271,7 +271,7 @@ import { Max } from '@hexajs/common';
 #### @MaxLength
 
 ```ts
-import { MaxLength } from '@hexajs/common';
+import { MaxLength } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -281,7 +281,7 @@ import { MaxLength } from '@hexajs/common';
 #### @Min
 
 ```ts
-import { Min } from '@hexajs/common';
+import { Min } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -291,7 +291,7 @@ import { Min } from '@hexajs/common';
 #### @MinLength
 
 ```ts
-import { MinLength } from '@hexajs/common';
+import { MinLength } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -301,7 +301,7 @@ import { MinLength } from '@hexajs/common';
 #### @NotEquals
 
 ```ts
-import { NotEquals } from '@hexajs/common';
+import { NotEquals } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -311,7 +311,7 @@ import { NotEquals } from '@hexajs/common';
 #### @ValidateNested
 
 ```ts
-import { ValidateNested } from '@hexajs/common';
+import { ValidateNested } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -324,7 +324,7 @@ import { ValidateNested } from '@hexajs/common';
 #### EmailField
 
 ```ts
-import { EmailField } from '@hexajs/common';
+import { EmailField } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -337,7 +337,7 @@ function EmailField(): () => (target: any, propertyKey: string | symbol | undefi
 #### BooleanField
 
 ```ts
-import { BooleanField } from '@hexajs/common';
+import { BooleanField } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -347,7 +347,7 @@ const BooleanField: () => (target: any, propertyKey: string | symbol | undefined
 #### NumberField
 
 ```ts
-import { NumberField } from '@hexajs/common';
+import { NumberField } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -357,7 +357,7 @@ const NumberField: () => (target: any, propertyKey: string | symbol | undefined)
 #### OptionalField
 
 ```ts
-import { OptionalField } from '@hexajs/common';
+import { OptionalField } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -367,7 +367,7 @@ const OptionalField: () => (target: any, propertyKey: string | symbol | undefine
 #### RequiredField
 
 ```ts
-import { RequiredField } from '@hexajs/common';
+import { RequiredField } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -377,7 +377,7 @@ const RequiredField: () => (target: any, propertyKey: string | symbol | undefine
 #### StringField
 
 ```ts
-import { StringField } from '@hexajs/common';
+import { StringField } from '@hexajs-dev/common';
 ```
 
 ```typescript

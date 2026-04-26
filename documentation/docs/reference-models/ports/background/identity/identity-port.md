@@ -9,7 +9,7 @@ description: Public API model reference for ports module packages/ports/src/back
 #### IdentityPort
 
 ```ts
-import { IdentityPort } from '@hexajs/ports';
+import { IdentityPort } from '@hexajs-dev/ports';
 ```
 
 ```typescript

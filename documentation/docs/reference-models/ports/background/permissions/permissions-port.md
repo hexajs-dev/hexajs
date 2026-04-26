@@ -9,7 +9,7 @@ description: Public API model reference for ports module packages/ports/src/back
 #### PermissionsPort
 
 ```ts
-import { PermissionsPort } from '@hexajs/ports';
+import { PermissionsPort } from '@hexajs-dev/ports';
 ```
 
 ```typescript

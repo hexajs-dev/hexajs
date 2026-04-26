@@ -9,7 +9,7 @@ description: Public API model reference for core module packages/core/src/servic
 #### HttpHexaClient
 
 ```ts
-import { HttpHexaClient } from '@hexajs/core';
+import { HttpHexaClient } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -61,7 +61,7 @@ request<TResponse>(method: HttpHexaClientMethod, url: string, options?: HttpHexa
 #### HttpHexaClientError
 
 ```ts
-import { HttpHexaClientError } from '@hexajs/core';
+import { HttpHexaClientError } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -74,7 +74,7 @@ class HttpHexaClientError<TBody = unknown> extends Error { ... }
 #### HttpHexaClientHeadersLike
 
 ```ts
-import { HttpHexaClientHeadersLike } from '@hexajs/core';
+import { HttpHexaClientHeadersLike } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -90,7 +90,7 @@ interface HttpHexaClientHeadersLike {
 #### HttpHexaClientRequestOptions
 
 ```ts
-import { HttpHexaClientRequestOptions } from '@hexajs/core';
+import { HttpHexaClientRequestOptions } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -114,7 +114,7 @@ interface HttpHexaClientRequestOptions<TBody = unknown> {
 #### HttpHexaClientResponseLike
 
 ```ts
-import { HttpHexaClientResponseLike } from '@hexajs/core';
+import { HttpHexaClientResponseLike } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -135,7 +135,7 @@ interface HttpHexaClientResponseLike {
 #### HttpHexaClientCache
 
 ```ts
-import { HttpHexaClientCache } from '@hexajs/core';
+import { HttpHexaClientCache } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -145,7 +145,7 @@ type HttpHexaClientCache = 'default' | 'force-cache' | 'no-cache' | 'no-store' |
 #### HttpHexaClientCredentials
 
 ```ts
-import { HttpHexaClientCredentials } from '@hexajs/core';
+import { HttpHexaClientCredentials } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -155,7 +155,7 @@ type HttpHexaClientCredentials = 'omit' | 'same-origin' | 'include';
 #### HttpHexaClientHeaders
 
 ```ts
-import { HttpHexaClientHeaders } from '@hexajs/core';
+import { HttpHexaClientHeaders } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -165,7 +165,7 @@ type HttpHexaClientHeaders = Record<string, HttpHexaClientHeaderValue>;
 #### HttpHexaClientHeaderValue
 
 ```ts
-import { HttpHexaClientHeaderValue } from '@hexajs/core';
+import { HttpHexaClientHeaderValue } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -175,7 +175,7 @@ type HttpHexaClientHeaderValue = HttpHexaClientPrimitive | readonly HttpHexaClie
 #### HttpHexaClientMethod
 
 ```ts
-import { HttpHexaClientMethod } from '@hexajs/core';
+import { HttpHexaClientMethod } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -185,7 +185,7 @@ type HttpHexaClientMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD'
 #### HttpHexaClientMode
 
 ```ts
-import { HttpHexaClientMode } from '@hexajs/core';
+import { HttpHexaClientMode } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -195,7 +195,7 @@ type HttpHexaClientMode = 'cors' | 'navigate' | 'no-cors' | 'same-origin';
 #### HttpHexaClientParams
 
 ```ts
-import { HttpHexaClientParams } from '@hexajs/core';
+import { HttpHexaClientParams } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -205,7 +205,7 @@ type HttpHexaClientParams = Record<string, HttpHexaClientQueryValue>;
 #### HttpHexaClientPrimitive
 
 ```ts
-import { HttpHexaClientPrimitive } from '@hexajs/core';
+import { HttpHexaClientPrimitive } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -215,7 +215,7 @@ type HttpHexaClientPrimitive = string | number | boolean;
 #### HttpHexaClientQueryRequestOptions
 
 ```ts
-import { HttpHexaClientQueryRequestOptions } from '@hexajs/core';
+import { HttpHexaClientQueryRequestOptions } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -225,7 +225,7 @@ type HttpHexaClientQueryRequestOptions = Omit<HttpHexaClientRequestOptions, 'bod
 #### HttpHexaClientQueryValue
 
 ```ts
-import { HttpHexaClientQueryValue } from '@hexajs/core';
+import { HttpHexaClientQueryValue } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -235,7 +235,7 @@ type HttpHexaClientQueryValue = HttpHexaClientPrimitive | readonly HttpHexaClien
 #### HttpHexaClientRedirect
 
 ```ts
-import { HttpHexaClientRedirect } from '@hexajs/core';
+import { HttpHexaClientRedirect } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -245,7 +245,7 @@ type HttpHexaClientRedirect = 'error' | 'follow' | 'manual';
 #### HttpHexaClientResponseType
 
 ```ts
-import { HttpHexaClientResponseType } from '@hexajs/core';
+import { HttpHexaClientResponseType } from '@hexajs-dev/core';
 ```
 
 ```typescript

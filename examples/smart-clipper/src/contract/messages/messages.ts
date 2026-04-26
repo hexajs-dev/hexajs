@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString } from '@hexajs/common';
+import { IsNumber, IsOptional, IsString } from '@hexajs-dev/common';
 
 export class ClipperPoint {
     @IsNumber()

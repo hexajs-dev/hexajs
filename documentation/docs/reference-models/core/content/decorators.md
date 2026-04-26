@@ -7,7 +7,7 @@ description: Public API model reference for core module packages/core/src/conten
 #### @Content
 
 ```ts
-import { Content } from '@hexajs/core';
+import { Content } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -20,7 +20,7 @@ import { Content } from '@hexajs/core';
 #### ContentRunAt
 
 ```ts
-import { ContentRunAt } from '@hexajs/core';
+import { ContentRunAt } from '@hexajs-dev/core';
 ```
 
 ```typescript

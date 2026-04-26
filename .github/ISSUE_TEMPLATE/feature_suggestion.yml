@@ -43,11 +43,11 @@ body:
       label: Affected package(s)
       multiple: true
       options:
-        - @hexajs/cli
-        - @hexajs/common
-        - @hexajs/core
-        - @hexajs/ports
-        - @hexajs/ui
+        - @hexajs-dev/cli
+        - @hexajs-dev/common
+        - @hexajs-dev/core
+        - @hexajs-dev/ports
+        - @hexajs-dev/ui
         - documentation
         - examples
         - unknown

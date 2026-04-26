@@ -1,5 +1,5 @@
-import { Content, ContentRunAt, HexaContentClient, HexaContentStore, InjectView, select } from '@hexajs/core';
-import { OnInit, OnDestroy } from '@hexajs/common';
+import { Content, ContentRunAt, HexaContentClient, HexaContentStore, InjectView, select } from '@hexajs-dev/core';
+import { OnInit, OnDestroy } from '@hexajs-dev/common';
 import { ContentState } from './store/content.reducer';
 import { clipAdded, clipsSynced, configSynced } from './store/content.actions';
 import { clipboardApi, configApi } from '../contract/api';

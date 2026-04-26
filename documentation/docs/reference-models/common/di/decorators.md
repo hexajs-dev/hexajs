@@ -7,7 +7,7 @@ description: Public API model reference for common module packages/common/src/di
 #### @Injectable
 
 ```ts
-import { Injectable } from '@hexajs/common';
+import { Injectable } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -20,7 +20,7 @@ import { Injectable } from '@hexajs/common';
 #### HexaTokenRef
 
 ```ts
-import { HexaTokenRef } from '@hexajs/common';
+import { HexaTokenRef } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -34,7 +34,7 @@ interface HexaTokenRef<T> {
 #### InjectableOptions
 
 ```ts
-import { InjectableOptions } from '@hexajs/common';
+import { InjectableOptions } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -49,7 +49,7 @@ interface InjectableOptions {
 #### InjectableContext
 
 ```ts
-import { InjectableContext } from '@hexajs/common';
+import { InjectableContext } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -67,7 +67,7 @@ enum InjectableContext {
 #### createToken
 
 ```ts
-import { createToken } from '@hexajs/common';
+import { createToken } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -77,7 +77,7 @@ function createToken<T>(key: string, value: T, context?: InjectableContext): Hex
 #### Inject
 
 ```ts
-import { Inject } from '@hexajs/common';
+import { Inject } from '@hexajs-dev/common';
 ```
 
 ```typescript

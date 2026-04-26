@@ -34,7 +34,7 @@ Shadow Views are useful because they give you:
 A view class extends `HexaView` and is decorated with `@View`. The decorator points to the React component and style payload.
 
 ```ts
-import { HexaView, View } from '@hexajs/core';
+import { HexaView, View } from '@hexajs-dev/core';
 import { ClipboardOverlayComponent } from './clipboard-overlay.component';
 import styles from './clipboard-overlay.scss?inline';
 
@@ -70,7 +70,7 @@ What matters here:
 Consumers inject views as class properties with `@InjectView()`. The property type is used to infer the view class.
 
 ```ts
-import { Content, InjectView } from '@hexajs/core';
+import { Content, InjectView } from '@hexajs-dev/core';
 import { ClipboardOverlayView } from './ui/clipboard-overlay/clipboard-overlay.view';
 
 @Content()
@@ -107,8 +107,8 @@ The React component receives the view instance as `controller`. This is where th
 
 ```tsx
 import React, { useEffect, useRef } from 'react';
-import { inject } from '@hexajs/common';
-import { HexaContentStore, select } from '@hexajs/core';
+import { inject } from '@hexajs-dev/common';
+import { HexaContentStore, select } from '@hexajs-dev/core';
 import { ClipItem } from '../../../contract/messages';
 import { ContentState } from '../../store/content.reducer';
 import { selectConfig, selectFilteredClips } from '../../store/content.selectors';

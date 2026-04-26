@@ -1,7 +1,7 @@
 import type { ScaffoldContext } from '../models/scaffold.types';
 
 export const contractStartMessagesTemplate = (_ctx: ScaffoldContext): string => `\
-import { IsNumber, IsString } from '@hexajs/common';
+import { IsNumber, IsString } from '@hexajs-dev/common';
 
 export class ContentPingMessage {
   @IsString()

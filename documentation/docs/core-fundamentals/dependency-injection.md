@@ -56,7 +56,7 @@ Valid service contexts are `background`, `content`, `general`, and `ui`.
 ## Declaring a service
 
 ```ts
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 
 @Injectable({ context: InjectableContext.Background })
 export class TabQueryService {
@@ -71,9 +71,9 @@ export class TabQueryService {
 The same injection pattern works in both contexts, but each class can only consume services valid for its context.
 
 ```ts
-import { Inject } from '@hexajs/common';
-import { Controller, Action } from '@hexajs/core';
-import { TabsPort } from '@hexajs/ports';
+import { Inject } from '@hexajs-dev/common';
+import { Controller, Action } from '@hexajs-dev/core';
+import { TabsPort } from '@hexajs-dev/ports';
 import { TabQueryService } from '../services/tab-query.service';
 
 @Controller({ namespace: 'tabs' })
@@ -89,7 +89,7 @@ export class TabsController {
 ```
 
 ```ts
-import { Handler, Handle } from '@hexajs/core';
+import { Handler, Handle } from '@hexajs-dev/core';
 import { LoggerService } from '../services/logger.service';
 import { MyContentEntry } from './content';
 
@@ -110,7 +110,7 @@ export class TabsHandler {
 For values (not classes), use token injection with `@Inject(...)`:
 
 ```ts
-import { Inject, Injectable, HEXA_PLATFORM } from '@hexajs/common';
+import { Inject, Injectable, HEXA_PLATFORM } from '@hexajs-dev/common';
 
 @Injectable()
 export class PlatformLabelService {

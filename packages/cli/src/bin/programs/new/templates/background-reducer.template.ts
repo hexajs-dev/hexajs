@@ -1,7 +1,7 @@
 import type { ScaffoldContext } from '../models/scaffold.types';
 
 export const backgroundReducerTemplate = (_ctx: ScaffoldContext): string => `\
-import { HexaReducer, Reduce, Reducer } from '@hexajs/core';
+import { HexaReducer, Reduce, Reducer } from '@hexajs-dev/core';
 import * as BackgroundActions from './background.actions';
 
 export interface LastContentCallState {

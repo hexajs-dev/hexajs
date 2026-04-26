@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Container, createToken, Inject, Injectable } from '@hexajs/common';
+import { Container, createToken, Inject, Injectable } from '@hexajs-dev/common';
 
 describe('common DI security', () => {
   it('ignores tampering with public __hexa_injects__ properties', () => {

@@ -1,4 +1,4 @@
-﻿---
+---
 title: NotificationsPort
 description: API reference for NotificationsPort in the background context.
 ---
@@ -28,8 +28,8 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 ## Usage
 
 ```typescript
-import { NotificationsPort } from '@hexajs/ports';
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { NotificationsPort } from '@hexajs-dev/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 
 @Injectable({ context: InjectableContext.Background })
 export class DownloadNotificationService {

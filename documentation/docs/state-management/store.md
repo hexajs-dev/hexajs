@@ -23,7 +23,7 @@ Managed UI does not host `@State` and should communicate through clients/message
 Example from the Background context:
 
 ```ts
-import { HexaReducer, Reduce, Reducer } from '@hexajs/core';
+import { HexaReducer, Reduce, Reducer } from '@hexajs-dev/core';
 import * as BackgroundActions from './background.actions';
 
 export interface LastContentCallState {
@@ -54,8 +54,8 @@ export class LastContentCallReducer extends HexaReducer<LastContentCallState> {
 ## 2) Register state with @State
 
 ```ts
-import { State } from '@hexajs/core';
-import { InjectableContext } from '@hexajs/common';
+import { State } from '@hexajs-dev/core';
+import { InjectableContext } from '@hexajs-dev/common';
 import { BackgroundState, LastContentCallReducer } from './background.reducer';
 
 @State<BackgroundState>({
@@ -74,7 +74,7 @@ Use `InjectableContext.Content` for content-side state configs.
 Background example:
 
 ```ts
-import { Background, HexaBackgroundStore, select } from '@hexajs/core';
+import { Background, HexaBackgroundStore, select } from '@hexajs-dev/core';
 import { Subscription } from 'rxjs';
 import { BackgroundState } from './store/background.reducer';
 

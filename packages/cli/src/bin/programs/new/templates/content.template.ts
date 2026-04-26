@@ -1,12 +1,12 @@
 import type { ScaffoldContext } from '../models/scaffold.types';
 
 export const contentTemplate = (ctx: ScaffoldContext): string => `\
-import { Content, ContentRunAt, HexaContentClient, HexaContentStore, select } from '@hexajs/core';
+import { Content, ContentRunAt, HexaContentClient, HexaContentStore, select } from '@hexajs-dev/core';
 import { ContentStateConfig } from './store/content.state';
 import { ContentState } from './store/content.reducer';
 import { LoggerService } from '../services/logger.service';
 import { ContentPingMessage } from '../contract/start/messages';
-import { OnDestroy, OnInit } from '@hexajs/common';
+import { OnDestroy, OnInit } from '@hexajs-dev/common';
 import { Subscription } from 'rxjs';
 
 @Content({ matches: ['<all_urls>'], runAt: ContentRunAt.DocumentIdle })

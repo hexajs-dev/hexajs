@@ -19,7 +19,7 @@ The recommended workflow is:
 4. Register reducer slices in a `@State(...)` config.
 5. Inject `HexaBackgroundStore<T>` or `HexaContentStore<T>` and use `dispatch(...)` + `pipe(select(...))`.
 
-This section is aligned with the real runtime behavior in `@hexajs/core` and generation/validation in `@hexajs/cli`.
+This section is aligned with the real runtime behavior in `@hexajs-dev/core` and generation/validation in `@hexajs-dev/cli`.
 
 ## What you'll learn
 

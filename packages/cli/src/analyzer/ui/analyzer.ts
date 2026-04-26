@@ -3,7 +3,7 @@ import { ServiceMetadata, HexaContext } from '../../compiler/di/types';
 import { StateMetadata } from '../../compiler/store/types';
 import { AnalysisError, AnalysisResult, BaseAnalyzer } from '../types';
 
-const HEXA_UI_PACKAGE = '@hexajs/ui';
+const HEXA_UI_PACKAGE = '@hexajs-dev/ui';
 
 export class UIAnalyzer implements BaseAnalyzer {
   constructor(private services: ServiceMetadata[], private states: StateMetadata[], private config: ResolvedBuildConfig) {}
