@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as crypto from 'crypto';
 import type { Plugin } from 'vite';
-import { HEXA_METADATA_HMAC_KEY } from '../src/constants.ts';
+import { HEXA_METADATA_HMAC_KEY } from '../src/constants';
 
 interface HexaServiceMetadata {
   injectable: true;

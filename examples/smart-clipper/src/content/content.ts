@@ -18,19 +18,3 @@ export class SmartClipperContent implements OnInit, OnDestroy {
 } 
 
 
-
-@Content({ matches: ['*://*.google.com/*'], runAt: ContentRunAt.DocumentIdle })
-export class GoogleClipperContent implements OnInit, OnDestroy {
-	constructor(private readonly clipperUi: ClipperUiService) {}
-
-	
-	onInit(): void {
-		
-	}
-
-	onDestroy(): void {
-		this.clipperUi.dispose();
-		console.log('[smart-clipper] Content script destroyed');
-	}
-}
-

@@ -28,7 +28,35 @@
           "items": { "type": "string" },
           "description": "Static assets to copy to the build folder (globs supported)"
         },
-        "minify": { "type": "boolean", "default": true }
+        "minify": {
+          "description": "JavaScript minification strategy. true maps to esbuild.",
+          "default": false,
+          "oneOf": [
+            { "type": "boolean" },
+            { "type": "string", "enum": ["esbuild", "terser"] }
+          ]
+        },
+        "cssMinify": {
+          "description": "CSS minification strategy.",
+          "default": false,
+          "oneOf": [
+            { "type": "boolean" },
+            { "type": "string", "enum": ["esbuild", "lightningcss"] }
+          ]
+        },
+        "sourceMap": {
+          "description": "Source map output mode mapped to Vite build.sourcemap.",
+          "default": true,
+          "oneOf": [
+            { "type": "boolean" },
+            { "type": "string", "enum": ["inline", "hidden"] }
+          ]
+        },
+        "terserOptions": {
+          "type": "object",
+          "description": "Optional Terser options used when minify is set to terser.",
+          "default": {}
+        }
       }
     },
     "tokens": {
@@ -121,7 +149,25 @@
           "properties": {
             "tsConfig": { "type": "string" },
             "assets": { "type": "array", "items": { "type": "string" } },
-            "minify": { "type": "boolean" }
+            "minify": {
+              "oneOf": [
+                { "type": "boolean" },
+                { "type": "string", "enum": ["esbuild", "terser"] }
+              ]
+            },
+            "cssMinify": {
+              "oneOf": [
+                { "type": "boolean" },
+                { "type": "string", "enum": ["esbuild", "lightningcss"] }
+              ]
+            },
+            "sourceMap": {
+              "oneOf": [
+                { "type": "boolean" },
+                { "type": "string", "enum": ["inline", "hidden"] }
+              ]
+            },
+            "terserOptions": { "type": "object" }
           }
         },
         "tsConfig": { "type": "string", "description": "Override tsconfig file for this environment (e.g. tsconfig.prod.json)" },

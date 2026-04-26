@@ -4,6 +4,7 @@ import { addCommand } from './programs/add';
 import { build } from './programs/build';
 import { generateCommand } from './programs/generate';
 import { newCommand } from './programs/new/new';
+import cliPackage from '../../package.json';
 
 const program = new Command();
 
@@ -12,7 +13,7 @@ const program = new Command();
 
 program
     .name('hexa')
-    .version('1.0.0')
+    .version(cliPackage.version)
     .description('HexaJS command line interface');
 
 

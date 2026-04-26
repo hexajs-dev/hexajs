@@ -1,6 +1,6 @@
 import { MetadataRegistry } from '../../compiler/registry';
 
-interface ValidationModuleOutput {
+export interface ValidationModuleOutput {
     background: string;
     content: string;
 }
@@ -10,57 +10,93 @@ interface RouteValidationEntry {
     dtoType: string;
 }
 
+interface ContextValidationRoutes {
+    inbound: RouteValidationEntry[];
+    outbound: RouteValidationEntry[];
+}
+
 export class ValidatorGenerator {
     constructor(private registry: MetadataRegistry) { }
 
     public generate(): ValidationModuleOutput {
+        const backgroundRoutes = this.collectBackgroundRoutes();
+        const contentRoutes = this.collectContentRoutes();
+
         return {
-            background: this.generateContextModule(this.getBackgroundInboundRoutes(), this.getBackgroundOutboundRoutes()),
-            content: this.generateContextModule(this.getContentInboundRoutes(), this.getContentOutboundRoutes())
+            background: this.generateContextModule(backgroundRoutes),
+            content: this.generateContextModule(contentRoutes)
         };
     }
 
-    private getBackgroundInboundRoutes(): RouteValidationEntry[] {
-        return this.registry.getControllers()
-            .flatMap(controller => controller.methods
-                .filter(method => !!method.actionName && !!method.payloadDtoType)
-                .map(method => ({ route: method.actionName!, dtoType: method.payloadDtoType! })));
+    private collectBackgroundRoutes(): ContextValidationRoutes {
+        const inbound: RouteValidationEntry[] = [];
+        const outbound: RouteValidationEntry[] = [];
+
+        for (const controller of this.registry.getControllers()) {
+            for (const method of controller.methods) {
+                if (!method.actionName) {
+                    continue;
+                }
+
+                if (method.payloadDtoType) {
+                    inbound.push({ route: method.actionName, dtoType: method.payloadDtoType });
+                }
+
+                if (method.responseDtoType) {
+                    outbound.push({ route: method.actionName, dtoType: method.responseDtoType });
+                }
+            }
+        }
+
+        return { inbound, outbound };
     }
 
-    private getBackgroundOutboundRoutes(): RouteValidationEntry[] {
-        return this.registry.getControllers()
-            .flatMap(controller => controller.methods
-                .filter(method => !!method.actionName && !!method.responseDtoType)
-                .map(method => ({ route: method.actionName!, dtoType: method.responseDtoType! })));
+    private collectContentRoutes(): ContextValidationRoutes {
+        const inbound: RouteValidationEntry[] = [];
+        const outbound: RouteValidationEntry[] = [];
+
+        for (const handler of this.registry.getHandlers()) {
+            for (const method of handler.methods) {
+                if (!method.handleName) {
+                    continue;
+                }
+
+                if (method.payloadDtoType) {
+                    inbound.push({ route: method.handleName, dtoType: method.payloadDtoType });
+                }
+
+                if (method.responseDtoType) {
+                    outbound.push({ route: method.handleName, dtoType: method.responseDtoType });
+                }
+            }
+        }
+
+        return { inbound, outbound };
     }
 
-    private getContentInboundRoutes(): RouteValidationEntry[] {
-        return this.registry.getHandlers()
-            .flatMap(handler => handler.methods
-                .filter(method => !!method.handleName && !!method.payloadDtoType)
-                .map(method => ({ route: method.handleName!, dtoType: method.payloadDtoType! })));
-    }
+    private generateContextModule(routes: ContextValidationRoutes): string {
+        const dtoTypes = new Set<string>();
+        for (const route of routes.inbound) {
+            dtoTypes.add(route.dtoType);
+        }
+        for (const route of routes.outbound) {
+            dtoTypes.add(route.dtoType);
+        }
 
-    private getContentOutboundRoutes(): RouteValidationEntry[] {
-        return this.registry.getHandlers()
-            .flatMap(handler => handler.methods
-                .filter(method => !!method.handleName && !!method.responseDtoType)
-                .map(method => ({ route: method.handleName!, dtoType: method.responseDtoType! })));
-    }
-
-    private generateContextModule(inboundRoutes: RouteValidationEntry[], outboundRoutes: RouteValidationEntry[]): string {
-        const usedDtos = [...new Set([...inboundRoutes, ...outboundRoutes].map(route => route.dtoType))]
+        const usedDtos = [...dtoTypes]
             .map(dtoType => this.registry.getDtoValidation(dtoType))
             .filter((dto): dto is NonNullable<typeof dto> => !!dto);
 
+        const usedDtoTypes = new Set(usedDtos.map(dto => dto.className));
+
         const inboundValidators = usedDtos.map(dto => this.generateInboundDtoValidator(dto.className, dto.properties));
         const outboundValidators = usedDtos.map(dto => this.generateOutboundDtoValidator(dto.className, dto.properties, dto.hasIndexSignature));
-        const inboundRouteLines = inboundRoutes
-            .filter(route => usedDtos.some(dto => dto.className === route.dtoType))
+        const inboundRouteLines = routes.inbound
+            .filter(route => usedDtoTypes.has(route.dtoType))
             .map(route => `  '${route.route}': validate${route.dtoType},`)
             .join('\n');
-        const outboundRouteLines = outboundRoutes
-            .filter(route => usedDtos.some(dto => dto.className === route.dtoType))
+        const outboundRouteLines = routes.outbound
+            .filter(route => usedDtoTypes.has(route.dtoType))
             .map(route => `  '${route.route}': validateResponse${route.dtoType},`)
             .join('\n');
 

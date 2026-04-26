@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { build as viteBuild } from 'vite';
-import type { HexaUiSurfaceConfig } from '../core/types';
+import type { HexaUiCompilerOptions, HexaUiSurfaceConfig } from '../core/types';
 import { createFallbackSurface } from '../core/fallback';
 import { loadReactPlugin } from '../core/react-plugin';
 import { normalizeManifestPath } from '../core/normalize';
@@ -12,7 +12,7 @@ import { getDefaultViteConfig, loadUserViteConfig, mergeViteConfigs } from '../c
  * Build a managed devtools panel from `config.sourceDir` using an internal Vite build.
  * Returns the manifest-relative entry path (e.g. "ui/devtools/index.html").
  */
-export async function buildManagedDevtools(config: HexaUiSurfaceConfig | undefined, outputDir: string, minify: boolean, bootstrapPath: string, platform: string, watch: boolean = false, hmrAddress?: string, hmrSessionToken?: string, cwd: string = process.cwd()): Promise<string> {
+export async function buildManagedDevtools(config: HexaUiSurfaceConfig | undefined, outputDir: string, compilerOptions: HexaUiCompilerOptions, bootstrapPath: string, platform: string, watch: boolean = false, hmrAddress?: string, hmrSessionToken?: string, cwd: string = process.cwd()): Promise<string> {
   const sourceDir = path.resolve(cwd, config?.sourceDir ?? path.join('ui', 'devtools'));
   const indexFile = config?.indexFile ?? 'index.html';
   const sourceIndex = path.join(sourceDir, indexFile);
@@ -42,7 +42,7 @@ export async function buildManagedDevtools(config: HexaUiSurfaceConfig | undefin
     inputs['devtools'] = bridgeHtml;
   }
 
-  const defaultViteConfig = getDefaultViteConfig(sourceDir, targetBase, minify, inputs, [react, bootstrap], { __HEXA_PLATFORM__: JSON.stringify(platform) });
+  const defaultViteConfig = getDefaultViteConfig(sourceDir, targetBase, compilerOptions, inputs, [react, bootstrap], { __HEXA_PLATFORM__: JSON.stringify(platform) });
   const userViteConfig = await loadUserViteConfig(sourceDir, watch ? 'development' : 'production') ?? {};
 
   await viteBuild(mergeViteConfigs(defaultViteConfig, userViteConfig));

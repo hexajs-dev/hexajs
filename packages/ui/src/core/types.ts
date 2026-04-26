@@ -16,6 +16,13 @@ export interface HexaUiSurfaceConfig {
   viteConfig?: string;
 }
 
+export interface HexaUiCompilerOptions {
+  minify: false | 'esbuild' | 'terser';
+  cssMinify: boolean | 'esbuild' | 'lightningcss';
+  sourceMap: boolean | 'inline' | 'hidden';
+  terserOptions: Record<string, unknown>;
+}
+
 export interface HexaUiConfig {
   popup?: HexaUiSurfaceConfig;
   devtools?: HexaUiSurfaceConfig;

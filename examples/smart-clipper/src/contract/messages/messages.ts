@@ -184,3 +184,171 @@ export class RecentClipsMessage {
         this.clips = clips;
     }
 }
+
+export class DevtoolsGetStateMessage {
+    @IsNumber()
+    requestedAt: number;
+
+    @IsString()
+    source: string;
+
+    constructor(requestedAt: number, source: string = 'devtools') {
+        this.requestedAt = requestedAt;
+        this.source = source;
+    }
+}
+
+export enum DevtoolsErrorPhase {
+    Capture = 'capture',
+    Ocr = 'ocr',
+    Unknown = 'unknown',
+}
+
+export class DevtoolsClipDiagnosticItem {
+    @IsNumber()
+    capturedAt: number;
+
+    @IsString()
+    textPreview: string;
+
+    @IsString()
+    fullText: string;
+
+    @IsOptional()
+    @IsNumber()
+    confidence?: number;
+
+    @IsOptional()
+    @IsString()
+    ocrLanguage?: string;
+
+    @IsOptional()
+    @IsNumber()
+    sourceTabId?: number;
+
+    @IsOptional()
+    @IsString()
+    sourceTabTitle?: string;
+
+    @IsOptional()
+    @IsString()
+    sourceTabUrl?: string;
+
+    @IsOptional()
+    @IsNumber()
+    imageWidth?: number;
+
+    @IsOptional()
+    @IsNumber()
+    imageHeight?: number;
+
+    @IsOptional()
+    @IsNumber()
+    captureDurationMs?: number;
+
+    @IsOptional()
+    @IsNumber()
+    ocrDurationMs?: number;
+
+    @IsOptional()
+    @IsNumber()
+    totalDurationMs?: number;
+
+    constructor(capturedAt: number, textPreview: string, fullText: string, confidence?: number, ocrLanguage?: string, sourceTabId?: number, sourceTabTitle?: string, sourceTabUrl?: string, imageWidth?: number, imageHeight?: number, captureDurationMs?: number, ocrDurationMs?: number, totalDurationMs?: number) {
+        this.capturedAt = capturedAt;
+        this.textPreview = textPreview;
+        this.fullText = fullText;
+        this.confidence = confidence;
+        this.ocrLanguage = ocrLanguage;
+        this.sourceTabId = sourceTabId;
+        this.sourceTabTitle = sourceTabTitle;
+        this.sourceTabUrl = sourceTabUrl;
+        this.imageWidth = imageWidth;
+        this.imageHeight = imageHeight;
+        this.captureDurationMs = captureDurationMs;
+        this.ocrDurationMs = ocrDurationMs;
+        this.totalDurationMs = totalDurationMs;
+    }
+}
+
+export class DevtoolsErrorItem {
+    @IsNumber()
+    failedAt: number;
+
+    @IsString()
+    phase: DevtoolsErrorPhase;
+
+    @IsString()
+    message: string;
+
+    @IsOptional()
+    @IsString()
+    ocrLanguage?: string;
+
+    @IsOptional()
+    @IsNumber()
+    sourceTabId?: number;
+
+    @IsOptional()
+    @IsString()
+    sourceTabTitle?: string;
+
+    @IsOptional()
+    @IsString()
+    sourceTabUrl?: string;
+
+    @IsOptional()
+    @IsNumber()
+    captureDurationMs?: number;
+
+    @IsOptional()
+    @IsNumber()
+    totalDurationMs?: number;
+
+    constructor(failedAt: number, phase: DevtoolsErrorPhase, message: string, ocrLanguage?: string, sourceTabId?: number, sourceTabTitle?: string, sourceTabUrl?: string, captureDurationMs?: number, totalDurationMs?: number) {
+        this.failedAt = failedAt;
+        this.phase = phase;
+        this.message = message;
+        this.ocrLanguage = ocrLanguage;
+        this.sourceTabId = sourceTabId;
+        this.sourceTabTitle = sourceTabTitle;
+        this.sourceTabUrl = sourceTabUrl;
+        this.captureDurationMs = captureDurationMs;
+        this.totalDurationMs = totalDurationMs;
+    }
+}
+
+export class DevtoolsStateMessage {
+    clips: DevtoolsClipDiagnosticItem[];
+    errors: DevtoolsErrorItem[];
+
+    constructor(clips: DevtoolsClipDiagnosticItem[], errors: DevtoolsErrorItem[]) {
+        this.clips = clips;
+        this.errors = errors;
+    }
+}
+
+export class DevtoolsSyncClipsMessage {
+    clips: DevtoolsClipDiagnosticItem[];
+
+    constructor(clips: DevtoolsClipDiagnosticItem[]) {
+        this.clips = clips;
+    }
+}
+
+export class DevtoolsSyncErrorsMessage {
+    errors: DevtoolsErrorItem[];
+
+    constructor(errors: DevtoolsErrorItem[]) {
+        this.errors = errors;
+    }
+}
+
+export class DevtoolsSyncThemeMessage {
+    @IsString()
+    theme: string;
+
+    constructor(theme: string) {
+        this.theme = theme;
+    }
+}

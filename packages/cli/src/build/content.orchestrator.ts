@@ -9,8 +9,7 @@ export function runContentOrchestrator(foundation: BuildFoundationOutput): Conte
     const { registry, storeOutputs, mergedTokens, outputDir, watch } = foundation;
     const { contentBootstraps } = buildContentArtifacts(registry, storeOutputs, mergedTokens, outputDir, watch ?? false);
 
-    const validatorGenerator = new ValidatorGenerator(registry);
-    const validators = validatorGenerator.generate();
+    const validators = foundation.validators ?? new ValidatorGenerator(registry).generate();
 
     const generatedRows = [];
     const contentValidatorsPath = path.join(outputDir, 'content', 'content.validators.js');

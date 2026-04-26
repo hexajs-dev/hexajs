@@ -5,6 +5,7 @@ import { MetadataRegistry } from '../compiler/registry';
 import { ContentScriptOutput } from '../generators/content/generator';
 import { ManifestUiEntries } from '../generators/manifest/generator';
 import { StoreScriptOutput } from '../generators/store/generator';
+import type { ValidationModuleOutput } from '../generators/validator/generator';
 
 export type BuildTarget = 'all' | 'ui' | 'content' | 'background';
 
@@ -29,6 +30,7 @@ export interface BuildFoundationOutput {
     outputDir: string;
     mergedTokens: ConfigToken[];
     storeOutputs: StoreScriptOutput[];
+    validators?: ValidationModuleOutput;
     watch?: boolean;
     hmrAddress?: string;
     hmrSessionToken?: string;

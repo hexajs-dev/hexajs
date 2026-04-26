@@ -56,9 +56,9 @@ export class ManifestGenerator {
         this.applyWorkerMutations(manifest);
         this.applyWatchModeMutations(manifest);
 
-        // 6. Stringify with minify flag
-        const minify = this.resolved.compilerOptions.minify;
-        return minify
+        // 6. Stringify with minify strategy
+        const shouldMinify = this.resolved.compilerOptions.minify !== false;
+        return shouldMinify
             ? JSON.stringify(manifest)
             : JSON.stringify(manifest, null, 2);
     }

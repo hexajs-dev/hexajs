@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { build as viteBuild } from 'vite';
-import type { HexaUiSurfaceConfig } from '../core/types';
+import type { HexaUiCompilerOptions, HexaUiSurfaceConfig } from '../core/types';
 import { createFallbackSurface } from '../core/fallback';
 import { normalizeManifestPath } from '../core/normalize';
 import { loadReactPlugin } from '../core/react-plugin';
@@ -16,7 +16,7 @@ import { getDefaultViteConfig, loadUserViteConfig, mergeViteConfigs } from '../c
 export async function buildManagedPopup(
   config: HexaUiSurfaceConfig | undefined,
   outputDir: string,
-  minify: boolean,
+  compilerOptions: HexaUiCompilerOptions,
   bootstrapPath: string,
   platform: string,
   watch: boolean = false,
@@ -46,7 +46,7 @@ export async function buildManagedPopup(
   const defaultViteConfig = getDefaultViteConfig(
     sourceDir,
     targetBase,
-    minify,
+    compilerOptions,
     { popup: path.join(sourceDir, normalizedIndex) },
     [react, bootstrap],
     { __HEXA_PLATFORM__: JSON.stringify(platform) }

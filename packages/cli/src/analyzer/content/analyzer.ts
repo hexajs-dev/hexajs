@@ -9,6 +9,7 @@ export class ContentAnalyzer implements BaseAnalyzer {
   private handlers: HandlerMetadata[];
   private contentEntries: ContentEntryMetadata[];
   private views: ViewMetadata[];
+  private viewClassNames: Set<string>;
   private diAnalyzer: DIAnalyzer;
 
   constructor(handlers: HandlerMetadata[], diAnalyzer: DIAnalyzer, contentEntries: ContentEntryMetadata[] = [], views: ViewMetadata[] = []) {
@@ -16,6 +17,7 @@ export class ContentAnalyzer implements BaseAnalyzer {
     this.diAnalyzer = diAnalyzer;
     this.contentEntries = contentEntries;
     this.views = views;
+    this.viewClassNames = new Set(views.map(view => view.className));
   }
 
   /**
@@ -75,10 +77,8 @@ export class ContentAnalyzer implements BaseAnalyzer {
   }
 
   private validateViewDependencies(meta: { className: string; viewDependencies: { paramIndex: number; viewClassName: string }[] }, errors: AnalysisError[]): void {
-    const viewMap = new Map(this.views.map(v => [v.className, v]));
-
     for (const vd of meta.viewDependencies) {
-      if (!viewMap.has(vd.viewClassName)) {
+      if (!this.viewClassNames.has(vd.viewClassName)) {
         errors.push({
           type: 'missing-service',
           message: `"${meta.className}" uses @injectView(${vd.viewClassName}) but "${vd.viewClassName}" is not decorated with @View`,
@@ -90,11 +90,10 @@ export class ContentAnalyzer implements BaseAnalyzer {
   }
 
   private validateViewPropertyDependencies(meta: { className: string; viewPropertyDependencies?: { propertyName: string; viewClassName: string }[] }, errors: AnalysisError[]): void {
-    const viewMap = new Map(this.views.map(v => [v.className, v]));
     const deps = meta.viewPropertyDependencies || [];
 
     for (const vd of deps) {
-      if (!viewMap.has(vd.viewClassName)) {
+      if (!this.viewClassNames.has(vd.viewClassName)) {
         errors.push({
           type: 'missing-service',
           message: `"${meta.className}" uses @InjectView() on property "${vd.propertyName}" but "${vd.viewClassName}" is not decorated with @View`,

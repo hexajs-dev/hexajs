@@ -10,7 +10,10 @@
     "assets": [
       "src/assets/**/*"
     ],
-    "minify": false
+    "minify": false,
+    "cssMinify": false,
+    "sourceMap": true,
+    "terserOptions": {}
   },
   "tokens": [],
   "ui": {
@@ -29,7 +32,9 @@
   "environments": {
     "dev": {
       "compilerOptions": {
-        "minify": false
+        "minify": false,
+        "cssMinify": false,
+        "sourceMap": true
       },
       "tokens": [],
       "platforms": {
@@ -67,7 +72,9 @@
     },
     "production": {
       "compilerOptions": {
-        "minify": true
+        "minify": "esbuild",
+        "cssMinify": true,
+        "sourceMap": false
       },
       "tokens": [],
       "platforms": {

@@ -2,6 +2,7 @@ import { build, type InlineConfig, type Plugin } from 'vite';
 import * as path from 'path';
 import * as fs from 'fs';
 import ts from 'typescript';
+import { CssMinifyOption, SourceMapOption } from './bin/config/config';
 
 export interface BundleOptions {
   /** Absolute path to the output directory containing the bootstrap files */
@@ -9,7 +10,13 @@ export interface BundleOptions {
   /** List of absolute paths to bootstrap entry point files */
   entryPoints: string[];
   /** Whether to minify the output */
-  minify: boolean;
+  minify: false | 'esbuild' | 'terser';
+  /** Source map strategy for Vite build output */
+  sourceMap: SourceMapOption;
+  /** CSS minification strategy for Vite build output */
+  cssMinify: CssMinifyOption;
+  /** Optional terser options when minify strategy is "terser" */
+  terserOptions: Record<string, unknown>;
   /** Absolute path to the project root (where node_modules lives) */
   projectRoot: string;
   /** Target browser platform used for compile-time branch pruning */
@@ -163,6 +170,10 @@ export async function bundleBootstrapFiles(options: BundleOptions): Promise<void
     },
   };
 
+  if (options.minify !== 'terser' && Object.keys(options.terserOptions).length > 0) {
+    console.warn('[Hexa CLI] compilerOptions.terserOptions is ignored unless compilerOptions.minify is set to "terser".');
+  }
+
   const createConfig = (rollupInput: Record<string, string>): InlineConfig => ({
     configFile: false,    // never pick up a local vite.config.ts
     root: projectRoot,
@@ -175,8 +186,10 @@ export async function bundleBootstrapFiles(options: BundleOptions): Promise<void
     build: {
       outDir: outputDir,
       emptyOutDir: false,   // lifecycle managed by buildAction
-      minify: false,        // keep output readable
-      sourcemap: 'inline',  // embed source maps directly in the output files
+      minify: options.minify,
+      sourcemap: options.sourceMap,
+      cssMinify: options.cssMinify,
+      ...(options.minify === 'terser' ? { terserOptions: options.terserOptions } : {}),
       rollupOptions: {
         // Worker scripts export a `methods` map consumed via dynamic import()
         // from hexa.worker.js. Rollup cannot trace this statically, so we must
