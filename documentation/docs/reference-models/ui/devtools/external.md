@@ -12,7 +12,7 @@ Copy a pre-built devtools dist into the extension output directory.
 Returns the manifest-relative entry path.
 
 ```ts
-import { copyExternalDevtools } from '@hexajs/ui';
+import { copyExternalDevtools } from '@hexajs-dev/ui';
 ```
 
 ```typescript

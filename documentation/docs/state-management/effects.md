@@ -44,8 +44,8 @@ At runtime the flow is:
 The `clip-volt` example shows the core pattern clearly.
 
 ```ts
-import { Injectable, inject } from '@hexajs/common';
-import { Actions, HexaContentStore, createEffect, ofType, select } from '@hexajs/core';
+import { Injectable, inject } from '@hexajs-dev/common';
+import { Actions, HexaContentStore, createEffect, ofType, select } from '@hexajs-dev/core';
 import { map, withLatestFrom } from 'rxjs/operators';
 import * as ContentActions from './content.actions';
 import { ContentState } from './content.reducer';

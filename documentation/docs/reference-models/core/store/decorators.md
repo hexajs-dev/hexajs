@@ -7,7 +7,7 @@ description: Public API model reference for core module packages/core/src/store/
 #### @Reduce
 
 ```ts
-import { Reduce } from '@hexajs/core';
+import { Reduce } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -17,7 +17,7 @@ import { Reduce } from '@hexajs/core';
 #### @Reducer
 
 ```ts
-import { Reducer } from '@hexajs/core';
+import { Reducer } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -27,7 +27,7 @@ import { Reducer } from '@hexajs/core';
 #### @State
 
 ```ts
-import { State } from '@hexajs/core';
+import { State } from '@hexajs-dev/core';
 ```
 
 ```typescript

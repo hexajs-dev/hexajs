@@ -1,4 +1,4 @@
-import { RuntimePort } from '@hexajs/ports';
+import { RuntimePort } from '@hexajs-dev/ports';
 
 export type HexaPipeContextName = 'background' | 'content';
 

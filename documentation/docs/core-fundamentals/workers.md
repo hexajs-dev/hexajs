@@ -95,8 +95,8 @@ export class NormalizeOcrResponse {
 ### 2. Worker class
 
 ```ts
-import { InjectWorker } from '@hexajs/common';
-import { Worker } from '@hexajs/core';
+import { InjectWorker } from '@hexajs-dev/common';
+import { Worker } from '@hexajs-dev/core';
 
 @Worker({ name: 'ocr-normalizer', environment: 'compute' })
 export class OcrNormalizationWorker {
@@ -121,12 +121,12 @@ export class OcrPipelineWorker {
 }
 ```
 
-If you need to resolve a worker lazily at runtime instead of declaring a property, use `injectWorker(WorkerClass)` from `@hexajs/common`.
+If you need to resolve a worker lazily at runtime instead of declaring a property, use `injectWorker(WorkerClass)` from `@hexajs-dev/common`.
 
 ### 3. Controller integration
 
 ```ts
-import { Controller, Action } from '@hexajs/core';
+import { Controller, Action } from '@hexajs-dev/core';
 import { OcrPipelineWorker } from '../workers/ocr-pipeline.worker';
 import { NormalizeOcrRequest, NormalizeOcrResponse } from '../dto/ocr-normalize.dto';
 

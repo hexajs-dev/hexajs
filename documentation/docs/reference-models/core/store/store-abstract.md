@@ -9,7 +9,7 @@ description: Public API model reference for core module packages/core/src/store/
 #### select
 
 ```ts
-import { select } from '@hexajs/core';
+import { select } from '@hexajs-dev/core';
 ```
 
 ```typescript

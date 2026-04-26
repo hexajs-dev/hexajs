@@ -88,12 +88,12 @@ ${methodsMap}
 
   private generateWorkerImports(worker: WorkerMetadata, services: ServiceMetadata[], workers: WorkerMetadata[]): string {
     const imports: string[] = [
-      `import { Container, setContainer, HEXA_PLATFORM } from '@hexajs/common';`,
-      `import { RuntimePort } from '@hexajs/ports';`,
+      `import { Container, setContainer, HEXA_PLATFORM } from '@hexajs-dev/common';`,
+      `import { RuntimePort } from '@hexajs-dev/ports';`,
     ];
 
     if (workers.length > 0) {
-      imports.push(`import { createWorkerProxy, WorkerEnvironment } from '@hexajs/core';`);
+      imports.push(`import { createWorkerProxy, WorkerEnvironment } from '@hexajs-dev/core';`);
     }
 
     services.forEach(service => {

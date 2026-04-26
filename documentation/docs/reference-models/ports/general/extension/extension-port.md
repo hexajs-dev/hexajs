@@ -9,7 +9,7 @@ description: Public API model reference for ports module packages/ports/src/gene
 #### ExtensionPort
 
 ```ts
-import { ExtensionPort } from '@hexajs/ports';
+import { ExtensionPort } from '@hexajs-dev/ports';
 ```
 
 ```typescript

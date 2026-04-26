@@ -9,7 +9,7 @@ description: Public API model reference for ports module packages/ports/src/back
 #### IdlePort
 
 ```ts
-import { IdlePort } from '@hexajs/ports';
+import { IdlePort } from '@hexajs-dev/ports';
 ```
 
 ```typescript

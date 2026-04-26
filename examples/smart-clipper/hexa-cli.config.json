@@ -1,5 +1,5 @@
 {
-  "$schema": "./node_modules/@hexajs/cli/schema/hexa-cli.schema.json",
+  "$schema": "./node_modules/@hexajs-dev/cli/schema/hexa-cli.schema.json",
   "project": {
     "name": "smart-clipper",
     "version": "0.0.1",

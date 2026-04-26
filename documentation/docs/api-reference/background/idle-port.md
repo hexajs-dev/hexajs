@@ -1,4 +1,4 @@
-﻿---
+---
 title: IdlePort
 description: API reference for IdlePort in the background context.
 ---
@@ -25,8 +25,8 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 ## Usage
 
 ```typescript
-import { IdlePort } from '@hexajs/ports';
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { IdlePort } from '@hexajs-dev/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 
 @Injectable({ context: InjectableContext.Background })
 export class ActivityMonitorService {

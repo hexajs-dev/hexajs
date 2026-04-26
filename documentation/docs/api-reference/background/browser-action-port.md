@@ -1,4 +1,4 @@
-﻿---
+---
 title: BrowserActionPort
 description: API reference for BrowserActionPort in the background context.
 ---
@@ -29,8 +29,8 @@ This port targets the legacy `browser_action` MV2 API. Use [`ActionPort`](./acti
 ## Usage
 
 ```typescript
-import { BrowserActionPort } from '@hexajs/ports';
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { BrowserActionPort } from '@hexajs-dev/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 
 @Injectable({ context: InjectableContext.Background })
 export class LegacyStatusService {

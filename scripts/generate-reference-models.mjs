@@ -626,7 +626,7 @@ function renderSymbolSection(lines, title, items, showTitle = true) {
     if (item.packageName) {
      // lines.push(`**Import:**`);
       lines.push('```ts');
-      lines.push(`import { ${item.name} } from '@hexajs/${item.packageName}';`);
+      lines.push(`import { ${item.name} } from '@hexajs-dev/${item.packageName}';`);
       lines.push('```');
       lines.push('');
     }

@@ -52,8 +52,8 @@ HexaJS abstracts platform specifics into **Ports**. Application logic relies str
 UI components use the `HexaUIClient` to trigger an action on the background script, agnostic to the browser environment.
 
 ```ts
-import { inject } from '@hexajs/common';
-import { HexaUIClient } from '@hexajs/ui';
+import { inject } from '@hexajs-dev/common';
+import { HexaUIClient } from '@hexajs-dev/ui';
 
 const uiClient = inject(HexaUIClient);
 
@@ -65,8 +65,8 @@ console.log('Active tab metadata:', result);
 The Controller listens for the `'tabInfo:current'` action. It injects the necessary **Ports** to execute the browser API calls.
 
 ```ts
-import { Controller, Action } from '@hexajs/core';
-import { TabsPort, StoragePort } from '@hexajs/ports';
+import { Controller, Action } from '@hexajs-dev/core';
+import { TabsPort, StoragePort } from '@hexajs-dev/ports';
 
 @Controller({ namespace: 'tabInfo' })
 export class TabInfoController {

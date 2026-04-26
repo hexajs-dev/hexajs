@@ -1,8 +1,8 @@
-import { Action, Controller, HexaBackgroundClient } from '@hexajs/core';
+import { Action, Controller, HexaBackgroundClient } from '@hexajs-dev/core';
 import { BackgroundActionsApi, backgroundClipprtNamespace, contentScriptApi, devtoolsHandlesApi } from '@contract/api';
 import { ClippingCancelledMessage, ClippingCompleteMessage, DevtoolsClipDiagnosticItem, DevtoolsErrorItem, DevtoolsErrorPhase, DevtoolsGetStateMessage, DevtoolsStateMessage, DevtoolsSyncClipsMessage, DevtoolsSyncErrorsMessage, OcrCompleteMessage, OcrProgressMessage, PopupGetRecentClipsMessage, PopupStartClippingMessage, RecentClipItem, RecentClipsMessage, StartClippingAckMessage } from '@contract/messages/messages';
 import { DEFAULT_OCR_LANGUAGE, OCR_LANGUAGE_SELECTION_STORAGE_KEY, serializeOcrLanguageSelection } from '@contract/ocr-language';
-import { CommandsPort, DownloadsPort, NotificationsPort, RuntimePort, StoragePort, TabsPort } from '@hexajs/ports';
+import { CommandsPort, DownloadsPort, NotificationsPort, RuntimePort, StoragePort, TabsPort } from '@hexajs-dev/ports';
 import { ClipperCaptureService } from './services/clipper-capture.service';
 import { ClipperSessionService } from './services/clipper-session.service';
 import { ClipperOcrService } from './services/clipper-ocr.service';

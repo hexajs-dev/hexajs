@@ -1,4 +1,4 @@
-import { Handle, Handler, HexaContentClient } from '@hexajs/core';
+import { Handle, Handler, HexaContentClient } from '@hexajs-dev/core';
 import { SmartClipperContent } from './content';
 import { backgroundApi, ContentScriptHandlesApi, contentScriptNamespace } from '@contract/api';
 import { ClippingCancelledMessage, ClippingCompleteMessage, OcrCompleteMessage, OcrProgressMessage, PopupStartClippingMessage, StartClippingAckMessage } from '@contract/messages/messages';

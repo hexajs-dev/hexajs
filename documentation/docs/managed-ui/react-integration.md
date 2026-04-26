@@ -1,7 +1,7 @@
 ---
 title: React Integration
 sidebar_position: 4
-description: Use React hooks from @hexajs/ui to access DI tokens and HexaUIClient in managed UI surfaces.
+description: Use React hooks from @hexajs-dev/ui to access DI tokens and HexaUIClient in managed UI surfaces.
 ---
 
 import HexaUIClientAPI from '../reference-models/ui/services/hexa-ui-client-service.md';
@@ -14,8 +14,8 @@ Managed UI React components run inside the generated UI DI container. In the Cli
 ## Request data in an effect
 
 ```tsx
-import { inject } from '@hexajs/common';
-import { HexaUIClient } from '@hexajs/ui';
+import { inject } from '@hexajs-dev/common';
+import { HexaUIClient } from '@hexajs-dev/ui';
 import { configApi } from './api';
 import { ConfigResponseMessage, GetConfigMessage } from './messages';
 
@@ -39,8 +39,8 @@ useEffect(() => {
 ## Send changes from an event handler
 
 ```tsx
-import { inject } from '@hexajs/common';
-import { HexaUIClient } from '@hexajs/ui';
+import { inject } from '@hexajs-dev/common';
+import { HexaUIClient } from '@hexajs-dev/ui';
 import { configApi } from './api';
 import { ConfigResponseMessage, UpdateConfigMessage } from './messages';
 
@@ -55,7 +55,7 @@ await hexaUIClient.sendMessage<UpdateConfigMessage, ConfigResponseMessage>(
 ## Resolve token values
 
 ```tsx
-import { HEXA_PLATFORM, inject } from '@hexajs/common';
+import { HEXA_PLATFORM, inject } from '@hexajs-dev/common';
 
 const platform = inject(HEXA_PLATFORM);
 return <span>{platform}</span>;

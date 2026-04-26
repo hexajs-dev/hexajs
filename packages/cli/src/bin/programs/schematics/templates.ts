@@ -1,8 +1,8 @@
 import { HexaRuntimeContext } from './shared';
 
 export function contentTemplate(className: string, matches: string[], runAt: string): string {
-  return `import { Content, ContentRunAt } from '@hexajs/core';
-import { OnDestroy, OnInit } from '@hexajs/common';
+  return `import { Content, ContentRunAt } from '@hexajs-dev/core';
+import { OnDestroy, OnInit } from '@hexajs-dev/common';
 
 @Content({ matches: [${matches.map(match => `'${match}'`).join(', ')}], runAt: ${runAt} })
 export class ${className} implements OnInit, OnDestroy {
@@ -18,8 +18,8 @@ export class ${className} implements OnInit, OnDestroy {
 }
 
 export function backgroundTemplate(className: string): string {
-  return `import { Background } from '@hexajs/core';
-import { OnDestroy, OnInit } from '@hexajs/common';
+  return `import { Background } from '@hexajs-dev/core';
+import { OnDestroy, OnInit } from '@hexajs-dev/common';
 
 @Background()
 export class ${className} implements OnInit, OnDestroy {
@@ -35,7 +35,7 @@ export class ${className} implements OnInit, OnDestroy {
 }
 
 export function controllerTemplate(className: string, namespace: string): string {
-  return `import { Action, Controller } from '@hexajs/core';
+  return `import { Action, Controller } from '@hexajs-dev/core';
 
 @Controller({ namespace: '${namespace}' })
 export class ${className} {
@@ -48,7 +48,7 @@ export class ${className} {
 }
 
 export function handlerTemplate(className: string, namespace: string): string {
-  return `import { Handle, Handler } from '@hexajs/core';
+  return `import { Handle, Handler } from '@hexajs-dev/core';
 
 @Handler({ namespace: '${namespace}', Contents: [] })
 export class ${className} {
@@ -63,8 +63,8 @@ export class ${className} {
 export function serviceTemplate(className: string, context: HexaRuntimeContext, injectableContextRef: string | null): string {
   const decorator = injectableContextRef ? `@Injectable({ context: ${injectableContextRef} })` : '@Injectable()';
   const commonImport = injectableContextRef
-    ? `import { Injectable, InjectableContext } from '@hexajs/common';`
-    : `import { Injectable } from '@hexajs/common';`;
+    ? `import { Injectable, InjectableContext } from '@hexajs-dev/common';`
+    : `import { Injectable } from '@hexajs-dev/common';`;
 
   return `${commonImport}
 
@@ -76,7 +76,7 @@ export class ${className} {
 }
 
 export function reducerTemplate(className: string, stateName: string): string {
-  return `import { HexaReducer, Reducer } from '@hexajs/core';
+  return `import { HexaReducer, Reducer } from '@hexajs-dev/core';
 
 export interface ${stateName} {
   ready: boolean;
@@ -96,8 +96,8 @@ export function stateTemplate(context: 'background' | 'content', reducerImportPa
   const contextRef = context === 'background' ? 'InjectableContext.Background' : 'InjectableContext.Content';
   const configClassName = context === 'background' ? 'BackgroundStateConfig' : 'ContentStateConfig';
 
-  return `import { InjectableContext } from '@hexajs/common';
-import { State } from '@hexajs/core';
+  return `import { InjectableContext } from '@hexajs-dev/common';
+import { State } from '@hexajs-dev/core';
 import { ${reducerClassName}, ${reducerStateName} } from '${reducerImportPath}';
 
 export interface ${rootStateName} {

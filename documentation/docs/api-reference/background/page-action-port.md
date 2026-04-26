@@ -1,4 +1,4 @@
-﻿---
+---
 title: PageActionPort
 description: API reference for PageActionPort in the background context.
 ---
@@ -32,8 +32,8 @@ This port targets the legacy `page_action` MV2 API. Use [`ActionPort`](./action-
 ## Usage
 
 ```typescript
-import { PageActionPort } from '@hexajs/ports';
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { PageActionPort } from '@hexajs-dev/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 
 @Injectable({ context: InjectableContext.Background })
 export class LegacyPageActionService {

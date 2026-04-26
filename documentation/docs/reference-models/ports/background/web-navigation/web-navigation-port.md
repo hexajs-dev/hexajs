@@ -9,7 +9,7 @@ description: Public API model reference for ports module packages/ports/src/back
 #### WebNavigationPort
 
 ```ts
-import { WebNavigationPort } from '@hexajs/ports';
+import { WebNavigationPort } from '@hexajs-dev/ports';
 ```
 
 ```typescript

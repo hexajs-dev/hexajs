@@ -1,9 +1,9 @@
-import { Injectable, inject } from '@hexajs/common';
-import { Actions, createEffect, ofType, select } from '@hexajs/core';
+import { Injectable, inject } from '@hexajs-dev/common';
+import { Actions, createEffect, ofType, select } from '@hexajs-dev/core';
 import { map, withLatestFrom } from 'rxjs/operators';
 import * as ContentActions from './content.actions';
 import { ContentState } from './content.reducer';
-import { HexaContentStore } from '@hexajs/core';
+import { HexaContentStore } from '@hexajs-dev/core';
 import { ClipItem } from '../../contract/messages';
 import { ClipVaultConfig, SENSITIVE_PATTERNS } from '../../contract/config';
 

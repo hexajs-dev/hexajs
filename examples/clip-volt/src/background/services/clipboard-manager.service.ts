@@ -1,5 +1,5 @@
-import { Injectable, InjectableContext } from '@hexajs/common';
-import { StoragePort } from '@hexajs/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { StoragePort } from '@hexajs-dev/ports';
 import { CLIPS_STORAGE_KEY } from '../../contract/config';
 import { ClipItem } from '../../contract/messages';
 

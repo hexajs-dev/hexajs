@@ -1,7 +1,7 @@
 import type { ScaffoldContext } from '../models/scaffold.types';
 
 export const blankContentHandlerTemplate = (ctx: ScaffoldContext): string => `\
-import { Handler } from '@hexajs/core';
+import { Handler } from '@hexajs-dev/core';
 import { ${ctx.className}Content } from './content';
 
 /**

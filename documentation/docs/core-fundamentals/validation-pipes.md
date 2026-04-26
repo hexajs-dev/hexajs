@@ -25,7 +25,7 @@ This gives you route-aware validation for `@Action(...)` and `@Handle(...)` meth
 ClipVault uses DTO classes in `src/contract/messages.ts` to define route contracts. Keep these classes small, serializable, and explicit about the fields that must be validated.
 
 ```ts
-import { IsBoolean, IsNumber, IsOptional, IsString } from '@hexajs/common';
+import { IsBoolean, IsNumber, IsOptional, IsString } from '@hexajs-dev/common';
 
 export class GetConfigMessage {
   @IsNumber() requestedAt: number;
@@ -204,7 +204,7 @@ The current generated validator logic enforces these common checks:
 - `@Matches(...)`
 - `@IsEmail()`
 
-Other decorators may exist as metadata markers in `@hexajs/common`, but the generated validator currently enforces the subset above.
+Other decorators may exist as metadata markers in `@hexajs-dev/common`, but the generated validator currently enforces the subset above.
 
 ## Response validation behavior
 

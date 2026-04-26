@@ -1,5 +1,5 @@
 {
-  "name": "@hexajs/core",
+  "name": "@hexajs-dev/core",
   "version": "0.9.0",
   "description": "Core contracts, decorators, and services for HexaJS",
   "main": "dist/index.js",
@@ -23,8 +23,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@hexajs/common": "workspace:*",
-    "@hexajs/ports": "workspace:*",
+    "@hexajs-dev/common": "workspace:*",
+    "@hexajs-dev/ports": "workspace:*",
     "rxjs": "^7.8.2"
   },
   "devDependencies": {

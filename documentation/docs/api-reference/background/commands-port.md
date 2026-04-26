@@ -1,4 +1,4 @@
-﻿---
+---
 title: CommandsPort
 description: API reference for CommandsPort in the background context.
 ---
@@ -24,8 +24,8 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 ## Usage
 
 ```typescript
-import { CommandsPort } from '@hexajs/ports';
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { CommandsPort } from '@hexajs-dev/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 
 @Injectable({ context: InjectableContext.Background })
 export class KeyboardShortcutService {

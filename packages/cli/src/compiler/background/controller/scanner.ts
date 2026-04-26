@@ -28,7 +28,7 @@ export class ControllerScanner {
                 const methodName = member.name.getText();
 
                 // Check for @Action
-                const actionName = getDecoratorArgument(member, 'Action', this.checker, ['@hexajs/core']);
+                const actionName = getDecoratorArgument(member, 'Action', this.checker, ['@hexajs-dev/core']);
                 if (actionName) {
                     const payloadDtoType = this.getFirstPayloadDtoType(member);
                     const responseDtoType = this.getResponseDtoType(member);
@@ -41,7 +41,7 @@ export class ControllerScanner {
                 }
 
                 // Check for @On
-                const eventName = getDecoratorArgument(member, 'On', this.checker, ['@hexajs/core']);
+                const eventName = getDecoratorArgument(member, 'On', this.checker, ['@hexajs-dev/core']);
                 if (eventName) {
                     methods.push({
                         methodName,
@@ -67,7 +67,7 @@ export class ControllerScanner {
     }
 
     private getControllerOptions(node: ts.ClassDeclaration): { namespace: string } | null {
-        const decorator = findDecorator(node, this.checker, 'Controller', ['@hexajs/core']);
+        const decorator = findDecorator(node, this.checker, 'Controller', ['@hexajs-dev/core']);
 
         if (decorator && ts.isCallExpression(decorator.expression)) {
             const arg = decorator.expression.arguments[0];

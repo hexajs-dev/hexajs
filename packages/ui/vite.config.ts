@@ -6,9 +6,9 @@ import { hexaMetadataPlugin } from '../common/scripts/vite-plugin-hexa-metadata'
 const shouldEmitSourceMaps = process.env.HEXA_PACKAGE_SOURCEMAP === 'true';
 
 const HEXA_EXTERNALS = [
-  '@hexajs/common',
-  '@hexajs/core',
-  '@hexajs/ports',
+  '@hexajs-dev/common',
+  '@hexajs-dev/core',
+  '@hexajs-dev/ports',
   /^@hexajs\//,
 ];
 

@@ -84,8 +84,8 @@ You now have:
 In `src/content/content.ts`, inject a content service and call it in lifecycle hooks.
 
 ```ts
-import { Content, ContentRunAt } from '@hexajs/core';
-import { OnInit, OnDestroy } from '@hexajs/common';
+import { Content, ContentRunAt } from '@hexajs-dev/core';
+import { OnInit, OnDestroy } from '@hexajs-dev/common';
 import { GrayscaleUiService } from './ui/grayscale-ui.service';
 
 @Content({ matches: ['<all_urls>'], runAt: ContentRunAt.DocumentIdle })
@@ -119,8 +119,8 @@ Responsibilities of this service:
 - Toggle a class on `document.documentElement`
 
 ```ts
-import { Injectable, InjectableContext } from '@hexajs/common';
-import { InjectView } from '@hexajs/core';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { InjectView } from '@hexajs-dev/core';
 import { GrayscaleToggleView } from './grayscale-toggle/grayscale-toggle-view';
 
 const HEXA_GRAYSCALE_CLASS = 'hexa-grayscale-enabled';
@@ -236,7 +236,7 @@ First, create a CSS file `src/content/ui/grayscale-toggle/grayscale-toggle.css`:
 Then create the view controller:
 
 ```ts
-import { HexaView, View } from '@hexajs/core';
+import { HexaView, View } from '@hexajs-dev/core';
 import { GrayscaleToggleComponent } from './grayscale-toggle.component';
 import styles from './grayscale-toggle.css?inline';
 

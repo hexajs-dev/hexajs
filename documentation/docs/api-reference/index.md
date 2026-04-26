@@ -1,4 +1,4 @@
-﻿---
+---
 title: API Reference
 sidebar_position: 1
 description: Complete built-in ports reference grouped by context.
@@ -8,7 +8,7 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 
 # API Reference
 
-This section documents all built-in services exported by `@hexajs/ports`.
+This section documents all built-in services exported by `@hexajs-dev/ports`.
 
 ## Context groups
 

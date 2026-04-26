@@ -1,5 +1,5 @@
-import { State } from '@hexajs/core';
-import { InjectableContext } from '@hexajs/common';
+import { State } from '@hexajs-dev/core';
+import { InjectableContext } from '@hexajs-dev/common';
 import { ContentState, ContentClipsReducer, ContentConfigReducer } from './content.reducer';
 import { ContentEffects } from './content.effects';
 

@@ -9,7 +9,7 @@ description: Public API model reference for ports module packages/ports/src/gene
 #### RuntimePort
 
 ```ts
-import { RuntimePort } from '@hexajs/ports';
+import { RuntimePort } from '@hexajs-dev/ports';
 ```
 
 ```typescript

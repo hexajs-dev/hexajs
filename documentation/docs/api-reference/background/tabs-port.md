@@ -1,4 +1,4 @@
-﻿---
+---
 title: TabsPort
 description: API reference for TabsPort in the background context.
 ---
@@ -26,8 +26,8 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 ## Usage
 
 ```typescript
-import { TabsPort } from '@hexajs/ports';
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { TabsPort } from '@hexajs-dev/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 
 @Injectable({ context: InjectableContext.Background })
 export class TabCoordinatorService {

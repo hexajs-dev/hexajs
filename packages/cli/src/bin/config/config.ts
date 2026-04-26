@@ -83,7 +83,7 @@ export interface HexaConfig {
 // ─── Defaults ─────────────────────────────────────────────────────────────────
 
 const DEFAULT_CONFIG: HexaConfig = {
-    $schema: './node_modules/@hexajs/cli/schema/hexa-cli.schema.json',
+    $schema: './node_modules/@hexajs-dev/cli/schema/hexa-cli.schema.json',
     project: {
         name: 'My HexaJS Extension',
         version: '1.0.0',

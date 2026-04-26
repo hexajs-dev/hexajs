@@ -20,7 +20,7 @@ export class BackgroundScanner {
 
     private processClass(node: ts.ClassDeclaration): BackgroundEntryMetadata | null {
         // 1. Check if class has @Background decorator
-        const background = findDecorator(node, this.checker, 'Background', ['@hexajs/core']);
+        const background = findDecorator(node, this.checker, 'Background', ['@hexajs-dev/core']);
 
         if (!background) return null;
 

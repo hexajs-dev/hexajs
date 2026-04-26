@@ -1,4 +1,4 @@
-import { Controller } from '@hexajs/core';
+import { Controller } from '@hexajs-dev/core';
 
 /**
  * Background controller for the "hexa-grayscale" namespace.

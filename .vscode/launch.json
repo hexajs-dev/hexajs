@@ -143,7 +143,7 @@
             "runtimeExecutable": "pnpm",
             "runtimeArgs": [
                 "--filter",
-                "@hexajs/cli",
+                "@hexajs-dev/cli",
                 "run",
                 "debug"
             ],

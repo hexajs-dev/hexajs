@@ -1,4 +1,4 @@
-# @hexajs/common
+# @hexajs-dev/common
 
 ## 2.0.0
 

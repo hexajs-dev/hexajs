@@ -1,4 +1,4 @@
-﻿---
+---
 title: HistoryPort
 description: API reference for HistoryPort in the background context.
 ---
@@ -25,8 +25,8 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 ## Usage
 
 ```typescript
-import { HistoryPort } from '@hexajs/ports';
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { HistoryPort } from '@hexajs-dev/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 
 @Injectable({ context: InjectableContext.Background })
 export class HistoryAuditService {

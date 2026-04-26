@@ -1,4 +1,4 @@
-﻿---
+---
 title: DevtoolsPort
 description: API reference for DevtoolsPort in the UI context.
 ---
@@ -26,8 +26,8 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 ## Usage
 
 ```typescript
-import { DevtoolsPort } from '@hexajs/ports';
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { DevtoolsPort } from '@hexajs-dev/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 
 @Injectable({ context: InjectableContext.UI })
 export class DevtoolsPanelService {

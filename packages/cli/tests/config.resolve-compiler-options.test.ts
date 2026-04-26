@@ -4,7 +4,7 @@ import { resolveConfig } from '../src/bin/config/resolve';
 
 function createConfig(overrides: Partial<HexaConfig> = {}): HexaConfig {
   return {
-    $schema: './node_modules/@hexajs/cli/schema/hexa-cli.schema.json',
+    $schema: './node_modules/@hexajs-dev/cli/schema/hexa-cli.schema.json',
     project: {
       name: 'fixture',
       version: '1.0.0',

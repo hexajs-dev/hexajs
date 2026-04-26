@@ -15,7 +15,7 @@ export default defineConfig({
       fileName: (format) => format === 'es' ? 'index.js' : 'index.cjs'
     },
     rollupOptions: {
-      external: ['@hexajs/common'],
+      external: ['@hexajs-dev/common'],
       output: {
         preserveModules: true,
         preserveModulesRoot: '.',

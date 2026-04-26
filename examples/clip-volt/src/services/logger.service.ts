@@ -1,4 +1,4 @@
-import { Injectable } from '@hexajs/common';
+import { Injectable } from '@hexajs-dev/common';
 
 /**
  * Logger service that wraps the native console methods,

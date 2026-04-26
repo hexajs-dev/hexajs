@@ -1,5 +1,5 @@
-import { Injectable, InjectableContext } from '@hexajs/common';
-import { TabsPort } from '@hexajs/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { TabsPort } from '@hexajs-dev/ports';
 import { ClippingCompleteMessage } from '@contract/messages/messages';
 import { ClipperImageCropService } from './clipper-image-crop.service';
 import { ClipperCapturedImage } from './clipper-session.service';

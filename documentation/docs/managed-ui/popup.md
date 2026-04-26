@@ -31,8 +31,8 @@ In `hexa-cli.config.json`:
 ## Load state from background
 
 ```tsx
-import { inject } from '@hexajs/common';
-import { HexaUIClient } from '@hexajs/ui';
+import { inject } from '@hexajs-dev/common';
+import { HexaUIClient } from '@hexajs-dev/ui';
 import { configApi } from './api';
 import { ConfigResponseMessage, GetConfigMessage } from './messages';
 
@@ -50,8 +50,8 @@ if (response && !hasHexaError(response) && response.config) {
 ## Send partial updates
 
 ```tsx
-import { inject } from '@hexajs/common';
-import { HexaUIClient } from '@hexajs/ui';
+import { inject } from '@hexajs-dev/common';
+import { HexaUIClient } from '@hexajs-dev/ui';
 import { configApi } from './api';
 import { ConfigResponseMessage, UpdateConfigMessage } from './messages';
 

@@ -9,7 +9,7 @@ description: Public API model reference for ports module packages/ports/src/back
 #### ManagementPort
 
 ```ts
-import { ManagementPort } from '@hexajs/ports';
+import { ManagementPort } from '@hexajs-dev/ports';
 ```
 
 ```typescript
