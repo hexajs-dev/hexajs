@@ -1,5 +1,14 @@
 # @hexajs-dev/ui
 
+## 0.9.1
+
+### Patch Changes
+
+- Updated dependencies [861aa5e]
+  - @hexajs/core@0.9.1
+  - @hexajs/common@0.9.1
+  - @hexajs/ports@0.9.1
+
 ## 2.0.0
 
 ### Minor Changes
