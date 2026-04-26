@@ -1,7 +1,7 @@
 ---
 title: Custom Ports
 sidebar_position: 3
-description: Create custom ports for browser APIs not exposed in @hexajs/ports by implementing platform-aware abstractions.
+description: Create custom ports for browser APIs not exposed in @hexajs-dev/ports by implementing platform-aware abstractions.
 ---
 
 import DiDecoratorsAPI from '../reference-models/common/di/decorators.md';
@@ -31,8 +31,8 @@ Let's build a `NotificationPort`. This is a great example because Chrome and Fir
 A custom Port is simply an `@Injectable` class that checks the injected platform token and executes the correct native API or messaging protocol.
 
 ```ts
-import { Inject, Injectable, InjectableContext, HEXA_PLATFORM } from '@hexajs/common';
-import { PlatformType } from '@hexajs/ports';
+import { Inject, Injectable, InjectableContext, HEXA_PLATFORM } from '@hexajs-dev/common';
+import { PlatformType } from '@hexajs-dev/ports';
 
 export interface NotificationOptions {
   iconUrl?: string;
@@ -115,7 +115,7 @@ When writing your own Ports, adhere to these patterns to ensure they work correc
 Once defined, your Custom Port functions exactly like the built-in Ports. You can inject it directly into a Background Controller to trigger notifications based on incoming messages.
 
 ```ts
-import { Controller, Action } from '@hexajs/core';
+import { Controller, Action } from '@hexajs-dev/core';
 import { NotificationPort } from '../ports/notification.port';
 
 @Controller({ namespace: 'alerts' })
@@ -136,7 +136,7 @@ export class NotificationController {
 
 ## Built-In Ports Reference
 
-Before building a Custom Port, check if HexaJS already provides an abstraction for your needs in the `@hexajs/ports` package:
+Before building a Custom Port, check if HexaJS already provides an abstraction for your needs in the `@hexajs-dev/ports` package:
 
 | Port | Primary Context | Purpose |
 | :--- | :--- | :--- |

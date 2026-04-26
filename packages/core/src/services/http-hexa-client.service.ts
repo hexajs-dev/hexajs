@@ -1,4 +1,4 @@
-import { Injectable } from '@hexajs/common';
+import { Injectable } from '@hexajs-dev/common';
 import { Observable, defer, from } from 'rxjs';
 
 export type HttpHexaClientMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS';

@@ -24,8 +24,8 @@ hexa generate controller tabs --namespace tabs
 ## Background Controller Example
 
 ```ts
-import { Controller, Action } from '@hexajs/core';
-import { TabsPort } from '@hexajs/ports';
+import { Controller, Action } from '@hexajs-dev/core';
+import { TabsPort } from '@hexajs-dev/ports';
 
 @Controller({ namespace: 'tabs' })
 export class TabsController {
@@ -44,8 +44,8 @@ export class TabsController {
 Use `@On` for background events that do not need request-response semantics:
 
 ```ts
-import { Controller, On } from '@hexajs/core';
-import { NotificationsPort } from '@hexajs/ports';
+import { Controller, On } from '@hexajs-dev/core';
+import { NotificationsPort } from '@hexajs-dev/ports';
 
 @Controller({ namespace: 'audit' })
 export class AuditController {
@@ -65,7 +65,7 @@ export class AuditController {
 
 ## Notes
 
-- Prefer ports (`@hexajs/ports`) over direct `chrome.*` or `browser.*` API calls.
+- Prefer ports (`@hexajs-dev/ports`) over direct `chrome.*` or `browser.*` API calls.
 - `@Action` is unicast. Only one handler can exist for a given `namespace:action` route.
 - Keep controller classes background-focused and delegate reusable logic to services.
 - Dispatch store actions from controllers when background state must change.

@@ -81,8 +81,8 @@ export function setContainer(container: Container): void {
  *
  * @example
  * ```ts
- * import { inject } from '@hexajs/common';
- * import { DevtoolsPort } from '@hexajs/ports';
+ * import { inject } from '@hexajs-dev/common';
+ * import { DevtoolsPort } from '@hexajs-dev/ports';
  *
  * const devtools = inject(DevtoolsPort);
  * ```

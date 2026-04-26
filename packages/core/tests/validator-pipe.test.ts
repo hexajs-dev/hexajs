@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ControllerContainer } from '../src/background/controller/container';
 import { HandlerContainer } from '../src/content/handler/container';
 import { HexaPipeRunner } from '../src/services/hexa-pipe-runner';
-import { RuntimePort } from '@hexajs/ports';
+import { RuntimePort } from '@hexajs-dev/ports';
 
 describe('Validator Pipe Integration', () => {
   let mockRuntimePort: RuntimePort;

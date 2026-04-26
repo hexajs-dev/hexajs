@@ -1,7 +1,7 @@
 import type { ScaffoldContext } from '../models/scaffold.types';
 
 export const backgroundActionsTemplate = (_ctx: ScaffoldContext): string => `\
-import { createAction, props } from '@hexajs/core';
+import { createAction, props } from '@hexajs-dev/core';
 
 export const CONTENT_CALLED = '[Background] Content Called';
 

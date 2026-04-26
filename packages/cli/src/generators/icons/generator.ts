@@ -112,7 +112,7 @@ async function writeManifestIcons(resolved: ResolvedBuildConfig, outputDir: stri
     } else if (configuredIcon) {
         console.warn(`⚠ ui.popup.icons must point to an existing SVG or PNG file: ${configuredIcon}`);
     } else {
-        console.warn('⚠ No icon source found. Set `ui.popup.icons` in hexa-cli.config.json or install @hexajs/core with assets/hexa-logo.svg.');
+        console.warn('⚠ No icon source found. Set `ui.popup.icons` in hexa-cli.config.json or install @hexajs-dev/core with assets/hexa-logo.svg.');
     }
     return undefined;
 }

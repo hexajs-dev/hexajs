@@ -8,8 +8,8 @@ export class ContentViewGenerator {
     }
 
     const imports: string[] = [
-      `import { ViewRef } from '@hexajs/core';`,
-      `import { ReactShadowRenderer } from '@hexajs/ui';`
+      `import { ViewRef } from '@hexajs-dev/core';`,
+      `import { ReactShadowRenderer } from '@hexajs-dev/ui';`
     ];
 
     views.forEach(view => {

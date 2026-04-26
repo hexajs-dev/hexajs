@@ -106,24 +106,24 @@ export class BackgroundGenerator {
     workers: WorkerMetadata[] = []
   ): string {
     const imports: string[] = [
-      `import { Container, setContainer, HEXA_PLATFORM } from '@hexajs/common';`,
-      `import { ControllerContainer, HexaPipeRunner } from '@hexajs/core';`,
-      `import { HexaBackgroundClient } from '@hexajs/core';`,
+      `import { Container, setContainer, HEXA_PLATFORM } from '@hexajs-dev/common';`,
+      `import { ControllerContainer, HexaPipeRunner } from '@hexajs-dev/core';`,
+      `import { HexaBackgroundClient } from '@hexajs-dev/core';`,
       `import { createAotOutboundValidationPipe, createAotValidationPipe } from './background.validators';`
     ];
 
     if (requiredPorts.length > 0) {
-      imports.push(`import { ${requiredPorts.join(', ')} } from '@hexajs/ports';`);
+      imports.push(`import { ${requiredPorts.join(', ')} } from '@hexajs-dev/ports';`);
     }
 
     // Add worker proxy imports if workers exist
     if (workers.length > 0) {
-      imports.push(`import { createWorkerProxy, WorkerEnvironment } from '@hexajs/core';`);
+      imports.push(`import { createWorkerProxy, WorkerEnvironment } from '@hexajs-dev/core';`);
     }
 
     // Import store class if it exists
     if (backgroundStore) {
-      imports.push(`import { HexaBackgroundStore, ActionsSubject, Actions, subscribeEffects } from '@hexajs/core';`);
+      imports.push(`import { HexaBackgroundStore, ActionsSubject, Actions, subscribeEffects } from '@hexajs-dev/core';`);
       imports.push(`import { ${toLowerFirst(backgroundStore.context)}Store, actionsSubject } from './${backgroundStore.context.toLowerCase()}.store';`);
     }
 

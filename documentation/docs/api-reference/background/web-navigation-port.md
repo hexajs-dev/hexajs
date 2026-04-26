@@ -1,4 +1,4 @@
-﻿---
+---
 title: WebNavigationPort
 description: API reference for WebNavigationPort in the background context.
 ---
@@ -27,8 +27,8 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 ## Usage
 
 ```typescript
-import { WebNavigationPort } from '@hexajs/ports';
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { WebNavigationPort } from '@hexajs-dev/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 
 @Injectable({ context: InjectableContext.Background })
 export class PageLoadTrackerService {

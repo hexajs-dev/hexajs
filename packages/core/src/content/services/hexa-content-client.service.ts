@@ -1,5 +1,5 @@
-import { Injectable, InjectableContext } from '@hexajs/common';
-import { RuntimePort } from '@hexajs/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { RuntimePort } from '@hexajs-dev/ports';
 import { HexaClientBase } from '../../services/hexa-client.base';
 
 /**

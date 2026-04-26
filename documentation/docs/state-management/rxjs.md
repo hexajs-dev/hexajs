@@ -15,7 +15,7 @@ HexaJS stores expose reactive APIs through RxJS through the `pipe(...)` method, 
 ## Prefer select for slice subscriptions
 
 ```ts
-import { select } from '@hexajs/core';
+import { select } from '@hexajs-dev/core';
 
 this.store.pipe(select(s => s.lastBackgroundCall)).subscribe(value => {
   console.log('Last background call:', value);
@@ -28,7 +28,7 @@ You can chain additional operators after `select`:
 
 ```ts
 import { filter, map } from 'rxjs';
-import { select } from '@hexajs/core';
+import { select } from '@hexajs-dev/core';
 
 this.store
   .pipe(select(s => s.lastBackgroundCall))

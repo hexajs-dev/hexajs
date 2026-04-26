@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { inject } from '@hexajs/common';
-import { HexaUIClient } from '@hexajs/ui';
+import { inject } from '@hexajs-dev/common';
+import { HexaUIClient } from '@hexajs-dev/ui';
 import { clipboardApi, configApi } from '../../../src/contract/api';
 import { ClipsResponseMessage, ConfigResponseMessage, RemoveClipMessage, UpdateConfigMessage } from '../../../src/contract/messages';
 import { normalizeClipText } from '../../shared/utils/text';

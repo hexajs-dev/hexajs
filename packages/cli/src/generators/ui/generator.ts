@@ -32,7 +32,7 @@ export class UIGenerator {
    * - Token registrations
    *
    * The bootstrap calls `setContainer()` so `inject()` from
-   * `@hexajs/core` works in any UI code after the bootstrap runs.
+   * `@hexajs-dev/core` works in any UI code after the bootstrap runs.
    */
   public generate(): UIBootstrapOutput {
     const services = this.getUIServices();
@@ -69,12 +69,12 @@ export class UIGenerator {
    */
   private generateImports(services: ServiceMetadata[], requiredPorts: string[], uiStore?: StoreScriptOutput): string {
     const imports: string[] = [
-      `import { Container, setContainer, HEXA_PLATFORM } from '@hexajs/common';`,
-      `import { HexaUIClient } from '@hexajs/ui';`
+      `import { Container, setContainer, HEXA_PLATFORM } from '@hexajs-dev/common';`,
+      `import { HexaUIClient } from '@hexajs-dev/ui';`
     ];
 
     if (requiredPorts.length > 0) {
-      imports.push(`import { ${requiredPorts.join(', ')} } from '@hexajs/ports';`);
+      imports.push(`import { ${requiredPorts.join(', ')} } from '@hexajs-dev/ports';`);
     }
 
     // Import store if it exists

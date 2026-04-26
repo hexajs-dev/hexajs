@@ -12,7 +12,7 @@ UI-context HexaClient.
 Sends messages from popup/devtools UI to the background.
 
 ```ts
-import { HexaUIClient } from '@hexajs/ui';
+import { HexaUIClient } from '@hexajs-dev/ui';
 ```
 
 ```typescript

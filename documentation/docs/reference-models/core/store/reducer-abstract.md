@@ -11,7 +11,7 @@ description: Public API model reference for core module packages/core/src/store/
 Creates a reducer function from an initial state and one or more action handlers
 
 ```ts
-import { createReducer } from '@hexajs/core';
+import { createReducer } from '@hexajs-dev/core';
 ```
 
 ```typescript

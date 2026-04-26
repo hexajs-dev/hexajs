@@ -16,7 +16,7 @@ Welcome! This guide will walk you through setting up your environment, installin
 ## Install the CLI
 
 ```bash
-npm install -g @hexajs/cli
+npm install -g @hexajs-dev/cli
 ```
 
 ## Scaffold a new project

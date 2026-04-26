@@ -1,5 +1,5 @@
-import { Injectable, InjectableContext } from '@hexajs/common';
-import { InjectView } from '@hexajs/core';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { InjectView } from '@hexajs-dev/core';
 import { ClipperPoint, ClipperRect, ClippingCancelledMessage, ClippingCompleteMessage, PopupStartClippingMessage, StartClippingAckMessage } from '@contract/messages/messages';
 import { ClipperOverlayView } from './clipper-overlay/clipper-overlay.view';
 import { OcrStatusTooltipView } from './ocr-status/ocr-status-tooltip.view';

@@ -1,4 +1,4 @@
-﻿---
+---
 title: IdentityPort
 description: API reference for IdentityPort in the background context.
 ---
@@ -24,8 +24,8 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 ## Usage
 
 ```typescript
-import { IdentityPort } from '@hexajs/ports';
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { IdentityPort } from '@hexajs-dev/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 
 @Injectable({ context: InjectableContext.Background })
 export class OAuthService {

@@ -62,7 +62,7 @@ export class StoreGenerator {
   private generateImports(state: StateMetadata): string {
     const storeClass = this.getStoreClassName(state.context);
     const imports: string[] = [
-      `import { createReducer, ${storeClass}, on, ActionsSubject } from '@hexajs/core';`
+      `import { createReducer, ${storeClass}, on, ActionsSubject } from '@hexajs-dev/core';`
     ];
 
     // Import each reducer class

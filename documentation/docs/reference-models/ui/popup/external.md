@@ -12,7 +12,7 @@ Copy a pre-built popup dist into the extension output directory.
 Returns the manifest-relative entry path.
 
 ```ts
-import { copyExternalPopup } from '@hexajs/ui';
+import { copyExternalPopup } from '@hexajs-dev/ui';
 ```
 
 ```typescript

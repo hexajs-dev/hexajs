@@ -264,18 +264,18 @@ export class ContentGenerator {
    */
   private generateImports(services: ServiceMetadata[], contentEntries: ContentEntryMetadata[], handlers: HandlerMetadata[], requiredPorts: string[], contentStore?: StoreScriptOutput, views: ViewMetadata[] = []): string {
     const imports: string[] = [
-      `import { Container, setContainer, HEXA_PLATFORM } from '@hexajs/common';`,
-      `import { HandlerContainer, HexaContentClient, HexaPipeRunner } from '@hexajs/core';`,
+      `import { Container, setContainer, HEXA_PLATFORM } from '@hexajs-dev/common';`,
+      `import { HandlerContainer, HexaContentClient, HexaPipeRunner } from '@hexajs-dev/core';`,
       `import { createAotOutboundValidationPipe, createAotValidationPipe } from './content.validators';`
     ];
 
     if (requiredPorts.length > 0) {
-      imports.push(`import { ${requiredPorts.join(', ')} } from '@hexajs/ports';`);
+      imports.push(`import { ${requiredPorts.join(', ')} } from '@hexajs-dev/ports';`);
     }
 
     // Import store class if it exists
     if (contentStore) {
-      imports.push(`import { HexaContentStore, ActionsSubject, Actions, subscribeEffects } from '@hexajs/core';`);
+      imports.push(`import { HexaContentStore, ActionsSubject, Actions, subscribeEffects } from '@hexajs-dev/core';`);
       imports.push(`import { ${toLowerFirst(contentStore.context)}Store, actionsSubject } from './${contentStore.context.toLowerCase()}.store';`);
     }
 

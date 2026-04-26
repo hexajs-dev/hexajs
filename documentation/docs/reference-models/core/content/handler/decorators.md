@@ -10,7 +10,7 @@ For Request/Response (Unary).
 CLI should enforce that handleName is UNIQUE per context.
 
 ```ts
-import { Handle } from '@hexajs/core';
+import { Handle } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -20,7 +20,7 @@ import { Handle } from '@hexajs/core';
 #### @Handler
 
 ```ts
-import { Handler } from '@hexajs/core';
+import { Handler } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -33,7 +33,7 @@ For Fire-and-Forget (Multicast).
 Multiple methods can listen to the same eventName.
 
 ```ts
-import { Subscribe } from '@hexajs/core';
+import { Subscribe } from '@hexajs-dev/core';
 ```
 
 ```typescript

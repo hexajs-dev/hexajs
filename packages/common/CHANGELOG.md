@@ -1,4 +1,4 @@
-# @hexajs/common
+# @hexajs-dev/common
 
 ## 0.9.1
 

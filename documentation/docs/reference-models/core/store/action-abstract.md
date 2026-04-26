@@ -11,7 +11,7 @@ description: Public API model reference for core module packages/core/src/store/
 Create an action creator with optional props
 
 ```ts
-import { createAction } from '@hexajs/core';
+import { createAction } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -23,7 +23,7 @@ function createAction<T extends string>(type: T): () => HexaAction<T>
 Props creator for actions with payload
 
 ```ts
-import { props } from '@hexajs/core';
+import { props } from '@hexajs-dev/core';
 ```
 
 ```typescript

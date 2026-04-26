@@ -19,7 +19,7 @@ HexaJS action creators are built with:
 - `createAction(type, props<Payload>())`
 
 ```ts
-import { createAction, props } from '@hexajs/core';
+import { createAction, props } from '@hexajs-dev/core';
 
 export const CONTENT_CALLED = '[Background] Content Called';
 

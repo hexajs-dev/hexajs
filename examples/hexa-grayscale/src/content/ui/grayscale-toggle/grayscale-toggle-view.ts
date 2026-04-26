@@ -1,4 +1,4 @@
-import { HexaView, View } from '@hexajs/core';
+import { HexaView, View } from '@hexajs-dev/core';
 import { GrayscaleToggleComponent } from './grayscale-toggle.component';
 import styles from './grayscale-toggle.css?inline';
 

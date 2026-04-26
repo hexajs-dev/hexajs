@@ -18,7 +18,7 @@ export class ViewScanner {
   }
 
   private processClass(node: ts.ClassDeclaration): ViewMetadata | null {
-    const viewDec = findDecorator(node, this.checker, 'View', ['@hexajs/core']);
+    const viewDec = findDecorator(node, this.checker, 'View', ['@hexajs-dev/core']);
     if (!viewDec) return null;
 
     const options = this.extractViewOptions(viewDec, node.getSourceFile());

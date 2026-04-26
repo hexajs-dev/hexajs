@@ -1,5 +1,5 @@
-import { Controller, Action, HexaBackgroundClient, HexaBackgroundStore } from '@hexajs/core';
-import { RuntimePort } from '@hexajs/ports';
+import { Controller, Action, HexaBackgroundClient, HexaBackgroundStore } from '@hexajs-dev/core';
+import { RuntimePort } from '@hexajs-dev/ports';
 import { configNamespace, ConfigActionsApi, clipboardNamespace, ClipboardActionsApi, clipboardHandlesApi } from '../contract/api';
 import { UpdateConfigMessage, ConfigResponseMessage, GetConfigMessage, AddClipMessage, ClipsResponseMessage, GetClipsMessage, RemoveClipMessage, SyncClipsMessage, SyncConfigMessage } from '../contract/messages';
 import { ConfigService } from './services/config.service';

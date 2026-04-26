@@ -12,7 +12,7 @@ Content-context HexaClient.
 Sends messages from the content script to the background.
 
 ```ts
-import { HexaContentClient } from '@hexajs/core';
+import { HexaContentClient } from '@hexajs-dev/core';
 ```
 
 ```typescript

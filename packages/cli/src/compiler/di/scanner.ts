@@ -3,7 +3,7 @@ import * as ts from "typescript";
 import * as fs from "fs";
 import * as path from "path";
 import * as crypto from "crypto";
-import { HEXA_METADATA_HMAC_KEY } from "@hexajs/common";
+import { HEXA_METADATA_HMAC_KEY } from "@hexajs-dev/common";
 import { HexaContext, ServiceMetadata, TokenMetadata, TokenDependency, ViewPropertyDependency, WorkerPropertyDependency } from "./types";
 import { ViewDependency } from "../content/view/types";
 import { extractProp, findDecorator, hasLifecycleMethod, isDecoratorNamed } from "../shared/props.methods";
@@ -42,7 +42,7 @@ export class DIScanner {
    * Each loaded file is signature-verified and schema-validated before use.
    */
   private loadPackageMetadata(): void {
-    const packageNames: Array<'@hexajs/core' | '@hexajs/ports' | '@hexajs/ui'> = ['@hexajs/core', '@hexajs/ports', '@hexajs/ui'];
+    const packageNames: Array<'@hexajs-dev/core' | '@hexajs-dev/ports' | '@hexajs-dev/ui'> = ['@hexajs-dev/core', '@hexajs-dev/ports', '@hexajs-dev/ui'];
     const loadedFrom: string[] = [];
 
     for (const packageName of packageNames) {
@@ -118,7 +118,7 @@ export class DIScanner {
           !crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(provided))) {
         throw new Error(
           `[DIScanner] "${filePath}": HMAC signature verification failed. ` +
-          `Rebuild @hexajs/core, @hexajs/ports, and @hexajs/ui packages to regenerate signed metadata.`
+          `Rebuild @hexajs-dev/core, @hexajs-dev/ports, and @hexajs-dev/ui packages to regenerate signed metadata.`
         );
       }
 
@@ -128,7 +128,7 @@ export class DIScanner {
     // ── Unsigned (legacy) format ──────────────────────────────────────────────
     throw new Error(
       `[DIScanner] "${filePath}": metadata file is not signed. ` +
-      `Rebuild @hexajs/core, @hexajs/ports, and @hexajs/ui packages to generate signed metadata.`
+      `Rebuild @hexajs-dev/core, @hexajs-dev/ports, and @hexajs-dev/ui packages to generate signed metadata.`
     );
   }
 
@@ -166,7 +166,7 @@ export class DIScanner {
     return result;
   }
 
-  private getMetadataCandidates(packageName: '@hexajs/core' | '@hexajs/ports' | '@hexajs/ui'): string[] {
+  private getMetadataCandidates(packageName: '@hexajs-dev/core' | '@hexajs-dev/ports' | '@hexajs-dev/ui'): string[] {
     const candidates: string[] = [];
 
     // 1) Resolve public metadata subpath export from the target project root.
@@ -181,7 +181,7 @@ export class DIScanner {
     }
 
     // 4) Monorepo fallback for local development (walk up to workspace root).
-    const packageDirName = packageName === '@hexajs/core' ? 'core' : packageName === '@hexajs/ports' ? 'ports' : 'ui';
+    const packageDirName = packageName === '@hexajs-dev/core' ? 'core' : packageName === '@hexajs-dev/ports' ? 'ports' : 'ui';
     const workspaceFallback = this.findWorkspacePackageMetadata(process.cwd(), packageDirName);
     if (workspaceFallback) candidates.push(workspaceFallback);
 
@@ -242,7 +242,7 @@ export class DIScanner {
 
   private processClass(node: ts.ClassDeclaration): ServiceMetadata | null {
     // 1. Check if class has @Injectable decorator
-    const injectable = findDecorator(node, this.checker, 'Injectable', ['@hexajs/common']);
+    const injectable = findDecorator(node, this.checker, 'Injectable', ['@hexajs-dev/common']);
 
     if (!injectable) return null;
 
@@ -389,7 +389,7 @@ export class DIScanner {
           if (!this.isTypeInjectable(type, param.type)) {
             if (this.isFromCorePackage(type, param.type)) {
               throw new Error(
-                `Dependency ${typeName} from HexaJS package sources is not registered in package metadata. Rebuild @hexajs/core and @hexajs/ports packages. [${className}::${paramName} in ${fileName}]`
+                `Dependency ${typeName} from HexaJS package sources is not registered in package metadata. Rebuild @hexajs-dev/core and @hexajs-dev/ports packages. [${className}::${paramName} in ${fileName}]`
               );
             }
             if (!typeSymbol) {
@@ -500,7 +500,7 @@ export class DIScanner {
    * Check if a constructor parameter has an @Inject() decorator and return the token key.
    */
   private getInjectTokenKey(param: ts.ParameterDeclaration): string | null {
-    const injectDecorator = findDecorator(param, this.checker, 'Inject', ['@hexajs/common']);
+    const injectDecorator = findDecorator(param, this.checker, 'Inject', ['@hexajs-dev/common']);
     if (!injectDecorator) return null;
 
     if (ts.isCallExpression(injectDecorator.expression)) {
@@ -596,7 +596,7 @@ export class DIScanner {
   }
 
   /**
-   * Map InjectableContext enum values (from @hexajs/core) to HexaContext (CLI internal).
+   * Map InjectableContext enum values (from @hexajs-dev/core) to HexaContext (CLI internal).
    */
   private mapCoreContextToHexaContext(coreContext: string): HexaContext {
     switch (coreContext) {
@@ -615,7 +615,7 @@ export class DIScanner {
       case 'Injectable':
       case 'Inject':
       case 'InjectWorker':
-        return ['@hexajs/common'];
+        return ['@hexajs-dev/common'];
       case 'Worker':
       case 'Background':
       case 'Content':
@@ -630,14 +630,14 @@ export class DIScanner {
       case 'Reducer':
       case 'Reduce':
       case 'State':
-        return ['@hexajs/core'];
+        return ['@hexajs-dev/core'];
       default:
         return undefined;
     }
   }
 
   private isInjectableDecorator(decorator: ts.Decorator): boolean {
-    return isDecoratorNamed(decorator, this.checker, 'Injectable', ['@hexajs/common']);
+    return isDecoratorNamed(decorator, this.checker, 'Injectable', ['@hexajs-dev/common']);
   }
 
   private hasDecoratorNamed(node: ts.Node, name: string): boolean {
@@ -757,7 +757,7 @@ export class DIScanner {
       const decls = symbol.getDeclarations() || [];
       for (const d of decls) {
         const sourceFile = d.getSourceFile();
-        if (sourceFile.fileName.includes('@hexajs/') ||
+        if (sourceFile.fileName.includes('@hexajs-dev/') ||
           sourceFile.fileName.includes('packages/core') ||
           sourceFile.fileName.includes('packages\\core') ||
           sourceFile.fileName.includes('packages/ports') ||
@@ -807,7 +807,7 @@ export class DIScanner {
   }
 
   private isWorkerDecorator(decorator: ts.Decorator): boolean {
-    return isDecoratorNamed(decorator, this.checker, 'Worker', ['@hexajs/core']);
+    return isDecoratorNamed(decorator, this.checker, 'Worker', ['@hexajs-dev/core']);
   }
 }
 

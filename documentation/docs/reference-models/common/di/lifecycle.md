@@ -9,7 +9,7 @@ description: Public API model reference for common module packages/common/src/di
 #### OnDestroy
 
 ```ts
-import { OnDestroy } from '@hexajs/common';
+import { OnDestroy } from '@hexajs-dev/common';
 ```
 
 ```typescript
@@ -21,7 +21,7 @@ interface OnDestroy {
 #### OnInit
 
 ```ts
-import { OnInit } from '@hexajs/common';
+import { OnInit } from '@hexajs-dev/common';
 ```
 
 ```typescript

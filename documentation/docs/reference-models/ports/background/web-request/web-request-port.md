@@ -9,7 +9,7 @@ description: Public API model reference for ports module packages/ports/src/back
 #### WebRequestPort
 
 ```ts
-import { WebRequestPort } from '@hexajs/ports';
+import { WebRequestPort } from '@hexajs-dev/ports';
 ```
 
 ```typescript

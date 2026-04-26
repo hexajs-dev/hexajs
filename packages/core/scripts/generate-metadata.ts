@@ -2,7 +2,7 @@ import * as ts from 'typescript';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as crypto from 'crypto';
-import { HEXA_METADATA_HMAC_KEY } from '@hexajs/common';
+import { HEXA_METADATA_HMAC_KEY } from '@hexajs-dev/common';
 
 interface HexaServiceMetadata {
   injectable: true;

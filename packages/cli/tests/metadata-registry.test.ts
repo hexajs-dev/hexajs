@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { MetadataRegistry } from '../src/compiler/registry';
-import { HEXA_PLATFORM } from '@hexajs/common';
+import { HEXA_PLATFORM } from '@hexajs-dev/common';
 
 describe('MetadataRegistry', () => {
   it('rejects reserved framework token keys', () => {

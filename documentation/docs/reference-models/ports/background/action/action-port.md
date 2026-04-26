@@ -9,7 +9,7 @@ description: Public API model reference for ports module packages/ports/src/back
 #### ActionPort
 
 ```ts
-import { ActionPort } from '@hexajs/ports';
+import { ActionPort } from '@hexajs-dev/ports';
 ```
 
 ```typescript

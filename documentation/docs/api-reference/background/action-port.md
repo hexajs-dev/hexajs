@@ -1,4 +1,4 @@
-﻿---
+---
 title: ActionPort
 description: API reference for ActionPort in the background context.
 ---
@@ -8,7 +8,7 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 
 # ActionPort
 
-`ActionPort` controls the extension's toolbar button — its badge, icon, title, and popup — across all supported browsers.
+`ActionPort` controls the extension's toolbar button � its badge, icon, title, and popup � across all supported browsers.
 
 ## Context
 
@@ -28,8 +28,8 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 ## Usage
 
 ```typescript
-import { ActionPort } from '@hexajs/ports';
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { ActionPort } from '@hexajs-dev/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 
 @Injectable({ context: InjectableContext.Background })
 export class SyncStatusIndicatorService {
@@ -41,7 +41,7 @@ export class SyncStatusIndicatorService {
   }
 
   async showComplete(tabId: number) {
-    await this.action.setBadgeText({ text: '✓', tabId });
+    await this.action.setBadgeText({ text: '?', tabId });
     await this.action.setBadgeBackgroundColor({ color: '#107C10', tabId });
   }
 }

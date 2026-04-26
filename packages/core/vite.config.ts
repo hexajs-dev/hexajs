@@ -13,7 +13,7 @@ export default defineConfig({
     },
     rollupOptions: {
       // Externalize dependencies that shouldn't be bundled
-      external: ['@hexajs/common', '@hexajs/ports', /^@hexajs\/common\//, /^@hexajs\/ports\//, 'rxjs', /^rxjs\//],
+      external: ['@hexajs-dev/common', '@hexajs-dev/ports', /^@hexajs\/common\//, /^@hexajs\/ports\//, 'rxjs', /^rxjs\//],
       output: {
         preserveModules: true,
         preserveModulesRoot: '.',

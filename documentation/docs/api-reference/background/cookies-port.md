@@ -1,4 +1,4 @@
-ï»¿---
+---
 title: CookiesPort
 description: API reference for CookiesPort in the background context.
 ---
@@ -8,7 +8,7 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 
 # CookiesPort
 
-`CookiesPort` provides full cookie lifecycle management â€” reading, writing, removing, and reacting to changes â€” across all cookie stores.
+`CookiesPort` provides full cookie lifecycle management — reading, writing, removing, and reacting to changes — across all cookie stores.
 
 ## Context
 
@@ -30,8 +30,8 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 ## Usage
 
 ```typescript
-import { CookiesPort } from '@hexajs/ports';
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { CookiesPort } from '@hexajs-dev/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 
 @Injectable({ context: InjectableContext.Background })
 export class SessionCookieService {
@@ -60,8 +60,8 @@ Below is the exhaustive, auto-generated technical reference for all types, inter
 ## Usage
 
 ```ts
-import { CookiesPort } from '@hexajs/ports';
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { CookiesPort } from '@hexajs-dev/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 
 @Injectable({ context: InjectableContext.Background })
 export class ExampleService {

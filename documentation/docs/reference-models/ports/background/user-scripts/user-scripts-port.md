@@ -9,7 +9,7 @@ description: Public API model reference for ports module packages/ports/src/back
 #### UserScriptsPort
 
 ```ts
-import { UserScriptsPort } from '@hexajs/ports';
+import { UserScriptsPort } from '@hexajs-dev/ports';
 ```
 
 ```typescript

@@ -9,7 +9,7 @@ description: Public API model reference for ports module packages/ports/src/back
 #### CookiesPort
 
 ```ts
-import { CookiesPort } from '@hexajs/ports';
+import { CookiesPort } from '@hexajs-dev/ports';
 ```
 
 ```typescript

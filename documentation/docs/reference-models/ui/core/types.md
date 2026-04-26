@@ -9,7 +9,7 @@ description: Public API model reference for ui module packages/ui/src/core/types
 #### HexaUiConfig
 
 ```ts
-import { HexaUiConfig } from '@hexajs/ui';
+import { HexaUiConfig } from '@hexajs-dev/ui';
 ```
 
 ```typescript
@@ -22,7 +22,7 @@ interface HexaUiConfig {
 #### HexaUiSurfaceConfig
 
 ```ts
-import { HexaUiSurfaceConfig } from '@hexajs/ui';
+import { HexaUiSurfaceConfig } from '@hexajs-dev/ui';
 ```
 
 ```typescript
@@ -41,7 +41,7 @@ interface HexaUiSurfaceConfig {
 Resolved output paths for each UI surface, written into the extension manifest
 
 ```ts
-import { ManifestUiEntries } from '@hexajs/ui';
+import { ManifestUiEntries } from '@hexajs-dev/ui';
 ```
 
 ```typescript
@@ -54,7 +54,7 @@ interface ManifestUiEntries {
 #### HexaUiMode
 
 ```ts
-import { HexaUiMode } from '@hexajs/ui';
+import { HexaUiMode } from '@hexajs-dev/ui';
 ```
 
 ```typescript
@@ -64,7 +64,7 @@ type HexaUiMode = 'managed' | 'external' | 'none';
 #### HexaUiSurface
 
 ```ts
-import { HexaUiSurface } from '@hexajs/ui';
+import { HexaUiSurface } from '@hexajs-dev/ui';
 ```
 
 ```typescript

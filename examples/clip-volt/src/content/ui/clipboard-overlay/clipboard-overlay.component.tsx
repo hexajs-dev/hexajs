@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { inject } from '@hexajs/common';
-import { HexaContentStore, select } from '@hexajs/core';
+import { inject } from '@hexajs-dev/common';
+import { HexaContentStore, select } from '@hexajs-dev/core';
 import { Check, Clock3, CornerDownLeft, Globe, Search, X } from 'lucide-react';
 import { ClipItem } from '../../../contract/messages';
 import { ContentState } from '../../store/content.reducer';

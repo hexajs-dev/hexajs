@@ -1,4 +1,4 @@
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 import { ClipperRect } from '@contract/messages/messages';
 
 export interface CropActiveTabImageInput {

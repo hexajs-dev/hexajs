@@ -1,6 +1,6 @@
 import { Observable, Subject, filter, OperatorFunction } from 'rxjs';
 import { HexaActionWithPayload } from './action.abstract';
-import { Injectable } from '@hexajs/common';
+import { Injectable } from '@hexajs-dev/common';
 
 type HexaAction = HexaActionWithPayload<string, any>;
 

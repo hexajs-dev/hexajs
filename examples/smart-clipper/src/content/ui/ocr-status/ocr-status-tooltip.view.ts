@@ -1,4 +1,4 @@
-import { View, HexaView } from '@hexajs/core';
+import { View, HexaView } from '@hexajs-dev/core';
 import { OcrStatusTooltipComponent } from './ocr-status-tooltip.component';
 import styles from './ocr-status-tooltip.scss?inline';
 

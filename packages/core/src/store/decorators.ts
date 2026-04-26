@@ -1,4 +1,4 @@
-import { InjectableContext } from '@hexajs/common';
+import { InjectableContext } from '@hexajs-dev/common';
 import { HexaReducer } from "./reducer.abstract";
 
 export function Reducer(): ClassDecorator {

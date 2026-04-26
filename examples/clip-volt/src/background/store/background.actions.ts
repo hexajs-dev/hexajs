@@ -1,4 +1,4 @@
-import { createAction, props } from '@hexajs/core';
+import { createAction, props } from '@hexajs-dev/core';
 import { ClipVaultConfig } from '../../contract/config';
 import { ClipItem } from '../../contract/messages';
 

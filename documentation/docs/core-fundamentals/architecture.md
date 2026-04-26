@@ -45,11 +45,11 @@ This is why runtime code stays clean: you write decorators and constructor depen
 ## Layered packages
 
 ```
-@hexajs/common   ← DI container, decorators, tokens (no hexa deps)
+@hexajs-dev/common   ← DI container, decorators, tokens (no hexa deps)
      ↑
-@hexajs/ports    ← platform abstractions (Chrome / Firefox APIs)
+@hexajs-dev/ports    ← platform abstractions (Chrome / Firefox APIs)
      ↑
-@hexajs/core     ← controllers, handlers, store, clients
+@hexajs-dev/core     ← controllers, handlers, store, clients
      ↑
-@hexajs/cli      ← build pipeline, manifest patching, scaffold
+@hexajs-dev/cli      ← build pipeline, manifest patching, scaffold
 ```

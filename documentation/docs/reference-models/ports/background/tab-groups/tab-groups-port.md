@@ -9,7 +9,7 @@ description: Public API model reference for ports module packages/ports/src/back
 #### TabGroupsPort
 
 ```ts
-import { TabGroupsPort } from '@hexajs/ports';
+import { TabGroupsPort } from '@hexajs-dev/ports';
 ```
 
 ```typescript

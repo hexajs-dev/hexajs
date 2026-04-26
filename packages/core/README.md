@@ -1,4 +1,4 @@
-# @hexajs/core
+# @hexajs-dev/core
 
 Core contracts, decorators, and Dependency Injection for HexaJS.
 
@@ -7,7 +7,7 @@ Core contracts, decorators, and Dependency Injection for HexaJS.
 ### Basic Usage
 
 ```typescript
-import { Injectable, inject, InjectionContext } from '@hexajs/core';
+import { Injectable, inject, InjectionContext } from '@hexajs-dev/core';
 
 // Service without context (can be injected anywhere)
 @Injectable()

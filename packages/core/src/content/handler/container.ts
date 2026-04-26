@@ -1,5 +1,5 @@
-import { RuntimePort } from '@hexajs/ports';
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { RuntimePort } from '@hexajs-dev/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 import { HexaPipeValidationError } from '../../services/hexa-client.base';
 import { HexaPipeRunner } from '../../services/hexa-pipe-runner';
 
