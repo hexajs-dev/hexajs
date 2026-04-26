@@ -13,7 +13,7 @@ resolving `@vitejs/plugin-react` from the user's project.
 Returns the manifest-relative entry path (e.g. "ui/popup/index.html").
 
 ```ts
-import { buildManagedPopup } from '@hexajs/ui';
+import { buildManagedPopup } from '@hexajs-dev/ui';
 ```
 
 ```typescript

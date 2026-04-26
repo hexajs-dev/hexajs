@@ -9,7 +9,7 @@ description: Public API model reference for common module packages/common/src/to
 #### PLATFORM
 
 ```ts
-import { PLATFORM } from '@hexajs/common';
+import { PLATFORM } from '@hexajs-dev/common';
 ```
 
 ```typescript

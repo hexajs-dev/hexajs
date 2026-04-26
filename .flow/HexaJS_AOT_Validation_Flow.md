@@ -5,14 +5,14 @@ This document outlines the architectural flow for implementing Ahead-of-Time (AO
 ---
 
 ## Phase 1: Definition (The DTO)
-**Location:** `@hexajs/common`
+**Location:** `@hexajs-dev/common`
 **Actor:** Developer
 
 The developer defines a Data Transfer Object (DTO) using standard HexaJS decorators. These decorators serve as metadata for the AOT engine.
 
 ```typescript
-// @hexajs/common/dto/user.dto.ts
-import { IsEmail, IsString, Length } from '@hexajs/common';
+// @hexajs-dev/common/dto/user.dto.ts
+import { IsEmail, IsString, Length } from '@hexajs-dev/common';
 
 export class CreateUserDto {
   @IsEmail()
@@ -32,7 +32,7 @@ export class CreateUserDto {
 
 The CLI performs a static analysis of the source code during the build process.
 1. **Scan `@Action` Handlers:** Identify all methods decorated with `@Action`.
-2. **Parameter Inspection:** Check the first parameter of the method. If the type matches a class defined in `@hexajs/common` with validation decorators, mark it for processing.
+2. **Parameter Inspection:** Check the first parameter of the method. If the type matches a class defined in `@hexajs-dev/common` with validation decorators, mark it for processing.
 3. **DTO Extraction:** Read the properties and decorators of the identified DTO.
 
 ---
@@ -110,7 +110,7 @@ async register(payload) {
 
 
 
-🛠 Supported Decorators (The AOT Filter)Here is the list of decorators we will support in @hexajs/common. These were selected to ensure a small bundle size while providing full coverage for extension messaging:CategoryDecoratorsCommonIsDefined, IsOptional, Equals, NotEquals, IsEmpty, IsNotEmpty, IsIn, IsNotInTypeIsBoolean, IsString, IsNumber, IsInt, IsArray, IsEnum, IsObjectStringIsEmail, IsUrl, IsUUID, IsJSON, IsLowercase, IsUppercase, Length, MinLength, MaxLength, Matches (Regex)NumberMin, Max, IsPositive, IsNegativeDateIsDateString (Crucial for JSON-serialized dates)NestedValidateNested (Triggers AOT validation for child DTOs)📝 Content of the HexaJS_AOT_Validation_Flow.mdMarkdown# HexaJS AOT Validation Flow: Concept & Implementation Guide
+🛠 Supported Decorators (The AOT Filter)Here is the list of decorators we will support in @hexajs-dev/common. These were selected to ensure a small bundle size while providing full coverage for extension messaging:CategoryDecoratorsCommonIsDefined, IsOptional, Equals, NotEquals, IsEmpty, IsNotEmpty, IsIn, IsNotInTypeIsBoolean, IsString, IsNumber, IsInt, IsArray, IsEnum, IsObjectStringIsEmail, IsUrl, IsUUID, IsJSON, IsLowercase, IsUppercase, Length, MinLength, MaxLength, Matches (Regex)NumberMin, Max, IsPositive, IsNegativeDateIsDateString (Crucial for JSON-serialized dates)NestedValidateNested (Triggers AOT validation for child DTOs)📝 Content of the HexaJS_AOT_Validation_Flow.mdMarkdown# HexaJS AOT Validation Flow: Concept & Implementation Guide
 
 This document defines the architectural flow for Ahead-of-Time (AOT) validation. 
 The goal: **Zero Runtime Reflection.**
@@ -140,7 +140,7 @@ The following decorators are supported and will be recognized by the `hexa-cli` 
 ## 2. Step-by-Step Architecture Flow
 
 ### Step 1: Definition (Developer)
-Developer creates a DTO in `@hexajs/common`.
+Developer creates a DTO in `@hexajs-dev/common`.
 ```typescript
 export class SendMessageDto {
   @IsUUID()

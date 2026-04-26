@@ -9,7 +9,7 @@ description: Public API model reference for ports module packages/ports/src/back
 #### HistoryPort
 
 ```ts
-import { HistoryPort } from '@hexajs/ports';
+import { HistoryPort } from '@hexajs-dev/ports';
 ```
 
 ```typescript

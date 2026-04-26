@@ -20,7 +20,7 @@ In HexaJS, reducer classes use decorators:
 ## Reducer example
 
 ```ts
-import { HexaReducer, Reduce, Reducer } from '@hexajs/core';
+import { HexaReducer, Reduce, Reducer } from '@hexajs-dev/core';
 import * as BackgroundActions from './background.actions';
 
 @Reducer()

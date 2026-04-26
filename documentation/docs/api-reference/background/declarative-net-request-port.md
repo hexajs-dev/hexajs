@@ -1,4 +1,4 @@
-﻿---
+---
 title: DeclarativeNetRequestPort
 description: API reference for DeclarativeNetRequestPort in the background context.
 ---
@@ -23,8 +23,8 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 ## Usage
 
 ```typescript
-import { DeclarativeNetRequestPort } from '@hexajs/ports';
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { DeclarativeNetRequestPort } from '@hexajs-dev/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 
 @Injectable({ context: InjectableContext.Background })
 export class AdBlockService {

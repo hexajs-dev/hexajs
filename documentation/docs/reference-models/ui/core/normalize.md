@@ -11,7 +11,7 @@ description: Public API model reference for ui module packages/ui/src/core/norma
 Convert Windows backslashes to forward slashes for use in Chrome extension manifests.
 
 ```ts
-import { normalizeManifestPath } from '@hexajs/ui';
+import { normalizeManifestPath } from '@hexajs-dev/ui';
 ```
 
 ```typescript

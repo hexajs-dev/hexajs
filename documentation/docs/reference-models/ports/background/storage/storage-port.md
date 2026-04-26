@@ -9,7 +9,7 @@ description: Public API model reference for ports module packages/ports/src/back
 #### StoragePort
 
 ```ts
-import { StoragePort } from '@hexajs/ports';
+import { StoragePort } from '@hexajs-dev/ports';
 ```
 
 ```typescript

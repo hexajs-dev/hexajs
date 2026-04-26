@@ -27,7 +27,7 @@ export class StoreScanner {
     }
 
     processStore(node: ts.ClassDeclaration): StateMetadata | null {
-        const stateDecorator = getDecorator(node, this.checker, 'State', ['@hexajs/core']);
+        const stateDecorator = getDecorator(node, this.checker, 'State', ['@hexajs-dev/core']);
         if (!stateDecorator) return null;
 
         // Extract decorator options (context and state object)

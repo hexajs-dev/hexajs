@@ -11,7 +11,7 @@ description: Public API model reference for ui module packages/ui/src/core/comma
 Run a user-supplied shell command for an external UI surface build.
 
 ```ts
-import { runUiBuildCommand } from '@hexajs/ui';
+import { runUiBuildCommand } from '@hexajs-dev/ui';
 ```
 
 ```typescript

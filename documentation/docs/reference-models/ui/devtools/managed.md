@@ -12,7 +12,7 @@ Build a managed devtools panel from `config.sourceDir` using an internal Vite bu
 Returns the manifest-relative entry path (e.g. "ui/devtools/index.html").
 
 ```ts
-import { buildManagedDevtools } from '@hexajs/ui';
+import { buildManagedDevtools } from '@hexajs-dev/ui';
 ```
 
 ```typescript

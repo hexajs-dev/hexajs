@@ -28,8 +28,8 @@ hexa add handler TabsHandler MyContentEntry
 ## Handler Example
 
 ```ts
-import { Handler, Handle } from '@hexajs/core';
-import { HexaContentStore } from '@hexajs/core';
+import { Handler, Handle } from '@hexajs-dev/core';
+import { HexaContentStore } from '@hexajs-dev/core';
 import { LoggerService } from '../services/logger.service';
 import { MyContentEntry } from './content';
 import { ContentState } from './store/content.state';
@@ -53,7 +53,7 @@ export class TabsHandler {
 Use `@Subscribe` when one content handler listens to events pushed from background:
 
 ```ts
-import { Handler, Subscribe } from '@hexajs/core';
+import { Handler, Subscribe } from '@hexajs-dev/core';
 import { LoggerService } from '../services/logger.service';
 import { MyContentEntry } from './content';
 

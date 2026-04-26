@@ -15,7 +15,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "types": [
-      "@hexajs/ports/hexa.web.ext"
+      "@hexajs-dev/ports/hexa.web.ext"
     ],
     "outDir": "./dist",
     "rootDir": "./src"

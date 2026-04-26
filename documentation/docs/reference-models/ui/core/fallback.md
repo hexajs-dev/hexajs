@@ -15,7 +15,7 @@ For devtools, generates a panel page inside `ui/devtools/` and a bridge page
 that registers it via `chrome.devtools.panels.create()`.
 
 ```ts
-import { createFallbackSurface } from '@hexajs/ui';
+import { createFallbackSurface } from '@hexajs-dev/ui';
 ```
 
 ```typescript

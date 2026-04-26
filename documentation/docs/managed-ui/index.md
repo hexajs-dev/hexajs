@@ -18,7 +18,7 @@ For advanced injected rendering patterns, this section also covers Shadow Views,
 - UI-scoped and general DI services.
 - Token injection through the generated UI container.
 - `HexaUIClient` request/response messaging.
-- React bindings from `@hexajs/ui/react`.
+- React bindings from `@hexajs-dev/ui/react`.
 - Shadow Views for isolated Shadow DOM rendering.
 
 ## What Managed UI does not host

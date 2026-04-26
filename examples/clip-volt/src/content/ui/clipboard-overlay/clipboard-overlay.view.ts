@@ -1,5 +1,5 @@
-import { View, HexaView } from '@hexajs/core';
-import { OnDestroy } from '@hexajs/common';
+import { View, HexaView } from '@hexajs-dev/core';
+import { OnDestroy } from '@hexajs-dev/common';
 import { ClipboardOverlayComponent } from './clipboard-overlay.component';
 import styles from './clipboard-overlay.scss?inline';
 import { ClipItem } from '../../../contract/messages';

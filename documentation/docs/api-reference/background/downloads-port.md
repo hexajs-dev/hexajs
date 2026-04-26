@@ -1,4 +1,4 @@
-﻿---
+---
 title: DownloadsPort
 description: API reference for DownloadsPort in the background context.
 ---
@@ -29,8 +29,8 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 ## Usage
 
 ```typescript
-import { DownloadsPort } from '@hexajs/ports';
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { DownloadsPort } from '@hexajs-dev/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 
 @Injectable({ context: InjectableContext.Background })
 export class ReportExportService {

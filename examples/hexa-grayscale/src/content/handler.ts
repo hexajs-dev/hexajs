@@ -1,4 +1,4 @@
-import { Handler } from '@hexajs/core';
+import { Handler } from '@hexajs-dev/core';
 import { HexaGrayscaleContent } from './content';
 
 /**

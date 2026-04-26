@@ -1,4 +1,4 @@
-﻿---
+---
 title: ManagementPort
 description: API reference for ManagementPort in the background context.
 ---
@@ -28,8 +28,8 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 ## Usage
 
 ```typescript
-import { ManagementPort } from '@hexajs/ports';
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { ManagementPort } from '@hexajs-dev/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 
 @Injectable({ context: InjectableContext.Background })
 export class ExtensionRegistryService {

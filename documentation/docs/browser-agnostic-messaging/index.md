@@ -14,7 +14,7 @@ HexaJS standardizes communication across Background, Content, and UI contexts th
 ## Core principles
 
 - Never call `chrome.*` / `browser.*` directly in app classes.
-- Use `@hexajs/ports` and injected clients.
+- Use `@hexajs-dev/ports` and injected clients.
 - Route request/response messages through background endpoints.
 - Keep code platform-agnostic; CLI builds per target platform.
 

@@ -1,9 +1,9 @@
 import type { ScaffoldContext } from '../models/scaffold.types';
 
 export const backgroundMainTemplate = (ctx: ScaffoldContext): string => `\
-import { Background, HexaBackgroundClient, HexaBackgroundStore, select } from '@hexajs/core';
+import { Background, HexaBackgroundClient, HexaBackgroundStore, select } from '@hexajs-dev/core';
 import { BackgroundState } from './store/background.reducer';
-import { OnDestroy, OnInit } from '@hexajs/common';
+import { OnDestroy, OnInit } from '@hexajs-dev/common';
 import { Subscription } from 'rxjs';
 
 @Background()

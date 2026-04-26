@@ -12,7 +12,7 @@ Background-context HexaClient.
 Extends the base with tab-targeted messaging and broadcast.
 
 ```ts
-import { HexaBackgroundClient } from '@hexajs/core';
+import { HexaBackgroundClient } from '@hexajs-dev/core';
 ```
 
 ```typescript

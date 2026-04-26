@@ -26,7 +26,7 @@ These tokens are always created by the build foundation layer:
 Use `createToken` to declare token defaults in source code.
 
 ```ts
-import { createToken, Inject, Injectable, InjectableContext } from '@hexajs/common';
+import { createToken, Inject, Injectable, InjectableContext } from '@hexajs-dev/common';
 
 export const API_BASE_URL = createToken('API_BASE_URL', 'https://api.example.com', InjectableContext.Background);
 
@@ -78,7 +78,7 @@ Later layers override earlier layers by token key.
 If needed, runtime code can resolve tokens with `inject(...)` after bootstrap has initialized the container:
 
 ```ts
-import { inject } from '@hexajs/common';
+import { inject } from '@hexajs-dev/common';
 
 const platform = inject<string>('HEXA_PLATFORM');
 ```

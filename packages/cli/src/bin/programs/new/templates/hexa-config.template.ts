@@ -30,7 +30,7 @@ export const hexaConfigTemplate = (ctx: ScaffoldContext): string => {
 
   return JSON.stringify(
     {
-      $schema: './node_modules/@hexajs/cli/schema/hexa-cli.schema.json',
+      $schema: './node_modules/@hexajs-dev/cli/schema/hexa-cli.schema.json',
       project: {
         name: ctx.name,
         version: '0.0.1',

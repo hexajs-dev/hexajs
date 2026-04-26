@@ -55,8 +55,8 @@ export const clipboardHandlesApi = {
 **Popup snippet**:
 
 ```ts
-import { inject } from '@hexajs/common';
-import { HexaUIClient } from '@hexajs/ui';
+import { inject } from '@hexajs-dev/common';
+import { HexaUIClient } from '@hexajs-dev/ui';
 import { configApi } from './api';
 import { ConfigResponseMessage, GetConfigMessage } from './messages';
 

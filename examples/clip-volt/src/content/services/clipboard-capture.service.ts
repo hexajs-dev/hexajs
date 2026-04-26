@@ -1,4 +1,4 @@
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 import { SENSITIVE_PATTERNS } from '../../contract/config';
 import { ClipItem } from '../../contract/messages';
 

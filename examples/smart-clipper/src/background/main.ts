@@ -1,5 +1,5 @@
-import { Background } from '@hexajs/core';
-import { OnInit, OnDestroy } from '@hexajs/common';
+import { Background } from '@hexajs-dev/core';
+import { OnInit, OnDestroy } from '@hexajs-dev/common';
 
 @Background()
 export class SmartClipperBackground implements OnInit, OnDestroy {

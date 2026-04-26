@@ -1,4 +1,4 @@
-# @hexajs/cli
+# @hexajs-dev/cli
 
 ## 0.9.1
 
@@ -16,7 +16,7 @@
 ### Patch Changes
 
 - Updated dependencies [2b9af51]
-  - @hexajs/common@2.0.0
+  - @hexajs-dev/common@2.0.0
 
 ## 1.0.0
 
@@ -27,7 +27,7 @@
 ### Patch Changes
 
 - Updated dependencies [d993bfb]
-  - @hexajs/common@1.0.0
+  - @hexajs-dev/common@1.0.0
 
 ## 0.0.1
 

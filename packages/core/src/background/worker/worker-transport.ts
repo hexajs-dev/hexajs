@@ -1,5 +1,5 @@
-import { inject } from '@hexajs/common';
-import { RuntimePort } from '@hexajs/ports';
+import { inject } from '@hexajs-dev/common';
+import { RuntimePort } from '@hexajs-dev/ports';
 import { WorkerEnvironment } from './decorators';
 import { WorkerCallEvent } from './events';
 

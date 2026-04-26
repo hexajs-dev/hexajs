@@ -79,12 +79,12 @@ function copyExternalSurface(surface: 'popup' | 'devtools', config: UiSurfaceCon
 function loadHexaUi(cwd: string): HexaUiModule {
     const userRequire = createRequire(path.join(cwd, 'package.json'));
     try {
-        return userRequire('@hexajs/ui') as HexaUiModule;
+        return userRequire('@hexajs-dev/ui') as HexaUiModule;
     } catch {
         const packageManager = detectProjectPM(cwd);
         throw new Error(
-            `'@hexajs/ui' is not installed in your project but popup/devtools is set to managed mode.\n` +
-            `Run: ${getAddDependencyCommand(packageManager, '@hexajs/ui')}\n` +
+            `'@hexajs-dev/ui' is not installed in your project but popup/devtools is set to managed mode.\n` +
+            `Run: ${getAddDependencyCommand(packageManager, '@hexajs-dev/ui')}\n` +
             `Or change the popup mode to "external" or "none" in hexa-cli.config.json.`
         );
     }

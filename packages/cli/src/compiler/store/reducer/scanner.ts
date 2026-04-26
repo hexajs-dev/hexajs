@@ -20,7 +20,7 @@ export class ReducerScanner {
     
             processClass(node: ts.ClassDeclaration): ReducerMetadata | null {
         // 1. Check if class has @Background decorator
-        const reducer = findDecorator(node, this.checker, 'Reducer', ['@hexajs/core']);
+        const reducer = findDecorator(node, this.checker, 'Reducer', ['@hexajs-dev/core']);
 
         if (!reducer) return null;
         const methods: ReduceMetadata[] = [];
@@ -30,7 +30,7 @@ export class ReducerScanner {
             if (ts.isMethodDeclaration(member)) {
                 const methodName = member.name.getText();
 
-                const decorator = getDecorator(member, this.checker, 'Reduce', ['@hexajs/core']);
+                const decorator = getDecorator(member, this.checker, 'Reduce', ['@hexajs-dev/core']);
                 if (decorator) {
                     const actionName = this.extractOptions(decorator);
                     if (!actionName) {
@@ -55,7 +55,7 @@ export class ReducerScanner {
                 const typeName = this.checker.typeToString(type);
                 if (!this.diScanner.isTypeInjectable(type, param.type)) {
                     if (this.diScanner.isFromCorePackage(type, param.type)) {
-                        throw new Error(`Dependency ${typeName} from HexaJS package sources is not registered in package metadata. Rebuild @hexajs/core and @hexajs/ports packages.`);
+                        throw new Error(`Dependency ${typeName} from HexaJS package sources is not registered in package metadata. Rebuild @hexajs-dev/core and @hexajs-dev/ports packages.`);
                     }
                     throw new Error(`Dependency ${typeName} does not include @Injectable decorator.`);
                 }

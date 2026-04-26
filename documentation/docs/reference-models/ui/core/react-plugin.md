@@ -9,7 +9,7 @@ description: Public API model reference for ui module packages/ui/src/core/react
 #### ReactPluginFn
 
 ```ts
-import { ReactPluginFn } from '@hexajs/ui';
+import { ReactPluginFn } from '@hexajs-dev/ui';
 ```
 
 ```typescript
@@ -26,7 +26,7 @@ The Hexa packages never own framework plugins — they must live in the
 user project's node_modules.
 
 ```ts
-import { loadReactPlugin } from '@hexajs/ui';
+import { loadReactPlugin } from '@hexajs-dev/ui';
 ```
 
 ```typescript

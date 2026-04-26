@@ -1,4 +1,4 @@
-import { View, HexaView } from '@hexajs/core';
+import { View, HexaView } from '@hexajs-dev/core';
 import { ClipperOverlayComponent } from './clipper-overlay.component';
 import styles from './clipper-overlay.scss?inline';
 

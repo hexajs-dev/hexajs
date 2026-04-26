@@ -9,7 +9,7 @@ description: Public API model reference for core module packages/core/src/conten
 #### HandlerContainer
 
 ```ts
-import { HandlerContainer } from '@hexajs/core';
+import { HandlerContainer } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -49,7 +49,7 @@ setPipedClient(client: HexaClientBase): (client: HexaClientBase) => void
 #### ContentHandlerFn
 
 ```ts
-import { ContentHandlerFn } from '@hexajs/core';
+import { ContentHandlerFn } from '@hexajs-dev/core';
 ```
 
 ```typescript

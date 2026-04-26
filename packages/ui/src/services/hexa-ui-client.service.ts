@@ -1,6 +1,6 @@
-import { Injectable, InjectableContext } from '@hexajs/common';
-import { HexaClientBase } from '@hexajs/core';
-import { RuntimePort } from '@hexajs/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { HexaClientBase } from '@hexajs-dev/core';
+import { RuntimePort } from '@hexajs-dev/ports';
 
 /**
  * UI-context HexaClient.

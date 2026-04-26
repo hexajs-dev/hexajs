@@ -9,7 +9,7 @@ description: Public API model reference for ports module packages/ports/src/ui/d
 #### DevtoolsPort
 
 ```ts
-import { DevtoolsPort } from '@hexajs/ports';
+import { DevtoolsPort } from '@hexajs-dev/ports';
 ```
 
 ```typescript

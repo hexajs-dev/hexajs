@@ -1,7 +1,7 @@
-﻿import { useEffect, useState } from 'react';
-import { inject } from '@hexajs/common';
-import { RuntimePort } from '@hexajs/ports';
-import { HexaUIClient } from '@hexajs/ui';
+import { useEffect, useState } from 'react';
+import { inject } from '@hexajs-dev/common';
+import { RuntimePort } from '@hexajs-dev/ports';
+import { HexaUIClient } from '@hexajs-dev/ui';
 import { backgroundApi, devtoolsHandlesApi } from '@contract/api';
 import { DevtoolsSyncThemeMessage, PopupGetRecentClipsMessage, PopupStartClippingMessage, RecentClipItem, RecentClipsMessage, StartClippingAckMessage } from '@contract/messages/messages';
 import { areAllSelectedLanguagesBundled, DEFAULT_OCR_LANGUAGE, getOcrLanguageSummary, getOcrLanguageTag, OcrLanguageCode, OCR_LANGUAGE_SELECTION_STORAGE_KEY, parseOcrLanguageSelection, serializeOcrLanguageSelection } from '@contract/ocr-language';

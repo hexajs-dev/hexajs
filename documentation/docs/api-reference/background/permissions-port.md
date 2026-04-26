@@ -1,4 +1,4 @@
-﻿---
+---
 title: PermissionsPort
 description: API reference for PermissionsPort in the background context.
 ---
@@ -29,8 +29,8 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 ## Usage
 
 ```typescript
-import { PermissionsPort } from '@hexajs/ports';
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { PermissionsPort } from '@hexajs-dev/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 
 @Injectable({ context: InjectableContext.Background })
 export class PermissionGateService {

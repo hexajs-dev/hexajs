@@ -61,7 +61,7 @@ See the complete matrix and behavior table in [HMR docs](documentation/docs/cli-
 ## Quick Start
 
 ```bash
-npm install -g @hexajs/cli
+npm install -g @hexajs-dev/cli
 hexa new my-extension
 cd my-extension
 pnpm install

@@ -14,7 +14,7 @@ export const tsconfigTemplate = (_ctx: ScaffoldContext): string =>
         emitDecoratorMetadata: true,
         esModuleInterop: true,
         skipLibCheck: true,
-        types: ['@hexajs/ports/hexa.web.ext'],
+        types: ['@hexajs-dev/ports/hexa.web.ext'],
         outDir: './dist',
         rootDir: './src',
       },

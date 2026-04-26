@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { inject } from '@hexajs/common';
-import { HexaUIClient } from '@hexajs/ui';
+import { inject } from '@hexajs-dev/common';
+import { HexaUIClient } from '@hexajs-dev/ui';
 import { Moon, SunMedium } from 'lucide-react';
 import { configApi } from '../../../src/contract/api';
 import { ClipVaultConfig, DEFAULT_CONFIG } from '../../../src/contract/config';

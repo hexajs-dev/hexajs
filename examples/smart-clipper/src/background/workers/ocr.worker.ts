@@ -1,4 +1,4 @@
-import { Worker, WorkerEnvironment, emitWorkerEvent } from '@hexajs/core';
+import { Worker, WorkerEnvironment, emitWorkerEvent } from '@hexajs-dev/core';
 import { createWorker, LoggerMessage } from '@libs/tesseract';
 import { DEFAULT_OCR_LANGUAGE, serializeOcrLanguageSelection } from '@contract/ocr-language';
 

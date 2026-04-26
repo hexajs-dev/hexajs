@@ -7,7 +7,7 @@ description: Public API model reference for core module packages/core/src/backgr
 #### @Background
 
 ```ts
-import { Background } from '@hexajs/core';
+import { Background } from '@hexajs-dev/core';
 ```
 
 ```typescript

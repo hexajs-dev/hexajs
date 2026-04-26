@@ -1,6 +1,6 @@
 import { BehaviorSubject, distinctUntilChanged, map, Observable, OperatorFunction } from "rxjs";
 import { HexaActionWithPayload } from "./action.abstract";
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 import { ActionsSubject } from './actions';
 
 export class HexaStoreAbstract<T> {

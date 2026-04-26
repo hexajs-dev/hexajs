@@ -55,6 +55,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Verify npm token and @hexajs scope access
+        run: |
+          npm whoami
+          npm org ls hexajs-dev
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Create Release PR or Publish
         id: changesets
         uses: changesets/action@v1

@@ -10,7 +10,7 @@ For Request/Response (Unary).
 CLI should enforce that actionName is UNIQUE per context.
 
 ```ts
-import { Action } from '@hexajs/core';
+import { Action } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -20,7 +20,7 @@ import { Action } from '@hexajs/core';
 #### @Controller
 
 ```ts
-import { Controller } from '@hexajs/core';
+import { Controller } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -33,7 +33,7 @@ For Fire-and-Forget (Multicast).
 Multiple methods can listen to the same eventName.
 
 ```ts
-import { On } from '@hexajs/core';
+import { On } from '@hexajs-dev/core';
 ```
 
 ```typescript

@@ -1,4 +1,4 @@
-﻿---
+---
 title: UserScriptsPort
 description: API reference for UserScriptsPort in the background context.
 ---
@@ -25,8 +25,8 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 ## Usage
 
 ```typescript
-import { UserScriptsPort } from '@hexajs/ports';
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { UserScriptsPort } from '@hexajs-dev/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 
 @Injectable({ context: InjectableContext.Background })
 export class UserScriptManagerService {

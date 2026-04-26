@@ -1,4 +1,4 @@
-import { Handler, Handle, HexaContentStore } from '@hexajs/core';
+import { Handler, Handle, HexaContentStore } from '@hexajs-dev/core';
 import { ClipVaultContent } from './content';
 import { clipboardHandlesNamespace, ClipboardHandlesApi } from '../contract/api';
 import { SyncClipsMessage, SyncConfigMessage } from '../contract/messages';

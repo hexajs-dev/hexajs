@@ -385,7 +385,7 @@ private findWorkspaceCoreMetadata(startDir: string): string | undefined {
 ```
 
 **Description:**  
-This loop walks all the way to the filesystem root looking for `packages/core/dist/hexa-metadata.json`. If an attacker can place a file at that path anywhere above the project root (e.g., in a shared `/packages/core/dist/` on a multi-tenant CI server), the CLI will load and trust that file as the @hexajs/core metadata, silently changing which classes are considered injectable.
+This loop walks all the way to the filesystem root looking for `packages/core/dist/hexa-metadata.json`. If an attacker can place a file at that path anywhere above the project root (e.g., in a shared `/packages/core/dist/` on a multi-tenant CI server), the CLI will load and trust that file as the @hexajs-dev/core metadata, silently changing which classes are considered injectable.
 
 **Recommendation:**  
 - Limit the upward walk to a configurable maximum depth (e.g., 3 levels).  

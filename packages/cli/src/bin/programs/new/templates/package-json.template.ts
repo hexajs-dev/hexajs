@@ -12,7 +12,7 @@ export const packageJsonTemplate = (ctx: ScaffoldContext): string => {
   );
 
   const managedUiDeps = usesManagedUi
-    ? { '@hexajs/ui': 'latest' }
+    ? { '@hexajs-dev/ui': 'latest' }
     : {};
 
   const reactDeps = usesReactUi
@@ -37,15 +37,15 @@ export const packageJsonTemplate = (ctx: ScaffoldContext): string => {
         ...platformScripts,
       },
       dependencies: {
-        '@hexajs/common': 'latest',
-        '@hexajs/core': 'latest',
-        '@hexajs/ports': 'latest',
+        '@hexajs-dev/common': 'latest',
+        '@hexajs-dev/core': 'latest',
+        '@hexajs-dev/ports': 'latest',
         ...managedUiDeps,
         ...reactDeps,
         rxjs: '^7.8.2',
       },
       devDependencies: {
-        '@hexajs/cli': 'latest',
+        '@hexajs-dev/cli': 'latest',
         ...managedUiDevDeps,
         ...reactDevDeps,
         typescript: '^5.0.0',

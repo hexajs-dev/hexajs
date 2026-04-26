@@ -1,7 +1,7 @@
-﻿---
+---
 title: UI Ports
 sidebar_position: 4
-description: Managed UI context ports provided by @hexajs/ports.
+description: Managed UI context ports provided by @hexajs-dev/ports.
 ---
 
 # UI Ports

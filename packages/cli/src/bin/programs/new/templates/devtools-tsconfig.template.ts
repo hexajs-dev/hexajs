@@ -8,7 +8,7 @@ export const devtoolsTsConfigTemplate = (): string => `{
     "strict": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "types": ["vite/client", "@hexajs/ports/hexa.web.ext"]
+    "types": ["vite/client", "@hexajs-dev/ports/hexa.web.ext"]
   },
   "include": ["src"]
 }

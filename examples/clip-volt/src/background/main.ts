@@ -1,5 +1,5 @@
-import { Background, HexaBackgroundStore } from '@hexajs/core';
-import { OnInit, OnDestroy } from '@hexajs/common';
+import { Background, HexaBackgroundStore } from '@hexajs-dev/core';
+import { OnInit, OnDestroy } from '@hexajs-dev/common';
 import { BackgroundState } from './store/background.reducer';
 import { ConfigService } from './services/config.service';
 import { ClipboardManagerService } from './services/clipboard-manager.service';

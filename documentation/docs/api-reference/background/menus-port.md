@@ -1,4 +1,4 @@
-﻿---
+---
 title: MenusPort
 description: API reference for MenusPort in the background context.
 ---
@@ -27,8 +27,8 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 ## Usage
 
 ```typescript
-import { MenusPort } from '@hexajs/ports';
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { MenusPort } from '@hexajs-dev/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 
 @Injectable({ context: InjectableContext.Background })
 export class ContextMenuService {

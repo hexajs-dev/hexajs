@@ -9,7 +9,7 @@ description: Public API model reference for core module packages/core/src/servic
 #### HexaPipeValidationError
 
 ```ts
-import { HexaPipeValidationError } from '@hexajs/core';
+import { HexaPipeValidationError } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -26,7 +26,7 @@ class HexaPipeValidationError extends Error { ... }
 #### HexaPipeInput
 
 ```ts
-import { HexaPipeInput } from '@hexajs/core';
+import { HexaPipeInput } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -41,7 +41,7 @@ interface HexaPipeInput {
 #### HexaPipeValidationResult
 
 ```ts
-import { HexaPipeValidationResult } from '@hexajs/core';
+import { HexaPipeValidationResult } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -56,7 +56,7 @@ interface HexaPipeValidationResult {
 #### HexaPipeContextName
 
 ```ts
-import { HexaPipeContextName } from '@hexajs/core';
+import { HexaPipeContextName } from '@hexajs-dev/core';
 ```
 
 ```typescript
@@ -66,7 +66,7 @@ type HexaPipeContextName = 'background' | 'content';
 #### HexaPipeFn
 
 ```ts
-import { HexaPipeFn } from '@hexajs/core';
+import { HexaPipeFn } from '@hexajs-dev/core';
 ```
 
 ```typescript

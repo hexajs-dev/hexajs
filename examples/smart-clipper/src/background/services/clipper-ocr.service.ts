@@ -1,5 +1,5 @@
-import { Injectable, InjectableContext, InjectWorker } from '@hexajs/common';
-import { withWorkerEvents, WorkerCallEvent } from '@hexajs/core';
+import { Injectable, InjectableContext, InjectWorker } from '@hexajs-dev/common';
+import { withWorkerEvents, WorkerCallEvent } from '@hexajs-dev/core';
 import { OcrWorker } from '../workers/ocr.worker';
 import { ClipperOcrModelService } from './clipper-ocr-model.service';
 

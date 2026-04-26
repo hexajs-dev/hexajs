@@ -1,4 +1,4 @@
-import { IsBoolean, IsNumber, IsOptional, IsString } from '@hexajs/common';
+import { IsBoolean, IsNumber, IsOptional, IsString } from '@hexajs-dev/common';
 import { ClipVaultConfig } from './config';
 
 export class ClipItem {

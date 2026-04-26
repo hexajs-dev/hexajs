@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { inject } from '@hexajs/common';
-import { RuntimePort } from '@hexajs/ports';
-import { HexaUIClient } from '@hexajs/ui';
+import { inject } from '@hexajs-dev/common';
+import { RuntimePort } from '@hexajs-dev/ports';
+import { HexaUIClient } from '@hexajs-dev/ui';
 import { backgroundApi, devtoolsHandlesApi } from '@contract/api';
 import { DevtoolsClipDiagnosticItem, DevtoolsErrorItem, DevtoolsGetStateMessage, DevtoolsStateMessage, DevtoolsSyncClipsMessage, DevtoolsSyncErrorsMessage, DevtoolsSyncThemeMessage } from '@contract/messages/messages';
 import { ThemeMode } from '../types/ui';

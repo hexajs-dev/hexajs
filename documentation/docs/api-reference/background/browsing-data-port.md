@@ -1,4 +1,4 @@
-ï»¿---
+---
 title: BrowsingDataPort
 description: API reference for BrowsingDataPort in the background context.
 ---
@@ -8,7 +8,7 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 
 # BrowsingDataPort
 
-`BrowsingDataPort` clears user browsing data â€” including cache, cookies, and history â€” with fine-grained control over data types and time ranges.
+`BrowsingDataPort` clears user browsing data — including cache, cookies, and history — with fine-grained control over data types and time ranges.
 
 ## Context
 
@@ -25,8 +25,8 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 ## Usage
 
 ```typescript
-import { BrowsingDataPort } from '@hexajs/ports';
-import { Injectable, InjectableContext } from '@hexajs/common';
+import { BrowsingDataPort } from '@hexajs-dev/ports';
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
 
 @Injectable({ context: InjectableContext.Background })
 export class PrivacyCleanupService {
