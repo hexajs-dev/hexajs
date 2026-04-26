@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { HexaConfig, ConfigToken, UiConfig } from './config';
+import { HexaConfig, ConfigToken, UiConfig, MinifyOption, CssMinifyOption, SourceMapOption } from './config';
 
 // ─── Resolved Build Config ────────────────────────────────────────────────────
 
@@ -14,7 +14,10 @@ export interface ResolvedBuildConfig {
     compilerOptions: {
         tsConfig: string;
         assets: string[];
-        minify: boolean;
+        minify: false | 'esbuild' | 'terser';
+        cssMinify: CssMinifyOption;
+        sourceMap: SourceMapOption;
+        terserOptions: Record<string, unknown>;
     };
     /** Merged tokens list — fully resolved from all layers */
     tokens: ConfigToken[];
@@ -68,6 +71,34 @@ function mergeTokens(...layers: (ConfigToken[] | undefined)[]): ConfigToken[] {
         }
     }
     return Array.from(map.values());
+}
+
+function normalizeMinifyOption(minify: MinifyOption): false | 'esbuild' | 'terser' {
+    if (minify === false) {
+        return false;
+    }
+
+    if (minify === 'terser') {
+        return 'terser';
+    }
+
+    return 'esbuild';
+}
+
+function normalizeCompilerOptions(compilerOptions: HexaConfig['compilerOptions']): ResolvedBuildConfig['compilerOptions'] {
+    const normalizedMinify = normalizeMinifyOption(compilerOptions.minify);
+    const sourceMap = compilerOptions.sourceMap ?? (normalizedMinify === false);
+    const cssMinify = compilerOptions.cssMinify ?? (normalizedMinify !== false);
+    const terserOptions = compilerOptions.terserOptions ?? {};
+
+    return {
+        tsConfig: compilerOptions.tsConfig,
+        assets: compilerOptions.assets,
+        minify: normalizedMinify,
+        cssMinify,
+        sourceMap,
+        terserOptions,
+    };
 }
 
 // ─── Config Resolution ────────────────────────────────────────────────────────
@@ -125,6 +156,7 @@ export function resolveConfig(config: HexaConfig, platform: string, mode: string
         // tsConfig is resolved separately above — use the resolved one
         tsConfig,
     };
+    const normalizedCompilerOptions = normalizeCompilerOptions(compilerOptions);
 
     // ── Resolve outDir ───────────────────────────────────────────────────────
     // Chain: environments[m].platforms[p].outDir, then /<mode>/ appended
@@ -149,7 +181,7 @@ export function resolveConfig(config: HexaConfig, platform: string, mode: string
         tsConfig,
         manifest,
         outDir,
-        compilerOptions,
+        compilerOptions: normalizedCompilerOptions,
         tokens,
         platform,
         mode,

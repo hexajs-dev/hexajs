@@ -4,6 +4,16 @@
   "description": "Core contracts, decorators, and services for HexaJS",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./hexa-metadata.json": "./dist/hexa-metadata.json",
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "build": "vite build",
     "dev": "vite build --watch",

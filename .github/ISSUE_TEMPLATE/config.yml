@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: HexaJS documentation
+    url: https://github.com/ran-tayeb/hexajs/tree/main/documentation
+    about: Check docs before opening an issue.

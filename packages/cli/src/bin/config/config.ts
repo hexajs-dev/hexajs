@@ -10,6 +10,10 @@ export interface ConfigToken {
     context?: 'background' | 'content' | 'ui';
 }
 
+export type MinifyOption = boolean | 'esbuild' | 'terser';
+export type CssMinifyOption = boolean | 'esbuild' | 'lightningcss';
+export type SourceMapOption = boolean | 'inline' | 'hidden';
+
 export type UiSurfaceMode = 'managed' | 'external' | 'none';
 
 export interface UiSurfaceConfig {
@@ -62,7 +66,10 @@ export interface HexaConfig {
     compilerOptions: {
         tsConfig: string;
         assets: string[];
-        minify: boolean;
+        minify: MinifyOption;
+        cssMinify: CssMinifyOption;
+        sourceMap: SourceMapOption;
+        terserOptions: Record<string, unknown>;
     };
     tokens?: ConfigToken[];
     ui?: UiConfig;
@@ -86,6 +93,9 @@ const DEFAULT_CONFIG: HexaConfig = {
         tsConfig: 'tsconfig.json',
         assets: [],
         minify: false,
+        cssMinify: false,
+        sourceMap: true,
+        terserOptions: {},
     },
     tokens: [],
     ui: {
@@ -98,7 +108,11 @@ const DEFAULT_CONFIG: HexaConfig = {
     },
     environments: {
         development: {
-            compilerOptions: { minify: false },
+            compilerOptions: {
+                minify: false,
+                cssMinify: false,
+                sourceMap: true,
+            },
             tokens: [],
             platforms: {
                 chrome: {
@@ -108,7 +122,11 @@ const DEFAULT_CONFIG: HexaConfig = {
             },
         },
         production: {
-            compilerOptions: { minify: true },
+            compilerOptions: {
+                minify: true,
+                cssMinify: true,
+                sourceMap: false,
+            },
             tokens: [],
             platforms: {
                 chrome: {

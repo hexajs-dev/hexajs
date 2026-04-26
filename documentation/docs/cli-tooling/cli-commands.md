@@ -46,6 +46,44 @@ Notes:
 - Watch mode is driven by `hexa build --watch`.
 - There is no separate `hexa dev` command.
 
+### Compiler options (hexa-cli.config.json)
+
+`compilerOptions` supports Vite-style build flags with Hexa camelCase keys:
+
+| Key | Type | Notes |
+|---|---|---|
+| `minify` | `boolean \| "esbuild" \| "terser"` | `true` maps to `"esbuild"` |
+| `cssMinify` | `boolean \| "esbuild" \| "lightningcss"` | CSS minifier strategy |
+| `sourceMap` | `boolean \| "inline" \| "hidden"` | Mapped to Vite `build.sourcemap` |
+| `terserOptions` | `object` | Used only when `minify: "terser"` |
+
+Example profiles:
+
+```json
+{
+  "compilerOptions": {
+    "minify": false,
+    "cssMinify": false,
+    "sourceMap": true,
+    "terserOptions": {}
+  },
+  "environments": {
+    "production": {
+      "compilerOptions": {
+        "minify": "terser",
+        "cssMinify": "lightningcss",
+        "sourceMap": false,
+        "terserOptions": {
+          "compress": {
+            "drop_console": true
+          }
+        }
+      }
+    }
+  }
+}
+```
+
 ## hexa add
 
 Add feature blocks to an existing project.

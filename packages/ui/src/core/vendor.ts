@@ -10,6 +10,46 @@ export interface HexaBootstrapPluginOptions {
   surface?: 'popup' | 'devtools';
 }
 
+const MAX_HMR_ADDRESS_LENGTH = 2048;
+const HMR_TOKEN_PATTERN = /^[a-zA-Z0-9._-]{16,128}$/;
+
+function normalizeHmrAddress(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return '';
+  }
+
+  if (trimmed.length > MAX_HMR_ADDRESS_LENGTH) {
+    throw new Error(`[Hexa UI] hmrAddress is too long (max ${MAX_HMR_ADDRESS_LENGTH} chars).`);
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(trimmed);
+  } catch {
+    throw new Error('[Hexa UI] hmrAddress must be a valid ws:// or wss:// URL.');
+  }
+
+  if (parsed.protocol !== 'ws:' && parsed.protocol !== 'wss:') {
+    throw new Error('[Hexa UI] hmrAddress must use ws:// or wss:// protocol.');
+  }
+
+  return parsed.toString();
+}
+
+function normalizeHmrToken(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return '';
+  }
+
+  if (!HMR_TOKEN_PATTERN.test(trimmed)) {
+    throw new Error('[Hexa UI] hmrSessionToken must be 16-128 chars and match [a-zA-Z0-9._-].');
+  }
+
+  return trimmed;
+}
+
 function createHMRRuntime(hmrAddress: string, hmrSessionToken: string, surface?: string): string {
   const surfaceJson = surface ? JSON.stringify(surface) : 'undefined';
   return `
@@ -93,8 +133,10 @@ const __HEXA_HMR_SURFACE__ = ${surfaceJson};
  */
 export function hexaBootstrapPlugin(bootstrapPath: string, options: HexaBootstrapPluginOptions = {}): Plugin {
   const normalizedBootstrap = bootstrapPath.replace(/\\/g, '/');
-  const injectHMR = !!options.watch && !!options.hmrAddress && !!options.hmrSessionToken;
-  const hmrRuntime = injectHMR ? createHMRRuntime(options.hmrAddress!, options.hmrSessionToken!, options.surface) : '';
+  const normalizedHmrAddress = options.hmrAddress ? normalizeHmrAddress(options.hmrAddress) : '';
+  const normalizedHmrToken = options.hmrSessionToken ? normalizeHmrToken(options.hmrSessionToken) : '';
+  const injectHMR = !!options.watch && !!normalizedHmrAddress && !!normalizedHmrToken;
+  const hmrRuntime = injectHMR ? createHMRRuntime(normalizedHmrAddress, normalizedHmrToken, options.surface) : '';
 
   return {
     name: 'hexa-bootstrap-inject',

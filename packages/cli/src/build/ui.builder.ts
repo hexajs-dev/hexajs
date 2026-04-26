@@ -13,8 +13,8 @@ import { normalizeManifestPath } from '../shared/path-utils';
 import { detectProjectPM, getAddDependencyCommand } from '../shared/package-manager';
 
 interface HexaUiModule {
-    buildManagedPopup: (config: UiSurfaceConfig | undefined, outputDir: string, minify: boolean, bootstrapPath: string, platform: string, watch?: boolean, hmrAddress?: string, hmrSessionToken?: string) => Promise<string>;
-    buildManagedDevtools: (config: UiSurfaceConfig | undefined, outputDir: string, minify: boolean, bootstrapPath: string, platform: string, watch?: boolean, hmrAddress?: string, hmrSessionToken?: string) => Promise<string>;
+    buildManagedPopup: (config: UiSurfaceConfig | undefined, outputDir: string, compilerOptions: ResolvedBuildConfig['compilerOptions'], bootstrapPath: string, platform: string, watch?: boolean, hmrAddress?: string, hmrSessionToken?: string) => Promise<string>;
+    buildManagedDevtools: (config: UiSurfaceConfig | undefined, outputDir: string, compilerOptions: ResolvedBuildConfig['compilerOptions'], bootstrapPath: string, platform: string, watch?: boolean, hmrAddress?: string, hmrSessionToken?: string) => Promise<string>;
 }
 
 interface UiBootstrapBuildOutput {
@@ -107,19 +107,24 @@ export async function buildUiEntries(resolved: ResolvedBuildConfig, outputDir: s
 
     const popupConfig = resolved.ui?.popup;
     const popupMode = popupConfig?.mode ?? 'none';
+    const devtoolsConfig = resolved.ui?.devtools;
+    const devtoolsMode = devtoolsConfig?.mode ?? 'none';
+
+    const hexaUi = (popupMode === 'managed' || devtoolsMode === 'managed')
+        ? loadHexaUi(process.cwd())
+        : undefined;
+
     if (popupMode === 'managed') {
-        const { buildManagedPopup } = loadHexaUi(process.cwd());
-        entries.popup = await buildManagedPopup(popupConfig, outputDir, resolved.compilerOptions.minify, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken);
+        const { buildManagedPopup } = hexaUi!;
+        entries.popup = await buildManagedPopup(popupConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken);
     } else if (popupMode === 'external') {
         if (popupConfig?.buildCommand) runUiBuildCommand('popup', popupConfig.buildCommand);
         entries.popup = copyExternalSurface('popup', popupConfig!, outputDir);
     }
 
-    const devtoolsConfig = resolved.ui?.devtools;
-    const devtoolsMode = devtoolsConfig?.mode ?? 'none';
     if (devtoolsMode === 'managed') {
-        const { buildManagedDevtools } = loadHexaUi(process.cwd());
-        entries.devtools = await buildManagedDevtools(devtoolsConfig, outputDir, resolved.compilerOptions.minify, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken);
+        const { buildManagedDevtools } = hexaUi!;
+        entries.devtools = await buildManagedDevtools(devtoolsConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken);
     } else if (devtoolsMode === 'external') {
         if (devtoolsConfig?.buildCommand) runUiBuildCommand('devtools', devtoolsConfig.buildCommand);
         entries.devtools = copyExternalSurface('devtools', devtoolsConfig!, outputDir);

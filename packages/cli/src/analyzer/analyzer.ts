@@ -35,15 +35,27 @@ export class Analyzer {
     const allErrors: AnalysisError[] = [];
     const allWarnings: AnalysisError[] = [];
 
+    const services = this.registry.getServices();
+    const controllers = this.registry.getControllers();
+    const handlers = this.registry.getHandlers();
+    const contentEntries = this.registry.getContentEntries();
+    const views = this.registry.getViews();
+    const states = this.registry.getStates();
+    const workers = this.registry.getWorkers();
+    const tokens = this.registry.getTokens();
+
+    const servicesMap = new Map(services.map(service => [service.className, service]));
+    const statesMap = new Map(states.map(state => [state.context, state]));
+
     // Step 1: Analyze DI container
-    const diAnalyzer = new DIAnalyzer(this.registry.getServices(), this.packageMetadata, this.registry.getTokens(), this.registry.getWorkers());
+    const diAnalyzer = new DIAnalyzer(services, this.packageMetadata, tokens, workers);
     const diResult = diAnalyzer.analyze();
     allErrors.push(...diResult.errors);
     allWarnings.push(...diResult.warnings);
 
     // Step 2: Analyze background context
     const backgroundAnalyzer = new BackgroundAnalyzer(
-      this.registry.getControllers(),
+      controllers,
       diAnalyzer
     );
     const backgroundResult = backgroundAnalyzer.analyze();
@@ -52,32 +64,30 @@ export class Analyzer {
 
     // Step 3: Analyze content context
     const contentAnalyzer = new ContentAnalyzer(
-      this.registry.getHandlers(),
+      handlers,
       diAnalyzer,
-      this.registry.getContentEntries(),
-      this.registry.getViews()
+      contentEntries,
+      views
     );
     const contentResult = contentAnalyzer.analyze();
     allErrors.push(...contentResult.errors);
     allWarnings.push(...contentResult.warnings);
 
     // Step 4: Analyze store context
-    const servicesMap = new Map(this.registry.getServices().map(s => [s.className, s]));
-    const statesMap = new Map(this.registry.getStates().map(state => [state.context, state]));
     const storeAnalyzer = new StoreAnalyzer(statesMap, servicesMap);
     const storeResult = storeAnalyzer.analyze();
     allErrors.push(...storeResult.errors);
     allWarnings.push(...storeResult.warnings);
 
     // Step 5: Analyze UI context rules
-    const uiAnalyzer = new UIAnalyzer(this.registry.getServices(), this.registry.getStates(), this.resolvedConfig);
+    const uiAnalyzer = new UIAnalyzer(services, states, this.resolvedConfig);
     const uiResult = uiAnalyzer.analyze();
     allErrors.push(...uiResult.errors);
     allWarnings.push(...uiResult.warnings);
 
     // Step 6: Analyze worker context
     const workerAnalyzer = new WorkerAnalyzer(
-      this.registry.getWorkers(),
+      workers,
       diAnalyzer
     );
     const workerResult = workerAnalyzer.analyze();
@@ -85,7 +95,7 @@ export class Analyzer {
     allWarnings.push(...workerResult.warnings);
 
     // Step 7: Analyze effect usage
-    const effectAnalyzer = new EffectAnalyzer(this.registry.getStates(), servicesMap);
+    const effectAnalyzer = new EffectAnalyzer(states, servicesMap);
     const effectResult = effectAnalyzer.analyze();
     allErrors.push(...effectResult.errors);
     allWarnings.push(...effectResult.warnings);

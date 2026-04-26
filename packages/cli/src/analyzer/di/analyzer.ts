@@ -6,14 +6,20 @@ import { AnalysisError, AnalysisResult } from '../types';
 export class DIAnalyzer {
   private services: Map<string, ServiceMetadata>;
   private workers: Map<string, WorkerMetadata>;
-  private packageMetadata: PackageMetadata;
   private tokens: Map<string, TokenMetadata>;
+  private serviceContexts: Map<string, string>;
 
   constructor(services: ServiceMetadata[], packageMetadata: PackageMetadata = {}, tokens: TokenMetadata[] = [], workers: WorkerMetadata[] = []) {
     this.services = new Map(services.map(s => [s.className, s]));
     this.workers = new Map(workers.map(worker => [worker.className, worker]));
-    this.packageMetadata = packageMetadata;
     this.tokens = new Map(tokens.map(t => [t.key, t]));
+    this.serviceContexts = new Map<string, string>();
+
+    services.forEach(service => this.serviceContexts.set(service.className, service.context));
+    workers.forEach(worker => this.serviceContexts.set(worker.className, HexaContext.Background));
+    Object.entries(packageMetadata).forEach(([className, metadata]) => {
+      this.serviceContexts.set(className, metadata.context);
+    });
   }
 
   /**
@@ -217,31 +223,14 @@ export class DIAnalyzer {
    * Checks if a service exists and is registered (user code or package)
    */
   public isServiceRegistered(className: string): boolean {
-    return this.services.has(className) || this.workers.has(className) || !!this.packageMetadata[className];
+    return this.serviceContexts.has(className);
   }
 
   /**
    * Gets the context of a service (user code or package)
    */
   public getServiceContext(className: string): string | undefined {
-    // Check user services first
-    const userService = this.services.get(className);
-    if (userService) {
-      return userService.context;
-    }
-
-    const worker = this.workers.get(className);
-    if (worker) {
-      return HexaContext.Background;
-    }
-    
-    // Check package metadata
-    const packageService = this.packageMetadata[className];
-    if (packageService) {
-      return packageService.context;
-    }
-    
-    return undefined;
+    return this.serviceContexts.get(className);
   }
 
   /**

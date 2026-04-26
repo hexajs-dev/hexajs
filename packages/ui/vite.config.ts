@@ -1,7 +1,9 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import dts from 'vite-plugin-dts';
-import { hexaMetadataPlugin } from '@hexajs/common/scripts/vite-plugin-hexa-metadata';
+import { hexaMetadataPlugin } from '../common/scripts/vite-plugin-hexa-metadata';
+
+const shouldEmitSourceMaps = process.env.HEXA_PACKAGE_SOURCEMAP === 'true';
 
 const HEXA_EXTERNALS = [
   '@hexajs/common',
@@ -55,7 +57,7 @@ export default defineConfig({
     },
     outDir: 'dist',
     emptyOutDir: true,
-    sourcemap: true,
+    sourcemap: shouldEmitSourceMaps,
   },
   plugins: [
     dts({

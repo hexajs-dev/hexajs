@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { createRequire } from 'module';
 import { loadConfigFromFile } from 'vite';
+import { HexaUiCompilerOptions } from './types';
 
 function stripJsonCommentsAndTrailingCommas(source: string): string {
     const withoutBlockComments = source.replace(/\/\*[\s\S]*?\*\//g, '');
@@ -69,7 +70,7 @@ function toAliasRecord(aliasValue: unknown): Record<string, string> {
     return {};
 }
 
-export const getDefaultViteConfig = (sourceDir: string, targetBase: string, minify: boolean, inputs: Record<string, string>, plugins: any[] = [], define: Record<string, string> = {}) => ({
+export const getDefaultViteConfig = (sourceDir: string, targetBase: string, compilerOptions: HexaUiCompilerOptions, inputs: Record<string, string>, plugins: any[] = [], define: Record<string, string> = {}) => ({
     configFile: false,
     root: sourceDir,
     base: './',
@@ -83,8 +84,10 @@ export const getDefaultViteConfig = (sourceDir: string, targetBase: string, mini
     build: {
         outDir: targetBase,
         emptyOutDir: true,
-        minify,
-        sourcemap: !minify,
+        minify: compilerOptions.minify,
+        sourcemap: compilerOptions.sourceMap,
+        cssMinify: compilerOptions.cssMinify,
+        ...(compilerOptions.minify === 'terser' ? { terserOptions: compilerOptions.terserOptions } : {}),
         rollupOptions: {
             input: inputs,
         },

@@ -1,9 +1,10 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import dts from 'vite-plugin-dts';
-import { hexaMetadataPlugin } from '@hexajs/common/scripts/vite-plugin-hexa-metadata';
+import { hexaMetadataPlugin } from '../common/scripts/vite-plugin-hexa-metadata';
 
-const shouldEmitDeclarationMaps = process.env.HEXA_DECLARATION_MAP !== 'false';
+const shouldEmitDeclarationMaps = process.env.HEXA_DECLARATION_MAP === 'true';
+const shouldEmitSourceMaps = process.env.HEXA_PACKAGE_SOURCEMAP === 'true';
 
 export default defineConfig({
   build: {
@@ -23,7 +24,7 @@ export default defineConfig({
     },
     outDir: 'dist',
     emptyOutDir: true,
-    sourcemap: true
+    sourcemap: shouldEmitSourceMaps
   },
   plugins: [
     dts({

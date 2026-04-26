@@ -8,8 +8,9 @@ import { loadHexaConfig } from "../config/config";
 import { resolveConfig } from "../config/resolve";
 import { printHeader, printSuccess, printError, startStep } from "../shared/reporter";
 import { runWatchMode } from '../../hmr/watch-runner';
+import cliPackage from '../../../package.json';
 
-const CLI_VERSION = 'v0.0.0';
+const CLI_VERSION = `v${cliPackage.version}`;
 const CONFIG_FILENAMES = ['hexa-cli.config.json', 'hexa-cli.json'];
 const BUILD_TARGETS = ['all', 'ui', 'content', 'background'] as const;
 type BuildTarget = typeof BUILD_TARGETS[number];
@@ -73,6 +74,14 @@ program
             const target = normalizeTarget(options.target);
             const watchMode = !!options.watch;
 
+            function buildDoneMessage(target: BuildTarget, resolvedConfig: any): string {
+                const managedUiParts: string[] = [];
+                if (resolvedConfig.ui?.popup?.mode === 'managed') managedUiParts.push('Popup');
+                if (resolvedConfig.ui?.devtools?.mode === 'managed') managedUiParts.push('Devtools');
+                const managedSuffix = managedUiParts.length ? ` & Managed ${managedUiParts.join(' and ')}` : '';
+                return target === 'all' ? `Store, Background, Content & Manifest generated${managedSuffix}` : `Target build generated (${target})`;
+            }
+
             if (watchMode && target !== 'all') {
                 throw new Error('Watch mode only supports full builds. Remove --target when using --watch.');
             }
@@ -116,7 +125,7 @@ program
                             hmrAddress,
                             hmrSessionToken,
                         });
-                        buildDone('Store, Background, Content & Manifest generated');
+                        buildDone(buildDoneMessage(target, resolved));
                         return result.contentBootstraps;
                     },
                     onUiRebuild: async (hmrAddress: string, hmrSessionToken: string) => {
@@ -155,7 +164,7 @@ program
             // 5. Run the Build Pipeline
             const buildDone = startStep('Building HexaJS Pipeline');
             await buildAction(parsedConfig.fileNames, resolved, parsedConfig.options, { verbose: options.verbose, target, watch: false });
-            buildDone(target === 'all' ? `Store, Background, Content & Manifest generated` : `Target build generated (${target})`);
+            buildDone(buildDoneMessage(target, resolved));
 
             printSuccess(Date.now() - buildStart, resolved.outDir);
 

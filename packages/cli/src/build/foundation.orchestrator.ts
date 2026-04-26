@@ -7,6 +7,7 @@ import { ResolvedBuildConfig } from '../bin/config/resolve';
 import { Scanner } from '../compiler/scanner';
 import { MetadataRegistry } from '../compiler/registry';
 import { StoreGenerator, StoreScriptOutput } from '../generators/store/generator';
+import { ValidatorGenerator } from '../generators/validator/generator';
 import { mergeTokensWithCodeDefaults } from '../shared/methods';
 import { BuildFoundationOutput } from './types';
 
@@ -112,6 +113,7 @@ export function runFoundationOrchestrator(files: string[], resolved: ResolvedBui
     const storeGenerator = new StoreGenerator(registry, outputDir);
     const allStoreOutputs = storeGenerator.generate();
     const storeOutputs = selectStoreOutputsByTarget(allStoreOutputs, target);
+    const validators = target === 'ui' ? undefined : new ValidatorGenerator(registry).generate();
 
-    return { registry, program, resolved, outputDir, mergedTokens, storeOutputs };
+    return { registry, program, resolved, outputDir, mergedTokens, storeOutputs, validators };
 }

@@ -31,6 +31,17 @@ export interface ContentScriptOutput {
   contentEntries: string[];
 }
 
+interface ContentGenerationSnapshot {
+  contentServices: ServiceMetadata[];
+  allHandlers: HandlerMetadata[];
+  allViews: ViewMetadata[];
+  contentStore?: StoreScriptOutput;
+  contentTokens: ConfigToken[];
+  serviceReferencedViewNames: Set<string>;
+  handlersWithoutContents: Set<string>;
+  handlerNamesByContentClass: Map<string, Set<string>>;
+}
+
 export class ContentGenerator {
   private registry: MetadataRegistry;
   private storeOutputs: StoreScriptOutput[];
@@ -61,6 +72,7 @@ export class ContentGenerator {
 
     // Group content entries by their injection configuration
     const groups = this.groupContentEntries(contentEntries);
+    const snapshot = this.createGenerationSnapshot();
 
     // Generate a bootstrap file for each group
     return Array.from(groups.entries()).map(([key, entries]) => {
@@ -72,7 +84,7 @@ export class ContentGenerator {
       
       return {
         name,
-        content: this.generateBootstrapFile(entries, name),
+        content: this.generateBootstrapFile(entries, name, snapshot),
         matches,
         runAt,
         allFrames: allFrames ?? false,
@@ -109,16 +121,14 @@ export class ContentGenerator {
   /**
    * Generates a complete bootstrap file for a group of content entries
    */
-  private generateBootstrapFile(entries: ContentEntryMetadata[], bundleName: string): string {
-    const services = this.getContentServices();
-    const contentStore = this.storeOutputs.find(s => s.context === HexaContext.Content);
-    
-    // Filter tokens for content context (content + no context specified)
-    const contentTokens = extractTokensForContext(this.tokens, 'content');
+  private generateBootstrapFile(entries: ContentEntryMetadata[], bundleName: string, snapshot: ContentGenerationSnapshot): string {
+    const services = snapshot.contentServices;
+    const contentStore = snapshot.contentStore;
+    const contentTokens = snapshot.contentTokens;
 
     // Filter handlers that are relevant to these content entries
-    const relevantHandlers = this.getRelevantHandlers(entries);
-    const relevantViews = this.getRelevantViews(entries, relevantHandlers, services);
+    const relevantHandlers = this.getRelevantHandlers(entries, snapshot);
+    const relevantViews = this.getRelevantViews(entries, relevantHandlers, snapshot);
     const requiredPorts = this.resolveRequiredPorts(services, relevantHandlers, entries);
 
     const imports = this.generateImports(services, entries, relevantHandlers, requiredPorts, contentStore, relevantViews);
@@ -161,44 +171,92 @@ export class ContentGenerator {
    * - It has no contents specified (applies to all content scripts), OR
    * - Any of its specified contents matches one of the content entry classes
    */
-  private getRelevantHandlers(entries: ContentEntryMetadata[]): HandlerMetadata[] {
-    const allHandlers = this.registry.getHandlers();
-    const contentClassNames = new Set(entries.map(e => e.className));
+  private getRelevantHandlers(entries: ContentEntryMetadata[], snapshot: ContentGenerationSnapshot): HandlerMetadata[] {
+    const relevantHandlerNames = new Set(snapshot.handlersWithoutContents);
 
-    return allHandlers.filter(handler => {
-      // If no contents specified, include in all content scripts
-      if (handler.contents.length === 0) {
-        return true;
+    for (const entry of entries) {
+      const classHandlers = snapshot.handlerNamesByContentClass.get(entry.className);
+      if (!classHandlers) {
+        continue;
       }
+      classHandlers.forEach(handlerName => relevantHandlerNames.add(handlerName));
+    }
 
-      // Check if any of the handler's contents match our content entries
-      return handler.contents.some(contentClass => contentClassNames.has(contentClass));
-    });
+    return snapshot.allHandlers.filter(handler => relevantHandlerNames.has(handler.className));
   }
 
   /**
    * Gets views that are used by the given content entries and handlers via @injectView,
    * or views that extend HexaView.
    */
-  private getRelevantViews(entries: ContentEntryMetadata[], handlers: HandlerMetadata[], services: ServiceMetadata[]): ViewMetadata[] {
-    const allViews = this.registry.getViews();
+  private getRelevantViews(entries: ContentEntryMetadata[], handlers: HandlerMetadata[], snapshot: ContentGenerationSnapshot): ViewMetadata[] {
+    const allViews = snapshot.allViews;
     if (allViews.length === 0) return [];
 
-    const referencedViewNames = new Set<string>();
+    const referencedViewNames = new Set(snapshot.serviceReferencedViewNames);
+
     entries.forEach(entry => {
-      entry.viewDependencies.forEach(vd => referencedViewNames.add(vd.viewClassName));
-      entry.viewPropertyDependencies.forEach(vd => referencedViewNames.add(vd.viewClassName));
+      this.addViewDependencyNames(referencedViewNames, entry.viewDependencies, entry.viewPropertyDependencies);
     });
+
     handlers.forEach(handler => {
-      handler.viewDependencies.forEach(vd => referencedViewNames.add(vd.viewClassName));
-      handler.viewPropertyDependencies.forEach(vd => referencedViewNames.add(vd.viewClassName));
-    });
-    services.forEach(service => {
-      service.viewDependencies.forEach(vd => referencedViewNames.add(vd.viewClassName));
-      service.viewPropertyDependencies.forEach(vd => referencedViewNames.add(vd.viewClassName));
+      this.addViewDependencyNames(referencedViewNames, handler.viewDependencies, handler.viewPropertyDependencies);
     });
 
     return allViews.filter(v => referencedViewNames.has(v.className) || v.extendsHexaView);
+  }
+
+  private createGenerationSnapshot(): ContentGenerationSnapshot {
+    const contentServices = this.getContentServices();
+    const allHandlers = this.registry.getHandlers();
+    const allViews = this.registry.getViews();
+    const contentStore = this.storeOutputs.find(s => s.context === HexaContext.Content);
+    const contentTokens = extractTokensForContext(this.tokens, 'content');
+    const serviceReferencedViewNames = new Set<string>();
+
+    contentServices.forEach(service => {
+      this.addViewDependencyNames(serviceReferencedViewNames, service.viewDependencies, service.viewPropertyDependencies);
+    });
+
+    const handlersWithoutContents = new Set<string>();
+    const handlerNamesByContentClass = new Map<string, Set<string>>();
+
+    allHandlers.forEach(handler => {
+      if (handler.contents.length === 0) {
+        handlersWithoutContents.add(handler.className);
+        return;
+      }
+
+      handler.contents.forEach(contentClassName => {
+        let handlers = handlerNamesByContentClass.get(contentClassName);
+        if (!handlers) {
+          handlers = new Set<string>();
+          handlerNamesByContentClass.set(contentClassName, handlers);
+        }
+
+        handlers.add(handler.className);
+      });
+    });
+
+    return {
+      contentServices,
+      allHandlers,
+      allViews,
+      contentStore,
+      contentTokens,
+      serviceReferencedViewNames,
+      handlersWithoutContents,
+      handlerNamesByContentClass,
+    };
+  }
+
+  private addViewDependencyNames(
+    target: Set<string>,
+    dependencies: Array<{ viewClassName: string }>,
+    propertyDependencies: Array<{ viewClassName: string }>
+  ): void {
+    dependencies.forEach(dependency => target.add(dependency.viewClassName));
+    propertyDependencies.forEach(dependency => target.add(dependency.viewClassName));
   }
 
   /**

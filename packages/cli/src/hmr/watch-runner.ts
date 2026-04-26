@@ -371,7 +371,6 @@ export async function runWatchMode(options: WatchRunnerOptions): Promise<void> {
         });
 
         watchers.push(srcWatcher);
-        printInfoLine(`Watching source files: ${srcDir}`);
     }
 
     let cleanupPromise: Promise<void> | undefined;

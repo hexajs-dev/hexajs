@@ -1,21 +1,29 @@
 ﻿import { useEffect, useState } from 'react';
 import { inject } from '@hexajs/common';
+import { RuntimePort } from '@hexajs/ports';
 import { HexaUIClient } from '@hexajs/ui';
-import { backgroundApi } from '@contract/api';
-import { PopupGetRecentClipsMessage, PopupStartClippingMessage, RecentClipItem, RecentClipsMessage, StartClippingAckMessage } from '@contract/messages/messages';
+import { backgroundApi, devtoolsHandlesApi } from '@contract/api';
+import { DevtoolsSyncThemeMessage, PopupGetRecentClipsMessage, PopupStartClippingMessage, RecentClipItem, RecentClipsMessage, StartClippingAckMessage } from '@contract/messages/messages';
 import { areAllSelectedLanguagesBundled, DEFAULT_OCR_LANGUAGE, getOcrLanguageSummary, getOcrLanguageTag, OcrLanguageCode, OCR_LANGUAGE_SELECTION_STORAGE_KEY, parseOcrLanguageSelection, serializeOcrLanguageSelection } from '@contract/ocr-language';
 import smartClipperLogoUrl from '../../../src/assets/smart-clipper.logo.svg';
 import { LanguageSelect } from './components/language-select/LanguageSelect';
 import { RecentSection } from './components/recent/RecentSection';
+import { ShortcutSection } from './components/shortcut/ShortcutSection';
 import { MoonIcon, SunIcon } from './components/shared/icons/Icons';
 import './App.scss';
 
 const POPUP_THEME_STORAGE_KEY = 'smart-clipper.popup.theme';
+type ThemeMode = 'light' | 'dark';
+
+function isThemeMode(value: unknown): value is ThemeMode {
+  return value === 'light' || value === 'dark';
+}
 
 export function App() {
+  const runtimePort = inject(RuntimePort);
   const [status, setStatus] = useState<'idle' | 'sending' | 'armed' | 'error'>('idle');
   const [feedback, setFeedback] = useState('Click start, then drag on the webpage to select an area.');
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+  const [theme, setTheme] = useState<ThemeMode>(() => {
     if (typeof window === 'undefined') {
       return 'light';
     }
@@ -29,6 +37,7 @@ export function App() {
     }
     return parseOcrLanguageSelection(window.localStorage.getItem(OCR_LANGUAGE_SELECTION_STORAGE_KEY) ?? DEFAULT_OCR_LANGUAGE);
   });
+  const isMac = typeof navigator !== 'undefined' && navigator.platform.toUpperCase().includes('MAC');
 
   useEffect(() => {
     const loadRecentClips = async () => {
@@ -67,14 +76,37 @@ export function App() {
     }
   }, [ocrLanguages]);
 
+  useEffect(() => {
+    const unsubscribe = runtimePort.onMessage((message: any) => {
+      if (!message || message.action !== devtoolsHandlesApi.SyncTheme) {
+        return;
+      }
+
+      const payload = message.payload as Partial<DevtoolsSyncThemeMessage>;
+      if (!isThemeMode(payload?.theme)) {
+        return;
+      }
+
+      setTheme(payload.theme);
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(POPUP_THEME_STORAGE_KEY, payload.theme);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [runtimePort]);
+
   const selectedLanguageSummary = getOcrLanguageSummary(ocrLanguages);
   const selectedLanguagesBundled = areAllSelectedLanguagesBundled(ocrLanguages);
   const selectedLanguageTags = ocrLanguages.map(language => getOcrLanguageTag(language));
 
   const onToggleTheme = () => {
-    const nextTheme = theme === 'light' ? 'dark' : 'light';
+    const nextTheme: ThemeMode = theme === 'light' ? 'dark' : 'light';
     setTheme(nextTheme);
     window.localStorage.setItem(POPUP_THEME_STORAGE_KEY, nextTheme);
+    runtimePort.sendMessage({ action: devtoolsHandlesApi.SyncTheme, payload: new DevtoolsSyncThemeMessage(nextTheme) }).catch((error) => {
+      console.warn('Failed to sync popup theme to devtools.', error);
+    });
   };
 
   const onToggleLanguageMenu = () => {
@@ -154,7 +186,9 @@ export function App() {
             {status === 'sending' ? 'Starting...' : 'Start Clipping'}
           </button>
 
-          <p className={`popup-feedback ${status}`}>{feedback}</p> 
+          <ShortcutSection isMac={isMac} />
+
+          <p className={`popup-feedback ${status}`}>{feedback}</p>
 
           <RecentSection recentClips={recentClips} selectedLanguageTags={selectedLanguageTags} />
         </main>

@@ -40,17 +40,20 @@ export const hexaConfigTemplate = (ctx: ScaffoldContext): string => {
         tsConfig: 'tsconfig.json',
         assets: ['src/assets/**/*'],
         minify: false,
+        cssMinify: false,
+        sourceMap: true,
+        terserOptions: {},
       },
       tokens: [],
       ...uiSection,
       environments: {
         development: {
-          compilerOptions: { minify: false },
+          compilerOptions: { minify: false, cssMinify: false, sourceMap: true },
           tokens: [],
           platforms: envPlatforms,
         },
         production: {
-          compilerOptions: { minify: true },
+          compilerOptions: { minify: true, cssMinify: true, sourceMap: false },
           tokens: [],
           platforms: envPlatforms,
         },

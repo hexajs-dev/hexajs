@@ -16,6 +16,6 @@ import { buildManagedDevtools } from '@hexajs/ui';
 ```
 
 ```typescript
-function buildManagedDevtools(config: HexaUiSurfaceConfig | undefined, outputDir: string, minify: boolean, bootstrapPath: string, platform: string, watch?: boolean, hmrAddress?: string, cwd?: string): Promise<string>
+function buildManagedDevtools(config: HexaUiSurfaceConfig | undefined, outputDir: string, compilerOptions: HexaUiCompilerOptions, bootstrapPath: string, platform: string, watch?: boolean, hmrAddress?: string, hmrSessionToken?: string, cwd?: string): Promise<string>
 ```
 

@@ -4,6 +4,23 @@
   "description": "HexaJS platform ports for background/content/ui contexts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./hexa-metadata.json": "./dist/hexa-metadata.json",
+    "./hexa.web.ext": "./dist/hexa.web.ext.d.ts",
+    "./hexa.web.ext.d.ts": "./dist/hexa.web.ext.d.ts",
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "build": "vite build",
     "dev": "vite build --watch",

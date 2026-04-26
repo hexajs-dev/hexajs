@@ -8,6 +8,12 @@
     "strict": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@contract/*": [
+        "../../src/contract/*"
+      ]
+    },
     "types": ["vite/client", "@hexajs/ports/hexa.web.ext"]
   },
   "include": ["src"]

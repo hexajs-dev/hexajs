@@ -34,9 +34,9 @@ export class DIScanner {
   /**
    * Load and merge hexa-metadata.json from HexaJS runtime packages.
    * Resolution order per package:
-   * 1) package direct dist subpath from target project (process.cwd())
-   * 2) package.json lookup + dist/hexa-metadata.json sibling
-   * 3) package root hexa-metadata.json sibling to package.json
+    * 1) package public metadata subpath from target project (process.cwd())
+    * 2) package.json lookup + package root hexa-metadata.json sibling
+    * 3) package.json lookup + dist/hexa-metadata.json sibling (legacy fallback)
    * 4) monorepo workspace fallback: walk up from cwd to the workspace root
    *
    * Each loaded file is signature-verified and schema-validated before use.
@@ -169,15 +169,15 @@ export class DIScanner {
   private getMetadataCandidates(packageName: '@hexajs/core' | '@hexajs/ports' | '@hexajs/ui'): string[] {
     const candidates: string[] = [];
 
-    // 1) Direct subpath resolution from the target project root.
-    const directFromCwd = this.tryResolve(`${packageName}/dist/hexa-metadata.json`, [process.cwd()]);
-    if (directFromCwd) candidates.push(directFromCwd);
+    // 1) Resolve public metadata subpath export from the target project root.
+    const publicMetadataFromCwd = this.tryResolve(`${packageName}/hexa-metadata.json`, [process.cwd()]);
+    if (publicMetadataFromCwd) candidates.push(publicMetadataFromCwd);
 
-    // 2) Resolve package root first, then append dist metadata path.
+    // 2/3) Resolve package root first, then append known metadata sibling paths.
     const packageJsonFromCwd = this.tryResolve(`${packageName}/package.json`, [process.cwd()]);
     if (packageJsonFromCwd) {
-      candidates.push(path.join(path.dirname(packageJsonFromCwd), 'dist', 'hexa-metadata.json'));
       candidates.push(path.join(path.dirname(packageJsonFromCwd), 'hexa-metadata.json'));
+      candidates.push(path.join(path.dirname(packageJsonFromCwd), 'dist', 'hexa-metadata.json'));
     }
 
     // 4) Monorepo fallback for local development (walk up to workspace root).
