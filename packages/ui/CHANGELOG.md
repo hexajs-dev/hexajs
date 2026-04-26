@@ -5,6 +5,15 @@
 ### Patch Changes
 
 - Updated dependencies [861aa5e]
+  - @hexajs-dev/core@0.9.1
+  - @hexajs-dev/common@0.9.1
+  - @hexajs-dev/ports@0.9.1
+
+## 0.9.1
+
+### Patch Changes
+
+- Updated dependencies [861aa5e]
   - @hexajs/core@0.9.1
   - @hexajs/common@0.9.1
   - @hexajs/ports@0.9.1
