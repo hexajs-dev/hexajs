@@ -1,5 +1,11 @@
 # @hexajs-dev/common
 
+## 0.9.2
+
+### Patch Changes
+
+- 9cac0a7: add readme to packages
+
 ## 0.9.1
 
 ## 0.9.1
