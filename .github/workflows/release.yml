@@ -59,7 +59,7 @@ jobs:
         run: |
           npm whoami
           npm org ls hexajs-dev
-          npm access list packages "$(npm whoami)"
+          npm access list packages "$(npm whoami)" || echo "npm access list packages is restricted for this token type; continuing"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
