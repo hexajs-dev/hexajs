@@ -59,7 +59,7 @@ jobs:
         run: |
           npm whoami
           npm org ls hexajs-dev
-          npm access ls-packages "$(npm whoami)"
+          npm access list packages "$(npm whoami)"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
