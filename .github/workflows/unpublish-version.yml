@@ -56,22 +56,54 @@ jobs:
             "@hexajs-dev/common"
           )
 
+          unpublished=()
+          deprecated=()
           failures=()
 
           for pkg in "${packages[@]}"; do
             spec="${pkg}@${VERSION}"
             echo "Unpublishing ${spec}"
 
-            if npm unpublish "${spec}"; then
+            output_file="$(mktemp)"
+
+            if npm unpublish "${spec}" 2>&1 | tee "${output_file}"; then
               echo "Unpublished ${spec}"
+              unpublished+=("${spec}")
             else
-              echo "Could not unpublish ${spec}; continuing to next package."
-              failures+=("${spec}")
+              if grep -q "has dependent packages in the registry" "${output_file}"; then
+                echo "npm policy blocked unpublish for ${spec}; deprecating instead."
+
+                if npm deprecate -f "${spec}" "Unpublish blocked by npm policy (dependent packages in registry)."; then
+                  echo "Deprecated ${spec}"
+                  deprecated+=("${spec}")
+                else
+                  echo "Deprecation failed for ${spec}."
+                  failures+=("${spec}")
+                fi
+              else
+                echo "Could not unpublish ${spec}; unexpected error."
+                failures+=("${spec}")
+              fi
             fi
+
+            rm -f "${output_file}"
           done
 
+          echo "Summary:"
+          echo "- unpublished: ${#unpublished[@]}"
+          echo "- deprecated: ${#deprecated[@]}"
+          echo "- failed: ${#failures[@]}"
+
+          if [ "${#deprecated[@]}" -gt 0 ]; then
+            echo "Deprecated packages:"
+
+            for spec in "${deprecated[@]}"; do
+              echo "- ${spec}"
+            done
+          fi
+
           if [ "${#failures[@]}" -gt 0 ]; then
-            echo "Some packages could not be unpublished:"
+            echo "Packages with unexpected failures:"
 
             for spec in "${failures[@]}"; do
               echo "- ${spec}"
