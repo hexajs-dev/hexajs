@@ -49,10 +49,10 @@ jobs:
 
           packages=(
             "@hexajs-dev/cli"
-            "@hexajs-dev/common"
-            "@hexajs-dev/core"
             "@hexajs-dev/ports"
             "@hexajs-dev/ui"
+            "@hexajs-dev/core"
+            "@hexajs-dev/common"
           )
 
           for pkg in "${packages[@]}"; do
