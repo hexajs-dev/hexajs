@@ -1,98 +1,29 @@
 # @hexajs-dev/core
 
-Core contracts, decorators, and Dependency Injection for HexaJS.
+Core runtime package for HexaJS extension architecture.
 
-## Dependency Injection
+This package contains the main background/content runtime contracts and services used by HexaJS applications.
 
-### Basic Usage
+## Install
 
-```typescript
-import { Injectable, inject, InjectionContext } from '@hexajs-dev/core';
-
-// Service without context (can be injected anywhere)
-@Injectable()
-export class LoggerService {
-  log(message: string) {
-    console.log(message);
-  }
-}
-
-// Service with Content context
-@Injectable({ context: InjectionContext.Content })
-export class ContentService {
-  constructor(private logger: LoggerService) {}
-
-  doSomething() {
-    this.logger.log('Content service doing something');
-  }
-}
-
-// Service with Background context
-@Injectable({ context: InjectionContext.Background })
-export class BackgroundService {
-  constructor(private logger: LoggerService) {}
-
-  doSomething() {
-    this.logger.log('Background service doing something');
-  }
-}
-
-// Usage
-const contentService = inject(ContentService);
-const backgroundService = inject(BackgroundService);
+```bash
+npm install @hexajs-dev/core
 ```
 
-### Context Boundaries
+## Package Exports
 
-Services can only inject dependencies from the same context, unless the dependency has no context (undefined), in which case it can be injected anywhere.
+- `@hexajs-dev/core`
+- `@hexajs-dev/core/hexa-metadata.json`
 
-```typescript
-// ✅ Allowed: Content service injecting global service
-@Injectable({ context: InjectionContext.Content })
-export class ContentService {
-  constructor(private logger: LoggerService) {} // LoggerService has no context
-}
+## Documentation
 
-// ✅ Allowed: Content service injecting Content service
-@Injectable({ context: InjectionContext.Content })
-export class ContentService {
-  constructor(private otherContent: OtherContentService) {} // Same context
-}
+- Core Fundamentals: https://hexajs.dev/docs/core-fundamentals
+- Architecture: https://hexajs.dev/docs/core-fundamentals/architecture
+- Dependency Injection: https://hexajs.dev/docs/core-fundamentals/dependency-injection
+- Controllers and Handlers: https://hexajs.dev/docs/core-fundamentals/controllers
 
-// ❌ Error: Content service cannot inject Background service
-@Injectable({ context: InjectionContext.Content })
-export class ContentService {
-  constructor(private background: BackgroundService) {} // Different context - ERROR!
-}
-```
+## GitHub
 
-### Validation Rules
-
-1. **@Injectable Required**: All services must be decorated with `@Injectable()` to be injectable.
-2. **Context Boundaries**: Services cannot inject dependencies from different contexts (unless the dependency has no context).
-
-## API
-
-### `Injectable(options?: InjectableOptions)`
-
-Decorator that marks a class as injectable.
-
-- `options.context?: InjectionContext` - Optional context for the service
-
-### `inject<T>(ServiceClass: new (...args: any[]) => T): T`
-
-Injects a service instance. Creates the instance if it doesn't exist, otherwise returns the existing singleton.
-
-### `InjectionContext`
-
-Enum defining available injection contexts:
-- `InjectionContext.Content` - Content script context
-- `InjectionContext.Background` - Background script context
-
-### `setInjectionContext(context: InjectionContext)`
-
-Sets the current injection context (useful for runtime context detection).
-
-### `clearContainer()`
-
-Clears all services (useful for testing).
+- Organization: https://github.com/hexajs-dev
+- Source Repository: https://github.com/ran-tayeb/hexajs
+- Package Source: https://github.com/ran-tayeb/hexajs/tree/main/packages/core
