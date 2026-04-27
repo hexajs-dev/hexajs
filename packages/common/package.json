@@ -2,6 +2,15 @@
   "name": "@hexajs-dev/common",
   "version": "0.9.0",
   "description": "Shared DI container, decorators, and tokens for HexaJS",
+  "homepage": "https://hexajs.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ran-tayeb/hexajs.git",
+    "directory": "packages/common"
+  },
+  "bugs": {
+    "url": "https://github.com/ran-tayeb/hexajs/issues"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
