@@ -2,6 +2,15 @@
   "name": "@hexajs-dev/ports",
   "version": "0.9.0",
   "description": "HexaJS platform ports for background/content/ui contexts",
+  "homepage": "https://hexajs.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ran-tayeb/hexajs.git",
+    "directory": "packages/ports"
+  },
+  "bugs": {
+    "url": "https://github.com/ran-tayeb/hexajs/issues"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
