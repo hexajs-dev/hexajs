@@ -1,0 +1,61 @@
+name: Unpublish Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to unpublish (for example: 0.9.1)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  unpublish:
+    name: Unpublish npm package versions
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Ensure npm token exists
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "NPM_TOKEN secret is not set."
+            exit 1
+          fi
+
+      - name: Verify npm auth
+        run: npm whoami
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Unpublish requested version from HexaJS packages
+        env:
+          VERSION: ${{ inputs.version }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          packages=(
+            "@hexajs-dev/cli"
+            "@hexajs-dev/common"
+            "@hexajs-dev/core"
+            "@hexajs-dev/ports"
+            "@hexajs-dev/ui"
+          )
+
+          for pkg in "${packages[@]}"; do
+            echo "Unpublishing ${pkg}@${VERSION}"
+            npm unpublish "${pkg}@${VERSION}"
+          done
