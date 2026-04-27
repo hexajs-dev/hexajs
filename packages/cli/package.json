@@ -1,6 +1,6 @@
 {
   "name": "@hexajs-dev/cli",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "HexaJS CLI and compiler",
   "homepage": "https://hexajs.dev",
   "repository": {
