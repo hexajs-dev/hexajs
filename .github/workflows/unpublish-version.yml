@@ -47,15 +47,35 @@ jobs:
         run: |
           set -euo pipefail
 
+          # Reverse dependency order from packages/* package.json.
           packages=(
-            "@hexajs-dev/cli"
-            "@hexajs-dev/ports"
             "@hexajs-dev/ui"
             "@hexajs-dev/core"
+            "@hexajs-dev/ports"
+            "@hexajs-dev/cli"
             "@hexajs-dev/common"
           )
 
+          failures=()
+
           for pkg in "${packages[@]}"; do
-            echo "Unpublishing ${pkg}@${VERSION}"
-            npm unpublish "${pkg}@${VERSION}"
+            spec="${pkg}@${VERSION}"
+            echo "Unpublishing ${spec}"
+
+            if npm unpublish "${spec}"; then
+              echo "Unpublished ${spec}"
+            else
+              echo "Could not unpublish ${spec}; continuing to next package."
+              failures+=("${spec}")
+            fi
           done
+
+          if [ "${#failures[@]}" -gt 0 ]; then
+            echo "Some packages could not be unpublished:"
+
+            for spec in "${failures[@]}"; do
+              echo "- ${spec}"
+            done
+
+            exit 1
+          fi
