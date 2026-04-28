@@ -27,6 +27,7 @@ export interface UiSurfaceConfig {
 }
 
 export interface UiConfig {
+    parallelBuild?: boolean;
     popup?: UiSurfaceConfig;
     devtools?: UiSurfaceConfig;
 }
@@ -99,6 +100,7 @@ const DEFAULT_CONFIG: HexaConfig = {
     },
     tokens: [],
     ui: {
+        parallelBuild: true,
         popup: {
             mode: 'managed',
         },

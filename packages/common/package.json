@@ -5,11 +5,11 @@
   "homepage": "https://hexajs.dev",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ran-tayeb/hexajs.git",
+    "url": "git+https://github.com/hexajs-dev/hexajs.git",
     "directory": "packages/common"
   },
   "bugs": {
-    "url": "https://github.com/ran-tayeb/hexajs/issues"
+    "url": "https://github.com/hexajs-dev/hexajs/issues"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

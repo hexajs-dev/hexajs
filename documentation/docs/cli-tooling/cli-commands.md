@@ -84,6 +84,12 @@ Example profiles:
 }
 ```
 
+### UI options (hexa-cli.config.json)
+
+| Key | Type | Default | Notes |
+|---|---|---|---|
+| `ui.parallelBuild` | `boolean` | `true` | Runs managed popup + managed devtools builds in parallel during standard build mode. Set to `false` to force sequential managed UI builds. |
+
 ## hexa add
 
 Add feature blocks to an existing project.

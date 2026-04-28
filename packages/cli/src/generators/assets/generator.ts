@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import fg from 'fast-glob';
 import { ResolvedBuildConfig } from '../../bin/config/resolve';
+import { printInfoLine } from '../../shared/logging';
 
 function normalizePathForLog(filePath: string): string {
     return filePath.replace(/\\/g, '/');
@@ -60,6 +61,6 @@ export async function copyStaticAssets(resolved: ResolvedBuildConfig, outputDir:
         fs.copyFileSync(path.resolve(cwd, file), destination);
     }
 
-    console.log(`✓ Copied ${files.length} static asset(s) from compilerOptions.assets`);
-    console.log(`  ${files.slice(0, 3).map(normalizePathForLog).join(', ')}${files.length > 3 ? ', ...' : ''}`);
+    printInfoLine(`Copied ${files.length} static asset(s) from compilerOptions.assets`);
+    printInfoLine(`  ${files.slice(0, 3).map(normalizePathForLog).join(', ')}${files.length > 3 ? ', ...' : ''}`);
 }

@@ -40,6 +40,10 @@ function mergeUiConfig(...layers: (UiConfig | undefined)[]): UiConfig {
     for (const layer of layers) {
         if (!layer) continue;
 
+        if (layer.parallelBuild !== undefined) {
+            merged.parallelBuild = layer.parallelBuild;
+        }
+
         if (layer.popup) {
             merged.popup = {
                 ...(merged.popup || {}),

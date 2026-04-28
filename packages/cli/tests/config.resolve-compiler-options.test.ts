@@ -19,7 +19,9 @@ function createConfig(overrides: Partial<HexaConfig> = {}): HexaConfig {
       terserOptions: {},
     },
     tokens: [],
-    ui: {},
+    ui: {
+      parallelBuild: true,
+    },
     environments: {
       production: {
         compilerOptions: {
@@ -109,5 +111,48 @@ describe('resolveConfig compiler options', () => {
 
     const resolved = resolveConfig(config, 'chrome', 'production');
     expect(resolved.compilerOptions.terserOptions).toEqual({});
+  });
+
+  it('respects root-level ui.parallelBuild override', () => {
+    const config = createConfig({
+      ui: {
+        parallelBuild: false,
+      },
+    });
+
+    const resolved = resolveConfig(config, 'chrome', 'production');
+    expect(resolved.ui.parallelBuild).toBe(false);
+  });
+
+  it('applies ui.parallelBuild precedence root -> environment -> platform', () => {
+    const config = createConfig({
+      ui: {
+        parallelBuild: true,
+      },
+      environments: {
+        production: {
+          ui: {
+            parallelBuild: false,
+          },
+          compilerOptions: {
+            minify: true,
+            cssMinify: true,
+            sourceMap: false,
+          },
+          platforms: {
+            chrome: {
+              outDir: 'dist/chrome',
+              manifest: 'manifest.chrome.json',
+              ui: {
+                parallelBuild: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const resolved = resolveConfig(config, 'chrome', 'production');
+    expect(resolved.ui.parallelBuild).toBe(true);
   });
 });

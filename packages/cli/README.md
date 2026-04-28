@@ -27,5 +27,5 @@ hexa build --platform chrome
 ## GitHub
 
 - Organization: https://github.com/hexajs-dev
-- Source Repository: https://github.com/ran-tayeb/hexajs
-- Package Source: https://github.com/ran-tayeb/hexajs/tree/main/packages/cli
+- Source Repository: https://github.com/hexajs-dev/hexajs
+- Package Source: https://github.com/hexajs-dev/hexajs/tree/main/packages/cli

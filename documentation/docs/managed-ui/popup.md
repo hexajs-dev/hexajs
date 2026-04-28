@@ -27,6 +27,8 @@ In `hexa-cli.config.json`:
 ```
 
 `sourceDir` points to the popup source folder. `indexFile` is the built HTML entry used in the manifest pipeline.
+`parallelBuild` defaults to `true` and runs managed popup + devtools builds in parallel during standard builds.
+Set `parallelBuild` to `false` to force sequential managed UI builds.
 
 ## Load state from background
 
