@@ -59,6 +59,7 @@ describe('external popup ui copy', () => {
 
     const config = await loadHexaConfigFrom(projectDir);
     const resolved = resolveConfig(config, 'chrome', 'development');
+    expect(resolved.ui.parallelBuild).toBe(true);
     const outputDir = path.join(projectDir, resolved.outDir);
     fs.mkdirSync(outputDir, { recursive: true });
 

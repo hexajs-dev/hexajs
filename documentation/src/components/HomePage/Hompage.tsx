@@ -21,7 +21,7 @@ export function HomepageHexa() {
           <Link className={clsx('button button--lg', 'btnPrimary')} to="/docs/getting-started">
             Get Started →
           </Link>
-          <Link className={clsx('button button--lg', 'btnSecondary')} href="https://github.com/hexajs/hexajs">
+          <Link className={clsx('button button--lg', 'btnSecondary')} href="https://github.com/hexajs-dev/hexajs">
             GitHub
           </Link>
         </div>

@@ -8,7 +8,3 @@ export function relativePathFromCwd(filePath: string): string {
 export function normalizeManifestPath(filePath: string): string {
     return filePath.replace(/\\/g, '/');
 }
-
-export function relativeFromCwd(filePath: string): string {
-    return relativePathFromCwd(filePath);
-}
