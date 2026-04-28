@@ -23,6 +23,9 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 }
 ```
 
+`parallelBuild` defaults to `true` and runs managed popup + devtools builds in parallel during standard builds.
+Set `parallelBuild` to `false` to force sequential managed UI builds.
+
 ## Usage model
 
 - DevTools UI runs in its own extension UI context.

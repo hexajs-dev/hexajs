@@ -11,7 +11,7 @@ const config: Config = {
   url: 'https://hexajs.dev',
   baseUrl: '/',
 
-  organizationName: 'hexajs',
+  organizationName: 'hexajs-dev',
   projectName: 'hexajs',
 
   onBrokenLinks: 'throw',
@@ -64,7 +64,7 @@ const config: Config = {
           label: 'Docs',
         },
         {
-          href: 'https://github.com/hexajs/hexajs',
+          href: 'https://github.com/hexajs-dev/hexajs',
           className: 'header-github-link',
           'aria-label': 'GitHub repository',
           position: 'right',
@@ -74,7 +74,7 @@ const config: Config = {
     footer: {
       style: 'dark',
       links: [],
-      copyright: `© ${new Date().getFullYear()} HexaJS · <a class="footer-inline-link" href="/docs/getting-started">Docs</a> · <a class="footer-inline-link" href="/docs/core-fundamentals">Core</a> · <a class="footer-inline-link" href="/docs/cli-tooling">CLI</a> · <a class="footer-inline-link" href="https://github.com/hexajs/hexajs" target="_blank" rel="noopener noreferrer">GitHub</a>`,
+      copyright: `© ${new Date().getFullYear()} HexaJS · <a class="footer-inline-link" href="/docs/getting-started">Docs</a> · <a class="footer-inline-link" href="/docs/core-fundamentals">Core</a> · <a class="footer-inline-link" href="/docs/cli-tooling">CLI</a> · <a class="footer-inline-link" href="https://github.com/hexajs-dev/hexajs" target="_blank" rel="noopener noreferrer">GitHub</a>`,
     },
     prism: {
       theme: prismThemes.github,

@@ -2,6 +2,7 @@ import * as path from 'path';
 import { MetadataRegistry } from '../../compiler/registry';
 import { StateMetadata } from '../../compiler/store/types';
 import { ReducerMetadata } from '../../compiler/store/reducer/types';
+import { toLowerFirst } from '../shared';
 
 export interface StoreScriptOutput {
   /** The generated store file content */
@@ -91,7 +92,7 @@ export class StoreGenerator {
    * Generates a single reducer using createReducer
    */
   private generateSingleReducer(featureName: string, reducer: ReducerMetadata): string {
-    const instanceName = `${this.toLowerFirst(reducer.className)}Instance`;
+    const instanceName = `${toLowerFirst(reducer.className)}Instance`;
     const reducerVarName = `${featureName}Reducer`;
 
     const lines: string[] = [
@@ -119,7 +120,7 @@ export class StoreGenerator {
    */
   private generateStoreCreation(state: StateMetadata): string {
     const features = Object.keys(state.state);
-    const storeVarName = `${this.toLowerFirst(state.context)}Store`;
+    const storeVarName = `${toLowerFirst(state.context)}Store`;
     const storeClass = this.getStoreClassName(state.context);
 
     const lines: string[] = [
@@ -177,17 +178,6 @@ ${parts.storeCreation}
       rel = './' + rel;
     }
     return rel;
-  }
-
-  /**
-   * Converts first character to lowercase
-   */
-  private toLowerFirst(str: string): string {
-    return str.charAt(0).toLowerCase() + str.slice(1);
-  }
-
-  private toUpperFirst(str: string): string {
-    return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
   private getStoreClassName(context: string): string {

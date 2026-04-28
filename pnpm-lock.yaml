@@ -113,17 +113,17 @@ importers:
   examples/hexa-grayscale:
     dependencies:
       '@hexajs-dev/common':
-        specifier: file:../../packages/common
-        version: link:../../packages/common
+        specifier: latest
+        version: 0.9.2(typescript@5.5.4)
       '@hexajs-dev/core':
-        specifier: file:../../packages/core
-        version: file:packages/core(typescript@5.5.4)
+        specifier: latest
+        version: 0.9.2(typescript@5.5.4)
       '@hexajs-dev/ports':
-        specifier: file:../../packages/ports
-        version: file:packages/ports(@hexajs-dev/common@file:packages/common(typescript@5.5.4))(typescript@5.5.4)
+        specifier: latest
+        version: 0.9.2(@hexajs-dev/common@0.9.2(typescript@5.5.4))(typescript@5.5.4)
       '@hexajs-dev/ui':
-        specifier: file:../../packages/ui
-        version: file:packages/ui(@hexajs-dev/common@file:packages/common(typescript@5.5.4))(@hexajs-dev/core@file:packages/core(typescript@5.5.4))(@hexajs-dev/ports@file:packages/ports(@hexajs-dev/common@file:packages/common(typescript@5.5.4))(typescript@5.5.4))(@vitejs/plugin-react@4.7.0(vite@7.3.2(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0)))(vite@7.3.2(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0))
+        specifier: latest
+        version: 0.9.2(@hexajs-dev/common@0.9.2(typescript@5.5.4))(@hexajs-dev/core@0.9.2(typescript@5.5.4))(@hexajs-dev/ports@0.9.2(@hexajs-dev/common@0.9.2(typescript@5.5.4))(typescript@5.5.4))(@vitejs/plugin-react@4.7.0(vite@7.3.2(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0)))(vite@7.3.2(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0))
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -135,8 +135,8 @@ importers:
         version: 7.8.2
     devDependencies:
       '@hexajs-dev/cli':
-        specifier: file:../../packages/cli
-        version: file:packages/cli(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0)(typescript@5.5.4)
+        specifier: latest
+        version: 0.9.2(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0)(typescript@5.5.4)
       '@types/react':
         specifier: ^18.3.1
         version: 18.3.28
@@ -156,17 +156,17 @@ importers:
   examples/smart-clipper:
     dependencies:
       '@hexajs-dev/common':
-        specifier: file:../../packages/common
-        version: link:../../packages/common
+        specifier: latest
+        version: 0.9.2(typescript@5.5.4)
       '@hexajs-dev/core':
-        specifier: file:../../packages/core
-        version: file:packages/core(typescript@5.5.4)
+        specifier: latest
+        version: 0.9.2(typescript@5.5.4)
       '@hexajs-dev/ports':
-        specifier: file:../../packages/ports
-        version: file:packages/ports(@hexajs-dev/common@file:packages/common(typescript@5.5.4))(typescript@5.5.4)
+        specifier: latest
+        version: 0.9.2(@hexajs-dev/common@0.9.2(typescript@5.5.4))(typescript@5.5.4)
       '@hexajs-dev/ui':
-        specifier: file:../../packages/ui
-        version: file:packages/ui(@hexajs-dev/common@file:packages/common(typescript@5.5.4))(@hexajs-dev/core@file:packages/core(typescript@5.5.4))(@hexajs-dev/ports@file:packages/ports(@hexajs-dev/common@file:packages/common(typescript@5.5.4))(typescript@5.5.4))(@vitejs/plugin-react@4.7.0(vite@7.3.2(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0)))(vite@7.3.2(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0))
+        specifier: latest
+        version: 0.9.2(@hexajs-dev/common@0.9.2(typescript@5.5.4))(@hexajs-dev/core@0.9.2(typescript@5.5.4))(@hexajs-dev/ports@0.9.2(@hexajs-dev/common@0.9.2(typescript@5.5.4))(typescript@5.5.4))(@vitejs/plugin-react@4.7.0(vite@7.3.2(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0)))(vite@7.3.2(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0))
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1898,9 +1898,20 @@ packages:
   '@hapi/topo@5.1.0':
     resolution: {integrity: sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==}
 
+  '@hexajs-dev/cli@0.9.2':
+    resolution: {integrity: sha512-a1G7uKWT9sGV8nYwcU89zDLmB7UO4/hDNBvVXblFySHLv9GnseGRTaya4RiP3xrcCTRN8tOwBMKKmy2TFMorUw==}
+    hasBin: true
+    peerDependencies:
+      typescript: ^5.0.0
+
   '@hexajs-dev/cli@file:packages/cli':
     resolution: {directory: packages/cli, type: directory}
     hasBin: true
+    peerDependencies:
+      typescript: ^5.0.0
+
+  '@hexajs-dev/common@0.9.2':
+    resolution: {integrity: sha512-b//NB9AIfJiw6pDmqZGClImit6RRgpyHdzfroM3nyOiPRgxIoEOa99HGZuPCTD5bbLiaxAli1o4nEHwyuI9FhQ==}
     peerDependencies:
       typescript: ^5.0.0
 
@@ -1909,9 +1920,20 @@ packages:
     peerDependencies:
       typescript: ^5.0.0
 
+  '@hexajs-dev/core@0.9.2':
+    resolution: {integrity: sha512-5z49YGygRRxpXUwFsuzJkTS0S4d1npt9doxaR8culPK494hSs0OALKNOruJjDtqc8BurhubxpQwIEtOzwgZ/gw==}
+    peerDependencies:
+      typescript: ^5.0.0
+
   '@hexajs-dev/core@file:packages/core':
     resolution: {directory: packages/core, type: directory}
     peerDependencies:
+      typescript: ^5.0.0
+
+  '@hexajs-dev/ports@0.9.2':
+    resolution: {integrity: sha512-zGC2ODtAWTEYXeklKq186bgCRV9bnFe3knwogoZ0acqI1z12MS1iFyoIwkNgOM/2hI7EN2aYANx8kphMVgZTWw==}
+    peerDependencies:
+      '@hexajs-dev/common': 0.9.2
       typescript: ^5.0.0
 
   '@hexajs-dev/ports@file:packages/ports':
@@ -1919,6 +1941,18 @@ packages:
     peerDependencies:
       '@hexajs-dev/common': workspace:*
       typescript: ^5.0.0
+
+  '@hexajs-dev/ui@0.9.2':
+    resolution: {integrity: sha512-cEpyLn98gvhMjU3yrmCnyXjS44wOmtmG4aLNshA3bYvpAB/kBCaB/IKKTWCtn0Kpxt8Us10xA8fL/XdD2W+izQ==}
+    peerDependencies:
+      '@hexajs-dev/common': 0.9.2
+      '@hexajs-dev/core': 0.9.2
+      '@hexajs-dev/ports': 0.9.2
+      '@vitejs/plugin-react': '>=4.0.0'
+      vite: '>=5.0.0'
+    peerDependenciesMeta:
+      '@vitejs/plugin-react':
+        optional: true
 
   '@hexajs-dev/ui@file:packages/ui':
     resolution: {directory: packages/ui, type: directory}
@@ -9394,6 +9428,35 @@ snapshots:
     dependencies:
       '@hapi/hoek': 9.3.0
 
+  '@hexajs-dev/cli@0.9.2(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0)(typescript@5.5.4)':
+    dependencies:
+      '@hexajs-dev/common': 0.9.2(typescript@5.5.4)
+      boxen: 8.0.1
+      chalk: 5.6.2
+      commander: 14.0.3
+      enquirer: 2.4.1
+      fast-glob: 3.3.3
+      fs-extra: 11.3.4
+      ora: 9.3.0
+      sharp: 0.34.5
+      typescript: 5.5.4
+      vite: 7.3.2(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0)
+      ws: 8.20.0
+    transitivePeerDependencies:
+      - '@types/node'
+      - bufferutil
+      - jiti
+      - less
+      - lightningcss
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - terser
+      - tsx
+      - utf-8-validate
+      - yaml
+
   '@hexajs-dev/cli@file:packages/cli(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0)(typescript@5.5.4)':
     dependencies:
       '@hexajs-dev/common': link:packages/common
@@ -9423,9 +9486,21 @@ snapshots:
       - utf-8-validate
       - yaml
 
+  '@hexajs-dev/common@0.9.2(typescript@5.5.4)':
+    dependencies:
+      reflect-metadata: 0.2.2
+      typescript: 5.5.4
+
   '@hexajs-dev/common@file:packages/common(typescript@5.5.4)':
     dependencies:
       reflect-metadata: 0.2.2
+      typescript: 5.5.4
+
+  '@hexajs-dev/core@0.9.2(typescript@5.5.4)':
+    dependencies:
+      '@hexajs-dev/common': 0.9.2(typescript@5.5.4)
+      '@hexajs-dev/ports': 0.9.2(@hexajs-dev/common@0.9.2(typescript@5.5.4))(typescript@5.5.4)
+      rxjs: 7.8.2
       typescript: 5.5.4
 
   '@hexajs-dev/core@file:packages/core(typescript@5.5.4)':
@@ -9435,10 +9510,24 @@ snapshots:
       rxjs: 7.8.2
       typescript: 5.5.4
 
+  '@hexajs-dev/ports@0.9.2(@hexajs-dev/common@0.9.2(typescript@5.5.4))(typescript@5.5.4)':
+    dependencies:
+      '@hexajs-dev/common': 0.9.2(typescript@5.5.4)
+      typescript: 5.5.4
+
   '@hexajs-dev/ports@file:packages/ports(@hexajs-dev/common@file:packages/common(typescript@5.5.4))(typescript@5.5.4)':
     dependencies:
       '@hexajs-dev/common': file:packages/common(typescript@5.5.4)
       typescript: 5.5.4
+
+  '@hexajs-dev/ui@0.9.2(@hexajs-dev/common@0.9.2(typescript@5.5.4))(@hexajs-dev/core@0.9.2(typescript@5.5.4))(@hexajs-dev/ports@0.9.2(@hexajs-dev/common@0.9.2(typescript@5.5.4))(typescript@5.5.4))(@vitejs/plugin-react@4.7.0(vite@7.3.2(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0)))(vite@7.3.2(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0))':
+    dependencies:
+      '@hexajs-dev/common': 0.9.2(typescript@5.5.4)
+      '@hexajs-dev/core': 0.9.2(typescript@5.5.4)
+      '@hexajs-dev/ports': 0.9.2(@hexajs-dev/common@0.9.2(typescript@5.5.4))(typescript@5.5.4)
+      vite: 7.3.2(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0)
+    optionalDependencies:
+      '@vitejs/plugin-react': 4.7.0(vite@7.3.2(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0))
 
   '@hexajs-dev/ui@file:packages/ui(@hexajs-dev/common@file:packages/common(typescript@5.5.4))(@hexajs-dev/core@file:packages/core(typescript@5.5.4))(@hexajs-dev/ports@file:packages/ports(@hexajs-dev/common@file:packages/common(typescript@5.5.4))(typescript@5.5.4))(@vitejs/plugin-react@4.7.0(vite@7.3.2(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0)))(vite@7.3.2(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0))':
     dependencies:
