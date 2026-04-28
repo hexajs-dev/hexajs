@@ -8,7 +8,7 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 
 # ActionPort
 
-`ActionPort` controls the extension's toolbar button — its badge, icon, title, and popup — across all supported browsers.
+`ActionPort` controls the extension's toolbar button - its badge, icon, title, and popup - across all supported browsers.
 
 ## Context
 
