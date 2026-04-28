@@ -215,7 +215,7 @@ export async function writeFileWithGuard(filePath: string, content: string, opti
   }
 
   if (options.dryRun) {
-    logDryRun(`write ${relativeFromCwd(filePath)}`);
+    logDryRun(`write ${relativePathFromCwd(filePath)}`);
     return;
   }
 
@@ -235,7 +235,7 @@ export async function updateFileWithTransform(filePath: string, options: Schemat
   }
 
   if (options.dryRun) {
-    logDryRun(`update ${relativeFromCwd(filePath)}`);
+    logDryRun(`update ${relativePathFromCwd(filePath)}`);
     return true;
   }
 
@@ -296,7 +296,7 @@ export async function updateUiSurfaceConfig(configPath: string, surface: UiSurfa
   };
 
   if (options.dryRun) {
-    logDryRun(`update ${relativeFromCwd(configPath)}`);
+    logDryRun(`update ${relativePathFromCwd(configPath)}`);
     return;
   }
 
@@ -306,12 +306,8 @@ export async function updateUiSurfaceConfig(configPath: string, surface: UiSurfa
 export function printSchematicSuccess(title: string, files: string[], options: SchematicCommandOptions): void {
   console.log(chalk.green(`✓ ${title}`));
   if (options.verbose || options.dryRun) {
-    files.forEach(file => console.log(chalk.gray(`  - ${relativeFromCwd(file)}`)));
+    files.forEach(file => console.log(chalk.gray(`  - ${relativePathFromCwd(file)}`)));
   }
-}
-
-export function relativeFromCwd(filePath: string): string {
-  return relativePathFromCwd(filePath);
 }
 
 function logDryRun(message: string): void {

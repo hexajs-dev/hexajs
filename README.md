@@ -13,7 +13,7 @@
 	·
 	<a href="https://hexajs.dev/docs/getting-started">Docs</a>
 	·
-	<a href="https://github.com/ran-tayeb/hexajs/issues">Issues</a>
+	<a href="https://github.com/hexajs-dev/hexajs/issues">Issues</a>
 </p>
 
 <p align="center">
@@ -100,5 +100,5 @@ HexaJS is under active development and currently maintained with a closed-PR con
 
 Please use the structured templates so reports are reproducible, actionable, and easy to triage.
 
-- Bug report: [New bug report](https://github.com/ran-tayeb/hexajs/issues/new?template=bug_report.yml)
-- Feature suggestion: [New feature suggestion](https://github.com/ran-tayeb/hexajs/issues/new?template=feature_suggestion.yml)
+- Bug report: [New bug report](https://github.com/hexajs-dev/hexajs/issues/new?template=bug_report.yml)
+- Feature suggestion: [New feature suggestion](https://github.com/hexajs-dev/hexajs/issues/new?template=feature_suggestion.yml)

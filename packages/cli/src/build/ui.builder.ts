@@ -104,6 +104,7 @@ export function buildUiBootstrap(registry: MetadataRegistry, storeOutputs: Store
 
 export async function buildUiEntries(resolved: ResolvedBuildConfig, outputDir: string, bootstrapPath: string, watch?: boolean, hmrAddress?: string, hmrSessionToken?: string): Promise<ManifestUiEntries> {
     const entries: ManifestUiEntries = {};
+    const isWatchBuild = !!watch;
 
     const popupConfig = resolved.ui?.popup;
     const popupMode = popupConfig?.mode ?? 'none';
@@ -113,6 +114,20 @@ export async function buildUiEntries(resolved: ResolvedBuildConfig, outputDir: s
     const hexaUi = (popupMode === 'managed' || devtoolsMode === 'managed')
         ? loadHexaUi(process.cwd())
         : undefined;
+
+    const shouldParallelizeManagedUi = resolved.ui?.parallelBuild !== false && !isWatchBuild;
+    const canRunManagedUiInParallel = shouldParallelizeManagedUi && popupMode === 'managed' && devtoolsMode === 'managed';
+
+    if (canRunManagedUiInParallel) {
+        const { buildManagedPopup, buildManagedDevtools } = hexaUi!;
+        const [popupEntry, devtoolsEntry] = await Promise.all([
+            buildManagedPopup(popupConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken),
+            buildManagedDevtools(devtoolsConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken),
+        ]);
+        entries.popup = popupEntry;
+        entries.devtools = devtoolsEntry;
+        return entries;
+    }
 
     if (popupMode === 'managed') {
         const { buildManagedPopup } = hexaUi!;

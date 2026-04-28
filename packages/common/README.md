@@ -23,5 +23,5 @@ npm install @hexajs-dev/common
 ## GitHub
 
 - Organization: https://github.com/hexajs-dev
-- Source Repository: https://github.com/ran-tayeb/hexajs
-- Package Source: https://github.com/ran-tayeb/hexajs/tree/main/packages/common
+- Source Repository: https://github.com/hexajs-dev/hexajs
+- Package Source: https://github.com/hexajs-dev/hexajs/tree/main/packages/common

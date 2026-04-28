@@ -5,7 +5,7 @@ import * as ts from 'typescript';
 import { MetadataRegistry } from '../compiler/registry';
 import { HexaContext } from '../compiler/di/types';
 import { BuildContext, BuildContextMapRecord } from './types';
-import { relativeFromCwd } from '../shared/path-utils';
+import { relativePathFromCwd } from '../shared/path-utils';
 
 const ALL_CONTEXTS: BuildContext[] = ['background', 'content', 'ui'];
 const CONTEXT_MAP_FILE_PREFIX = '.ctx.';
@@ -79,7 +79,7 @@ function markFileContext(map: BuildContextMapRecord, absolutePath: string, conte
         return;
     }
 
-    const relativePath = relativeFromCwd(absolutePath);
+    const relativePath = relativePathFromCwd(absolutePath);
     if (!relativePath || relativePath.startsWith('..')) {
         return;
     }
