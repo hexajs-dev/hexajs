@@ -8,7 +8,7 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 
 # BrowsingDataPort
 
-`BrowsingDataPort` clears user browsing data — including cache, cookies, and history — with fine-grained control over data types and time ranges.
+`BrowsingDataPort` clears user browsing data - including cache, cookies, and history - with fine-grained control over data types and time ranges.
 
 ## Context
 
