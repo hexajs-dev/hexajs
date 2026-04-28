@@ -8,7 +8,7 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 
 # CookiesPort
 
-`CookiesPort` provides full cookie lifecycle management — reading, writing, removing, and reacting to changes — across all cookie stores.
+`CookiesPort` provides full cookie lifecycle management - reading, writing, removing, and reacting to changes - across all cookie stores.
 
 ## Context
 
