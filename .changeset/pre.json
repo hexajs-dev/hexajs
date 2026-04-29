@@ -11,5 +11,7 @@
     "@hexajs-dev/ports": "0.9.2",
     "@hexajs-dev/ui": "0.9.2"
   },
-  "changesets": []
+  "changesets": [
+    "funny-pigs-heal"
+  ]
 }
