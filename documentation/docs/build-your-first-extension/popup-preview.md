@@ -11,7 +11,7 @@ In this tutorial, the popup is intentionally visual-only.
 That gives you a clean first extension architecture:
 
 - Content owns the feature behavior.
-- Popup demonstrates UI composition and packaging.
+- Popup demonstrates UI composition without controlling page state.
 
 ## Keep popup managed
 

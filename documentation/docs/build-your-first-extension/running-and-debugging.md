@@ -69,7 +69,7 @@ pnpm run build:opera
 ### Build succeeds but no eye icon appears
 
 - Confirm content class uses `@Content({ matches: ['<all_urls>'] })`.
-- Confirm `onInit()` calls your UI service `init()`.
+- Confirm `onInit()` mounts the view and wires the toggle callback.
 
 ### Eye icon appears but no grayscale effect
 
@@ -78,5 +78,5 @@ pnpm run build:opera
 
 ### UI duplicates
 
-- Confirm `dispose()` unmounts the view.
-- Confirm style element and class are removed in `dispose()`.
+- Confirm `onDestroy()` unmounts the view.
+- Confirm style element and class are removed in `onDestroy()`.

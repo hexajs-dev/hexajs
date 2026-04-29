@@ -20,6 +20,8 @@ hexa build --watch
 HexaJS intelligently triggers reload actions based on context changes to keep development fast and isolated.
 </p>
 
+When background changes are applied, HexaJS also queues the latest content patches and re-injects them after background comes online. This keeps content scripts connected to the updated background without requiring a page reload.
+
 <div className="hmr-checklist">
 	<div className="hmr-check-item">
 		<div className="hmr-check-title">UI changes trigger UI update path</div>
@@ -31,7 +33,7 @@ HexaJS intelligently triggers reload actions based on context changes to keep de
 	</div>
 	<div className="hmr-check-item">
 		<div className="hmr-check-title">Background changes trigger background update path</div>
-		<div className="hmr-check-subtitle">Background applies platform-specific strategy: patch flow when supported, reload fallback otherwise.</div>
+		<div className="hmr-check-subtitle">Background applies platform-specific strategy and then re-injects content patches after background reconnects.</div>
 	</div>
 </div>
 
@@ -99,7 +101,7 @@ Impact of fallback:
 Trigger behavior:
 - UI files changed -> UI hot update only.
 - Content files changed -> content hot update only.
-- Background files changed -> background patch or reload fallback only.
+- Background files changed -> background patch or reload fallback, then queued content re-injection after background comes online.
 
 ## Firefox
 
@@ -107,11 +109,12 @@ Firefox supports complete background patch flow in watch mode.
 
 Result:
 - UI/content/background can all hot-update with context-scoped triggers.
+- Background patch flow is followed by content re-injection to keep scripts attached to the updated background runtime.
 
 Trigger behavior:
 - UI files changed -> UI hot update only.
 - Content files changed -> content hot update only.
-- Background files changed -> background hot update only.
+- Background files changed -> background patch flow, then queued content re-injection after background is online.
 
 ## Safari
 
@@ -120,20 +123,22 @@ Safari supports full update flow for UI and content.
 Background strategy:
 - Extension reload fallback for background changes.
 - Background devtools sessions close and need reopening.
+- After background reconnects, HexaJS re-injects queued content patches so existing tabs are not left with orphan content runtime.
 
 Trigger behavior:
 - UI files changed -> UI hot update only.
 - Content files changed -> content hot update only.
-- Background files changed -> extension reload fallback only.
+- Background files changed -> extension reload fallback, then queued content re-injection after background is online.
 
 ## Trigger examples
 
 - Change in popup React component: UI update only.
 - Change in content handler: content update only.
-- Change in background controller/service: background update strategy only.
+- Change in background controller/service: browser-specific background strategy plus content re-injection handshake.
 
 ## Best practices
 
 - Keep background state persistence explicit when testing fallback reloads.
+- Ensure host permissions match your content script URL patterns so watch-mode reinjection can execute reliably.
 - Use feature flags for background experiments during watch.
 - Avoid broad refactors across all contexts when investigating HMR behavior.

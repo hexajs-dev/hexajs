@@ -102,3 +102,7 @@ Please use the structured templates so reports are reproducible, actionable, and
 
 - Bug report: [New bug report](https://github.com/hexajs-dev/hexajs/issues/new?template=bug_report.yml)
 - Feature suggestion: [New feature suggestion](https://github.com/hexajs-dev/hexajs/issues/new?template=feature_suggestion.yml)
+
+## License
+
+MIT License. See [LICENSE.md](LICENSE.md).

@@ -27,3 +27,7 @@ npm install @hexajs-dev/core
 - Organization: https://github.com/hexajs-dev
 - Source Repository: https://github.com/hexajs-dev/hexajs
 - Package Source: https://github.com/hexajs-dev/hexajs/tree/main/packages/core
+
+## License
+
+MIT License. See [../../LICENSE.md](../../LICENSE.md).
