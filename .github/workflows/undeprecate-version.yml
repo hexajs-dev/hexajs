@@ -3,17 +3,10 @@ name: Undeprecate Package
 on:
   workflow_dispatch:
     inputs:
-      target:
-        description: "Package to undeprecate (all versions)"
+      package_name:
+        description: "Package to undeprecate (for example: @hexajs-dev/ports)"
         required: true
-        type: choice
-        options:
-          - "@hexajs-dev/common"
-          - "@hexajs-dev/ui"
-          - "@hexajs-dev/core"
-          - "@hexajs-dev/ports"
-          - "@hexajs-dev/cli"
-          - all
+        type: string
 
 permissions:
   contents: read
@@ -49,60 +42,11 @@ jobs:
 
       - name: Remove package deprecation
         env:
-          TARGET: ${{ inputs.target }}
+          PACKAGE_NAME: ${{ inputs.package_name }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           set -euo pipefail
 
-          all_packages=(
-            "@hexajs-dev/common"
-            "@hexajs-dev/ui"
-            "@hexajs-dev/core"
-            "@hexajs-dev/ports"
-            "@hexajs-dev/cli"
-          )
-
-          packages=()
-
-          if [ "${TARGET}" = "all" ]; then
-            packages=("${all_packages[@]}")
-          else
-            packages=("${TARGET}")
-          fi
-
-          undeprecated=()
-          failures=()
-
-          for pkg in "${packages[@]}"; do
-            echo "Removing deprecation for ${pkg}"
-
-            if npm deprecate "${pkg}" ""; then
-              echo "Undeprecated ${pkg}"
-              undeprecated+=("${pkg}")
-            else
-              echo "Failed to undeprecate ${pkg}"
-              failures+=("${pkg}")
-            fi
-          done
-
-          echo "Summary:"
-          echo "- undeprecated: ${#undeprecated[@]}"
-          echo "- failed: ${#failures[@]}"
-
-          if [ "${#undeprecated[@]}" -gt 0 ]; then
-            echo "Undeprecated packages:"
-
-            for pkg in "${undeprecated[@]}"; do
-              echo "- ${pkg}"
-            done
-          fi
-
-          if [ "${#failures[@]}" -gt 0 ]; then
-            echo "Failed packages:"
-
-            for pkg in "${failures[@]}"; do
-              echo "- ${pkg}"
-            done
-
-            exit 1
-          fi
+          echo "Removing deprecation for ${PACKAGE_NAME}"
+          npm deprecate "${PACKAGE_NAME}" ""
+          echo "Undeprecated ${PACKAGE_NAME}"
