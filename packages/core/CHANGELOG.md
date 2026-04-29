@@ -1,5 +1,14 @@
 # @hexajs-dev/core
 
+## 0.9.3-alpha.0
+
+### Patch Changes
+
+- a6044cb: license
+- Updated dependencies [a6044cb]
+  - @hexajs-dev/common@0.9.3-alpha.0
+  - @hexajs-dev/ports@0.9.3-alpha.0
+
 ## 0.9.2
 
 ### Patch Changes
