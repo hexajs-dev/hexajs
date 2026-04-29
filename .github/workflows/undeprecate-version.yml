@@ -1,19 +1,26 @@
-name: Undeprecate Version
+name: Undeprecate Package
 
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: "Version to undeprecate (for example: 0.9.1)"
+      target:
+        description: "Package to undeprecate (all versions)"
         required: true
-        type: string
+        type: choice
+        options:
+          - "@hexajs-dev/common"
+          - "@hexajs-dev/ui"
+          - "@hexajs-dev/core"
+          - "@hexajs-dev/ports"
+          - "@hexajs-dev/cli"
+          - all
 
 permissions:
   contents: read
 
 jobs:
   undeprecate:
-    name: Undeprecate npm package versions
+    name: Undeprecate npm packages
     runs-on: ubuntu-latest
 
     steps:
@@ -40,31 +47,41 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Remove deprecation from UI and Common
+      - name: Remove package deprecation
         env:
-          VERSION: ${{ inputs.version }}
+          TARGET: ${{ inputs.target }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           set -euo pipefail
 
-          packages=(
-            "@hexajs-dev/ui"
+          all_packages=(
             "@hexajs-dev/common"
+            "@hexajs-dev/ui"
+            "@hexajs-dev/core"
+            "@hexajs-dev/ports"
+            "@hexajs-dev/cli"
           )
+
+          packages=()
+
+          if [ "${TARGET}" = "all" ]; then
+            packages=("${all_packages[@]}")
+          else
+            packages=("${TARGET}")
+          fi
 
           undeprecated=()
           failures=()
 
           for pkg in "${packages[@]}"; do
-            spec="${pkg}@${VERSION}"
-            echo "Removing deprecation for ${spec}"
+            echo "Removing deprecation for ${pkg}"
 
-            if npm deprecate "${spec}" ""; then
-              echo "Undeprecated ${spec}"
-              undeprecated+=("${spec}")
+            if npm deprecate "${pkg}" ""; then
+              echo "Undeprecated ${pkg}"
+              undeprecated+=("${pkg}")
             else
-              echo "Failed to undeprecate ${spec}"
-              failures+=("${spec}")
+              echo "Failed to undeprecate ${pkg}"
+              failures+=("${pkg}")
             fi
           done
 
@@ -73,18 +90,18 @@ jobs:
           echo "- failed: ${#failures[@]}"
 
           if [ "${#undeprecated[@]}" -gt 0 ]; then
-            echo "Undeprecated package versions:"
+            echo "Undeprecated packages:"
 
-            for spec in "${undeprecated[@]}"; do
-              echo "- ${spec}"
+            for pkg in "${undeprecated[@]}"; do
+              echo "- ${pkg}"
             done
           fi
 
           if [ "${#failures[@]}" -gt 0 ]; then
-            echo "Failed package versions:"
+            echo "Failed packages:"
 
-            for spec in "${failures[@]}"; do
-              echo "- ${spec}"
+            for pkg in "${failures[@]}"; do
+              echo "- ${pkg}"
             done
 
             exit 1
