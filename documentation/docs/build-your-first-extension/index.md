@@ -18,9 +18,9 @@ The popup is intentionally simple and visual-only. It mirrors the style of the f
 ## What you will build
 
 - A `@Content` entry that initializes and disposes page UI correctly.
-- A content `@Injectable` service that owns grayscale state for the current page.
 - A `@View` + `HexaView` pair that renders a React eye toggle in Shadow DOM.
 - A minimal managed popup built with React.
+- An optional content logger service to understand `@Injectable` basics.
 
 ## Why this tutorial matters
 

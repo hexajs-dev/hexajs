@@ -782,6 +782,12 @@ body{
 
 }
 
+.home-page .navbar__toggle,
+.home-page .navbar-sidebar,
+.home-page .navbar-sidebar__backdrop {
+  display: none !important;
+}
+
 .home-page{
   overflow: auto;
   block-size: 100vh;

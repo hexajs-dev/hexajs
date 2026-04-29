@@ -79,60 +79,25 @@ You now have:
 - `src/content/` for page logic and content scripts
 - `ui/popup/` for React popup managed by HexaJS
 
-## Step 2: Wire content lifecycle
+## Step 2: Wire content lifecycle directly
 
-In `src/content/content.ts`, inject a content service and call it in lifecycle hooks.
+In `src/content/content.ts`, keep lifecycle and page-toggle logic in the content class.
 
 ```ts
-import { Content, ContentRunAt } from '@hexajs-dev/core';
 import { OnInit, OnDestroy } from '@hexajs-dev/common';
-import { GrayscaleUiService } from './ui/grayscale-ui.service';
-
-@Content({ matches: ['<all_urls>'], runAt: ContentRunAt.DocumentIdle })
-export class HexaGrayscaleContent implements OnInit, OnDestroy {
-  constructor(private readonly grayscaleUi: GrayscaleUiService) {}
-
-  onInit(): void {
-    this.grayscaleUi.init();
-  }
-
-  onDestroy(): void {
-    this.grayscaleUi.dispose();
-  }
-}
-```
-
-Why this is important:
-
-- `onInit` guarantees the UI mounts once when content starts.
-- `onDestroy` guarantees cleanup when content unloads.
-
-## Step 3: Add a content UI service
-
-Create `src/content/ui/grayscale-ui.service.ts`.
-
-Responsibilities of this service:
-
-- Mount and unmount the view
-- Track local page state (`enabled`)
-- Add/remove a global page style for grayscale
-- Toggle a class on `document.documentElement`
-
-```ts
-import { Injectable, InjectableContext } from '@hexajs-dev/common';
-import { InjectView } from '@hexajs-dev/core';
-import { GrayscaleToggleView } from './grayscale-toggle/grayscale-toggle-view';
+import { Content, ContentRunAt, InjectView } from '@hexajs-dev/core';
+import { GrayscaleToggleView } from './ui/grayscale-toggle/grayscale-toggle-view';
 
 const HEXA_GRAYSCALE_CLASS = 'hexa-grayscale-enabled';
 const HEXA_GRAYSCALE_STYLE_ID = 'hexa-grayscale-page-style';
 
-@Injectable({ context: InjectableContext.Content })
-export class GrayscaleUiService {
+@Content({ matches: ['<all_urls>'], runAt: ContentRunAt.DocumentIdle })
+export class HexaGrayscaleContent implements OnInit, OnDestroy {
   @InjectView() grayscaleToggleView!: GrayscaleToggleView;
 
   private enabled = false;
 
-  init(): void {
+  onInit(): void {
     this.ensurePageStyle();
     if (!this.grayscaleToggleView.isMounted) {
       this.grayscaleToggleView.mount();
@@ -143,7 +108,7 @@ export class GrayscaleUiService {
     });
   }
 
-  dispose(): void {
+  onDestroy(): void {
     this.grayscaleToggleView.setOnToggle(undefined);
     if (this.grayscaleToggleView.isMounted) {
       this.grayscaleToggleView.unmount();
@@ -174,6 +139,69 @@ export class GrayscaleUiService {
   }
 }
 ```
+
+Why this is important:
+
+- `onInit` mounts the view and wires the toggle callback.
+- `onDestroy` guarantees cleanup when content unloads.
+- Keeping this first version local makes the beginner flow easier to follow.
+
+## Step 3 (Optional): Add a logger service to learn DI
+
+This step is optional. Your extension already works without it.
+
+Create `src/content/services/logger.service.ts`:
+
+```ts
+import { Injectable, InjectableContext } from '@hexajs-dev/common';
+
+const LOGGER_PREFIX = '[hexa-grayscale]';
+
+@Injectable({ context: InjectableContext.Content })
+export class LoggerService {
+  log(message: string, data?: unknown): void {
+    if (typeof data === 'undefined') {
+      console.log(`${LOGGER_PREFIX} ${message}`);
+      return;
+    }
+    console.log(`${LOGGER_PREFIX} ${message}`, data);
+  }
+
+  logState(enabled: boolean): void {
+    this.log('Current grayscale state', { enabled });
+  }
+}
+```
+
+Then inject it in `src/content/content.ts`:
+
+```ts
+import { LoggerService } from './services/logger.service';
+
+@Content({ matches: ['<all_urls>'], runAt: ContentRunAt.DocumentIdle })
+export class HexaGrayscaleContent implements OnInit, OnDestroy {
+  constructor(private readonly logger: LoggerService) {}
+
+  onInit(): void {
+    // existing setup logic
+    this.logger.log('Content script initialized on', window.location.href);
+    this.logger.logState(this.enabled);
+  }
+
+  onDestroy(): void {
+    // existing cleanup logic
+    this.logger.logState(this.enabled);
+    this.logger.log('Content script destroyed');
+  }
+
+  private setEnabled(enabled: boolean): void {
+    // existing toggle logic
+    this.logger.logState(enabled);
+  }
+}
+```
+
+If you skip this optional step, remove the logger import, constructor dependency, and logger calls.
 
 ## Step 4: Build the view controller with `@View`
 
@@ -355,7 +383,7 @@ Key points:
 
 ## Step 6: Keep handler and background minimal
 
-For this minimal extension, the behavior is local to content.
+For this minimal extension, all feature behavior stays in content.
 
 - `src/content/handler.ts` can remain empty for now.
 - `src/background/controller.ts` can remain a stub until you need cross-context messaging.
@@ -382,8 +410,8 @@ Checklist:
 
 ### Toggle duplicates after navigation
 
-- Ensure `dispose()` calls `unmount()` and removes page style.
-- Ensure `init()` checks `isMounted` before calling `mount()`.
+- Ensure `onDestroy()` calls `unmount()` and removes page style.
+- Ensure `onInit()` checks `isMounted` before calling `mount()`.
 
 ### Styling collides with website CSS
 

@@ -1,7 +1,7 @@
 ---
 title: Popup
 sidebar_position: 2
-description: Configure and build a managed popup with correct UI config keys and HexaUIClient messaging.
+description: Build a managed React popup with DI, token injection, and HexaUIClient messaging.
 ---
 
 import HexaUIClientAPI from '../reference-models/ui/services/hexa-ui-client-service.md';
@@ -9,7 +9,9 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 
 # Popup
 
-## Enable managed popup
+HexaJS popup uses the managed UI pipeline. The popup is a React surface with a pre-wired DI container, so UI code can resolve services and tokens directly.
+
+## Enable managed React popup
 
 In `hexa-cli.config.json`:
 
@@ -26,9 +28,23 @@ In `hexa-cli.config.json`:
 }
 ```
 
+`mode: "managed"` runs the internal managed React build for popup.
 `sourceDir` points to the popup source folder. `indexFile` is the built HTML entry used in the manifest pipeline.
 `parallelBuild` defaults to `true` and runs managed popup + devtools builds in parallel during standard builds.
 Set `parallelBuild` to `false` to force sequential managed UI builds.
+
+## Resolve popup services with DI
+
+```tsx
+import { inject } from '@hexajs-dev/common';
+import { RuntimePort } from '@hexajs-dev/ports';
+import { HexaUIClient } from '@hexajs-dev/ui';
+
+const runtimePort = inject(RuntimePort);
+const hexaUIClient = inject(HexaUIClient);
+```
+
+Use this pattern in popup React components and hooks when you need runtime APIs or background messaging.
 
 ## Load state from background
 
@@ -65,13 +81,31 @@ hexaUIClient.sendMessage<UpdateConfigMessage, ConfigResponseMessage>(
 );
 ```
 
-Use this pattern for popup-driven settings changes, commands, or one-off requests to background.
+## Resolve platform token
+
+```tsx
+import { HEXA_PLATFORM, inject } from '@hexajs-dev/common';
+
+const platform = inject(HEXA_PLATFORM);
+```
+
+For constructor-based DI, token values use `@Inject(...)`:
+
+```ts
+import { Inject, Injectable, InjectableContext, HEXA_PLATFORM } from '@hexajs-dev/common';
+
+@Injectable({ context: InjectableContext.UI })
+export class PlatformTokenExample {
+  constructor(@Inject(HEXA_PLATFORM) readonly platform: string) {}
+}
+```
 
 ## Notes
 
 - Keep business state in background/content stores.
 - Popup should render state returned from messaging calls.
-- Prefer small request/response snippets in docs and examples rather than copying an entire popup component.
+- Token injection in HexaJS uses `inject(TOKEN)` or `@Inject(TOKEN)`.
+- Keep docs snippets focused on DI, tokens, and messaging.
 
 <ApiReferenceAppendix>
 <HexaUIClientAPI />
