@@ -1,6 +1,7 @@
 {
   "name": "smart-clipper",
   "version": "0.0.1",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "build": "pnpm run build:chrome",
