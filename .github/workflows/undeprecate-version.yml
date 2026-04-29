@@ -1,0 +1,91 @@
+name: Undeprecate Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to undeprecate (for example: 0.9.1)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  undeprecate:
+    name: Undeprecate npm package versions
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Ensure npm token exists
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "NPM_TOKEN secret is not set."
+            exit 1
+          fi
+
+      - name: Verify npm auth
+        run: npm whoami
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Remove deprecation from UI and Common
+        env:
+          VERSION: ${{ inputs.version }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          packages=(
+            "@hexajs-dev/ui"
+            "@hexajs-dev/common"
+          )
+
+          undeprecated=()
+          failures=()
+
+          for pkg in "${packages[@]}"; do
+            spec="${pkg}@${VERSION}"
+            echo "Removing deprecation for ${spec}"
+
+            if npm deprecate "${spec}" ""; then
+              echo "Undeprecated ${spec}"
+              undeprecated+=("${spec}")
+            else
+              echo "Failed to undeprecate ${spec}"
+              failures+=("${spec}")
+            fi
+          done
+
+          echo "Summary:"
+          echo "- undeprecated: ${#undeprecated[@]}"
+          echo "- failed: ${#failures[@]}"
+
+          if [ "${#undeprecated[@]}" -gt 0 ]; then
+            echo "Undeprecated package versions:"
+
+            for spec in "${undeprecated[@]}"; do
+              echo "- ${spec}"
+            done
+          fi
+
+          if [ "${#failures[@]}" -gt 0 ]; then
+            echo "Failed package versions:"
+
+            for spec in "${failures[@]}"; do
+              echo "- ${spec}"
+            done
+
+            exit 1
+          fi
