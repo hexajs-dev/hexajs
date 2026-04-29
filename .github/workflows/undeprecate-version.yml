@@ -1,10 +1,10 @@
-name: Undeprecate Version
+name: Undeprecate Package
 
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: "Version to undeprecate (for example: 0.9.1)"
+      package_name:
+        description: "Package to undeprecate (for example: @hexajs-dev/ports)"
         required: true
         type: string
 
@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   undeprecate:
-    name: Undeprecate npm package versions
+    name: Undeprecate npm packages
     runs-on: ubuntu-latest
 
     steps:
@@ -40,52 +40,13 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Remove deprecation from UI and Common
+      - name: Remove package deprecation
         env:
-          VERSION: ${{ inputs.version }}
+          PACKAGE_NAME: ${{ inputs.package_name }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           set -euo pipefail
 
-          packages=(
-            "@hexajs-dev/ui"
-            "@hexajs-dev/common"
-          )
-
-          undeprecated=()
-          failures=()
-
-          for pkg in "${packages[@]}"; do
-            spec="${pkg}@${VERSION}"
-            echo "Removing deprecation for ${spec}"
-
-            if npm deprecate "${spec}" ""; then
-              echo "Undeprecated ${spec}"
-              undeprecated+=("${spec}")
-            else
-              echo "Failed to undeprecate ${spec}"
-              failures+=("${spec}")
-            fi
-          done
-
-          echo "Summary:"
-          echo "- undeprecated: ${#undeprecated[@]}"
-          echo "- failed: ${#failures[@]}"
-
-          if [ "${#undeprecated[@]}" -gt 0 ]; then
-            echo "Undeprecated package versions:"
-
-            for spec in "${undeprecated[@]}"; do
-              echo "- ${spec}"
-            done
-          fi
-
-          if [ "${#failures[@]}" -gt 0 ]; then
-            echo "Failed package versions:"
-
-            for spec in "${failures[@]}"; do
-              echo "- ${spec}"
-            done
-
-            exit 1
-          fi
+          echo "Removing deprecation for ${PACKAGE_NAME}"
+          npm deprecate "${PACKAGE_NAME}" ""
+          echo "Undeprecated ${PACKAGE_NAME}"
