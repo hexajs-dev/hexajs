@@ -56,7 +56,7 @@ HexaJS provides a first-in-world extension workflow for practical live developme
 - Content: full HMR.
 - Background: platform-specific live behavior with patch/reload fallback strategy.
 
-See the complete matrix and behavior table in [HMR docs](documentation/docs/cli-tooling/hmr.md).
+See the complete matrix and behavior table in [HMR docs](https://hexajs.dev/docs/cli-tooling/hmr).
 
 ## Quick Start
 
@@ -76,19 +76,19 @@ hexa build --platform chrome --mode development --watch
 
 ## Documentation Map
 
-- [Getting Started](documentation/docs/getting-started/index.md)
-- [Core Fundamentals](documentation/docs/core-fundamentals/index.md)
-- [Browser-Agnostic Messaging](documentation/docs/browser-agnostic-messaging/index.md)
-- [State Management](documentation/docs/state-management/index.md)
-- [Managed UI](documentation/docs/managed-ui/index.md)
-- [CLI Tooling](documentation/docs/cli-tooling/index.md)
-- [API Reference](documentation/docs/api-reference/index.md)
+- [Getting Started](https://hexajs.dev/docs/getting-started)
+- [Core Fundamentals](https://hexajs.dev/docs/core-fundamentals)
+- [Browser-Agnostic Messaging](https://hexajs.dev/docs/browser-agnostic-messaging)
+- [State Management](https://hexajs.dev/docs/state-management)
+- [Managed UI](https://hexajs.dev/docs/managed-ui)
+- [CLI Tooling](https://hexajs.dev/docs/cli-tooling)
+- [API Reference](https://hexajs.dev/docs/api-reference)
 
 ## Examples
 
-- Managed popup/devtools-none config: [examples/generated/hexa-cli.managed-ui.example.json](examples/generated/hexa-cli.managed-ui.example.json)
-- External React popup config: [examples/generated/hexa-cli.external-ui.example.json](examples/generated/hexa-cli.external-ui.example.json)
-- Full example projects: [examples](examples)
+- Managed popup/devtools-none config: [Managed popup reference model](https://hexajs.dev/docs/reference-models/ui/popup/managed)
+- External React popup config: [External popup reference model](https://hexajs.dev/docs/reference-models/ui/popup/external)
+- Full example projects: [Build your first extension](https://hexajs.dev/docs/build-your-first-extension)
 
 ## Contributing Policy
 
