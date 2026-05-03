@@ -1,9 +1,9 @@
 import { State } from '@hexajs-dev/core';
-import { InjectableContext } from '@hexajs-dev/common';
+import { HexaContext } from '@hexajs-dev/common';
 import { BackgroundState, ConfigReducer, ClipsReducer } from './background.reducer';
 
 @State<BackgroundState>({
-  context: InjectableContext.Background,
+  context: HexaContext.Background,
   state: {
     config: ConfigReducer,
     clips: ClipsReducer,

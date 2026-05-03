@@ -1,8 +1,8 @@
-import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { Injectable, HexaContext } from '@hexajs-dev/common';
 import { StoragePort } from '@hexajs-dev/ports';
 import { ClipVaultConfig, CONFIG_STORAGE_KEY, DEFAULT_CONFIG } from '../../contract/config';
 
-@Injectable({ context: InjectableContext.Background })
+@Injectable({ context: HexaContext.Background })
 export class ConfigService {
   constructor(private readonly storagePort: StoragePort) {}
 

@@ -1,6 +1,6 @@
 import { BehaviorSubject, distinctUntilChanged, map, Observable, OperatorFunction } from "rxjs";
 import { HexaActionWithPayload } from "./action.abstract";
-import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { Injectable, HexaContext } from '@hexajs-dev/common';
 import { ActionsSubject } from './actions';
 
 export class HexaStoreAbstract<T> {
@@ -121,14 +121,14 @@ export function createStore<T extends Record<string, any>>(reducers:
   return new HexaStoreAbstract<T>(reducers, actionsSubject);
 }
 
-@Injectable({ context: InjectableContext.Background })
+@Injectable({ context: HexaContext.Background })
 export class HexaBackgroundStore<T extends Record<string, any>> extends HexaStoreAbstract<T> {
   constructor(reducers?: { [K in keyof T]: (state: T[K] | undefined, action: HexaActionWithPayload<string, any>) => T[K] }, actionsSubject?: ActionsSubject) {
     super(reducers, actionsSubject);
   }
 }
 
-@Injectable({ context: InjectableContext.Content })
+@Injectable({ context: HexaContext.Content })
 export class HexaContentStore<T extends Record<string, any>> extends HexaStoreAbstract<T> {
   constructor(reducers?: { [K in keyof T]: (state: T[K] | undefined, action: HexaActionWithPayload<string, any>) => T[K] }, actionsSubject?: ActionsSubject) {
     super(reducers, actionsSubject);

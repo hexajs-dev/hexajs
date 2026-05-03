@@ -41,10 +41,11 @@ import { State } from '@hexajs-dev/core';
 
 ```typescript
 interface StateOptions {
-  context: InjectableContext;
+  context: HexaContext;
   state: {
     [K in keyof T]: new () => HexaReducer<T[K]>;
 };
+  effects?: Array<new (...args: any[]) => any>;
 }
 ```
 

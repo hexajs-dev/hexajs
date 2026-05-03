@@ -19,13 +19,20 @@ Welcome! This guide will walk you through setting up your environment, installin
 npm install -g @hexajs-dev/cli
 ```
 
+If you prefer pnpm:
+
+```bash
+pnpm add -g @hexajs-dev/cli
+```
+
 ## Scaffold a new project
 
 ```bash
 hexa new hexa-extension
 cd hexa-extension
-pnpm install
 ```
+
+The `hexa new` flow lets you choose your package manager (for example, npm or pnpm) and installs project dependencies automatically.
 
 ## Verify
 

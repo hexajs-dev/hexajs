@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import * as path from 'path';
 import { controllerTemplate, handlerTemplate, reducerTemplate, serviceTemplate, stateTemplate } from './schematics/templates';
-import { addSharedOptions, ensureContext, ensureStoreContext, getControllerDir, getHandlerDir, getServicesDir, getStoreDir, insertImport, loadProject, mapInjectableContext, printSchematicSuccess, readFileIfExists, resolveGeneratedClassName, toCamelCase, toKebabCase, updateFileWithTransform, validateName, writeFileWithGuard, type SchematicCommandOptions } from './schematics/shared';
+import { addSharedOptions, ensureContext, ensureStoreContext, getControllerDir, getHandlerDir, getServicesDir, getStoreDir, insertImport, loadProject, mapHexaContext, printSchematicSuccess, readFileIfExists, resolveGeneratedClassName, toCamelCase, toKebabCase, updateFileWithTransform, validateName, writeFileWithGuard, type SchematicCommandOptions } from './schematics/shared';
 
 interface NamespaceOptions extends SchematicCommandOptions {
   namespace?: string;
@@ -55,7 +55,7 @@ export const generateCommand = (program: Command): void => {
     const context = ensureContext(contextArg);
     const className = resolveGeneratedClassName(name, 'Service');
     const filePath = path.join(project.cwd, getServicesDir(project.config), `${toKebabCase(name)}.service.ts`);
-    const injectableContext = mapInjectableContext(context);
+    const injectableContext = mapHexaContext(context);
 
     await writeFileWithGuard(filePath, serviceTemplate(className, context, injectableContext), options);
     printSchematicSuccess(`Generated service ${className}`, [filePath], options);

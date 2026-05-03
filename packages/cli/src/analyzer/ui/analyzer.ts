@@ -27,7 +27,7 @@ export class UIAnalyzer implements BaseAnalyzer {
       if (!this.isUiPackageAvailable()) {
         errors.push({
           type: 'missing-package',
-          message: `UI services were found but package "${HEXA_UI_PACKAGE}" could not be resolved from the project. Install it or avoid using InjectableContext.UI.`,
+          message: `UI services were found but package "${HEXA_UI_PACKAGE}" could not be resolved from the project. Install it or avoid using HexaContext.UI.`,
           className: 'UI',
           context: HexaContext.UI,
         });

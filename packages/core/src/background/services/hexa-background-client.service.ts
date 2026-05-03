@@ -1,4 +1,4 @@
-import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { Injectable, HexaContext } from '@hexajs-dev/common';
 import { RuntimePort, TabsPort } from '@hexajs-dev/ports';
 import { HexaClientBase } from '../../services/hexa-client.base';
 
@@ -6,7 +6,7 @@ import { HexaClientBase } from '../../services/hexa-client.base';
  * Background-context HexaClient.
  * Extends the base with tab-targeted messaging and broadcast.
  */
-@Injectable({ context: InjectableContext.Background })
+@Injectable({ context: HexaContext.Background })
 export class HexaBackgroundClient extends HexaClientBase {
 
     constructor(

@@ -1,4 +1,5 @@
 import ts from "typescript";
+import { RouteBoundaryPolicyMetadata } from './boundary.types';
 
 
 export function extractProp(checker: ts.TypeChecker, prop?: ts.ObjectLiteralElementLike): any {
@@ -167,6 +168,60 @@ export const getDecoratorArgument = (node: ts.Node, decoratorName: string, check
 
 export const getDecorator = (node: ts.Node, checker: ts.TypeChecker, decoratorName: string, allowedImportSources?: readonly string[]): ts.Decorator | null => {
     return findDecorator(node, checker, decoratorName, allowedImportSources);
+}
+
+function normalizeStringList(value: unknown, decoratorName: string, propertyName: 'ids' | 'origins'): string[] | undefined {
+    if (typeof value === 'undefined') {
+        return undefined;
+    }
+
+    if (!Array.isArray(value) || !value.every(item => typeof item === 'string')) {
+        throw new Error(`HexaJS Build Error: @${decoratorName} option "${propertyName}" must be a string[].`);
+    }
+
+    const normalized = Array.from(new Set(value.map(item => item.trim()).filter(item => item.length > 0)));
+    return normalized.length > 0 ? normalized : undefined;
+}
+
+export function getBoundaryPolicyFromDecorators(node: ts.Node, checker: ts.TypeChecker, allowedImportSources: readonly string[] = ['@hexajs-dev/common']): RouteBoundaryPolicyMetadata | null {
+    const allowExternalDecorator = findDecorator(node, checker, 'AllowExternal', allowedImportSources);
+    const internalOnlyDecorator = findDecorator(node, checker, 'InternalOnly', allowedImportSources);
+
+    if (allowExternalDecorator && internalOnlyDecorator) {
+        throw new Error('HexaJS Build Error: @AllowExternal and @InternalOnly cannot be used together on the same target.');
+    }
+
+    if (internalOnlyDecorator) {
+        return { mode: 'internal-only' };
+    }
+
+    if (!allowExternalDecorator) {
+        return null;
+    }
+
+    if (!ts.isCallExpression(allowExternalDecorator.expression)) {
+        throw new Error('HexaJS Build Error: @AllowExternal must be used as @AllowExternal().');
+    }
+
+    if (allowExternalDecorator.expression.arguments.length === 0) {
+        return { mode: 'allow-external' };
+    }
+
+    const optionsArg = allowExternalDecorator.expression.arguments[0];
+    const resolved = evalNode(checker, optionsArg as ts.Expression);
+    if (!resolved || typeof resolved !== 'object' || Array.isArray(resolved)) {
+        throw new Error('HexaJS Build Error: @AllowExternal options must be a statically analyzable object literal.');
+    }
+
+    const options = resolved as { ids?: unknown; origins?: unknown };
+    const ids = normalizeStringList(options.ids, 'AllowExternal', 'ids');
+    const origins = normalizeStringList(options.origins, 'AllowExternal', 'origins');
+
+    return {
+        mode: 'allow-external',
+        ...(ids ? { ids } : {}),
+        ...(origins ? { origins } : {}),
+    };
 }
 
 export const hasLifecycleMethod = (node: ts.ClassDeclaration, methodName: 'onInit' | 'onDestroy'): boolean => {

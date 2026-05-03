@@ -10,13 +10,17 @@ This page covers the shortest path from source code to a running extension.
 
 ## Build for Chrome (development)
 
-From your project folder (after running `hexa new`):
+From your project folder (after running `hexa new` and `cd` into it), you can use either the generated script or direct CLI command.
+
+Script path:
 
 ```bash
-pnpm run dev:chrome
+npm run dev:chrome
 ```
 
-This runs:
+If you selected a different package manager in `hexa new`, use its equivalent script command (for example `pnpm dev:chrome`, `yarn dev:chrome`, or `bun run dev:chrome`).
+
+Direct CLI path:
 
 ```bash
 hexa build --platform chrome --watch
@@ -31,7 +35,7 @@ This command watches for changes and rebuilds automatically. The output appears 
 3. Click **Load unpacked**
 4. Select your project's `dist/chrome/development` folder
 5. The extension should appear in your extension list
-6. Refresh to see live changes during `dev:chrome`
+6. Refresh to see live changes during `hexa build --platform chrome --watch`
 
 ## Verify in browser tabs
 
@@ -44,10 +48,20 @@ Open at least two websites and validate:
 
 ## Production build
 
-When ready to test a production build:
+When ready to test a production build, you can use either path.
+
+Script path:
 
 ```bash
-pnpm run build:chrome
+npm run build:chrome
+```
+
+For other package managers, use the matching script command form.
+
+Direct CLI path:
+
+```bash
+hexa build --platform chrome --mode production
 ```
 
 Output path: `dist/chrome/production`
@@ -56,12 +70,24 @@ You can load this into Chrome similarly, but production builds are optimized and
 
 ## Optional multi-browser commands
 
+Script examples (generated when those platforms were selected during scaffold):
+
 ```bash
-pnpm run build:firefox
-pnpm run build:safari
-pnpm run build:edge
-pnpm run build:brave
-pnpm run build:opera
+npm run build:firefox
+npm run build:safari
+npm run build:edge
+npm run build:brave
+npm run build:opera
+```
+
+Direct CLI equivalents:
+
+```bash
+hexa build --platform firefox
+hexa build --platform safari
+hexa build --platform edge
+hexa build --platform brave
+hexa build --platform opera
 ```
 
 ## Common issues

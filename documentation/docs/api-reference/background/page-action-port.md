@@ -33,9 +33,9 @@ This port targets the legacy `page_action` MV2 API. Use [`ActionPort`](./action-
 
 ```typescript
 import { PageActionPort } from '@hexajs-dev/ports';
-import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { Injectable, HexaContext } from '@hexajs-dev/common';
 
-@Injectable({ context: InjectableContext.Background })
+@Injectable({ context: HexaContext.Background })
 export class LegacyPageActionService {
   constructor(private readonly pageAction: PageActionPort) {}
 

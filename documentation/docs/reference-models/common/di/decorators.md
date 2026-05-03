@@ -14,6 +14,16 @@ import { Injectable } from '@hexajs-dev/common';
 @Injectable(options?: InjectableOptions)
 ```
 
+#### @InjectWorker
+
+```ts
+import { InjectWorker } from '@hexajs-dev/common';
+```
+
+```typescript
+@InjectWorker()
+```
+
 
 ### Types & Interfaces
 
@@ -27,7 +37,7 @@ import { HexaTokenRef } from '@hexajs-dev/common';
 interface HexaTokenRef<T> {
     key: string;
     value: T;
-    context?: InjectableContext;
+    context?: HexaContext;
 }
 ```
 
@@ -39,21 +49,21 @@ import { InjectableOptions } from '@hexajs-dev/common';
 
 ```typescript
 interface InjectableOptions {
-    context?: InjectableContext;
+    context?: HexaContext;
 }
 ```
 
 
 ### Enums
 
-#### InjectableContext
+#### HexaContext
 
 ```ts
-import { InjectableContext } from '@hexajs-dev/common';
+import { HexaContext } from '@hexajs-dev/common';
 ```
 
 ```typescript
-enum InjectableContext {
+enum HexaContext {
     Empty = 'empty',
     Content = 'content',
     Background = 'background',
@@ -71,7 +81,7 @@ import { createToken } from '@hexajs-dev/common';
 ```
 
 ```typescript
-function createToken<T>(key: string, value: T, context?: InjectableContext): HexaTokenRef<T>
+function createToken<T>(key: string, value: T, context?: HexaContext): HexaTokenRef<T>
 ```
 
 #### Inject

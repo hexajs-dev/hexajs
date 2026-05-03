@@ -1,8 +1,8 @@
-import { Inject, Injectable, InjectableContext, HEXA_PLATFORM } from '@hexajs-dev/common';
+import { Inject, Injectable, HexaContext, HEXA_PLATFORM } from '@hexajs-dev/common';
 import { PlatformType } from '../../shared/platforms.methods';
 import { rejectUnsupportedApi, throwUnsupportedApi } from '../../shared/methods/port-errors.methods';
 
-@Injectable({ context: InjectableContext.Empty })
+@Injectable({ context: HexaContext.Empty })
 export class RuntimePort {
     constructor(@Inject(HEXA_PLATFORM) readonly platform?: string) {}
 
@@ -56,6 +56,34 @@ export class RuntimePort {
                 const wrapper = (message: any, sender: webExt.runtime.MessageSender, sendResponse: (response?: any) => void) => callback(message, sender, sendResponse);
                 chromeApi.runtime.onMessage.addListener(wrapper);
                 return () => chromeApi.runtime.onMessage.removeListener(wrapper);
+            }
+        }
+    }
+
+    onMessageExternal(callback: (message: any, sender: webExt.runtime.MessageSender, sendResponse: (response?: any) => void) => boolean | void): () => void {
+        switch (typeof __HEXA_PLATFORM__ !== 'undefined' ? __HEXA_PLATFORM__ : this.platform) {
+            case PlatformType.Firefox:
+            case PlatformType.Safari: {
+                const browserApi = (globalThis as any).browser;
+                if (!browserApi?.runtime?.onMessageExternal) {
+                    throwUnsupportedApi('RuntimePort.onMessageExternal', this.platform, 'runtime.onMessageExternal');
+                }
+                const wrapper = (message: any, sender: webExt.runtime.MessageSender, sendResponse: (response?: any) => void) => callback(message, sender, sendResponse);
+                browserApi.runtime.onMessageExternal.addListener(wrapper);
+                return () => browserApi.runtime.onMessageExternal.removeListener(wrapper);
+            }
+            case PlatformType.Chrome:
+            case PlatformType.Edge:
+            case PlatformType.Opera:
+            case PlatformType.Brave:
+            default: {
+                const chromeApi = (globalThis as any).chrome ?? (globalThis as any).browser;
+                if (!chromeApi?.runtime?.onMessageExternal) {
+                    throwUnsupportedApi('RuntimePort.onMessageExternal', this.platform, 'runtime.onMessageExternal');
+                }
+                const wrapper = (message: any, sender: webExt.runtime.MessageSender, sendResponse: (response?: any) => void) => callback(message, sender, sendResponse);
+                chromeApi.runtime.onMessageExternal.addListener(wrapper);
+                return () => chromeApi.runtime.onMessageExternal.removeListener(wrapper);
             }
         }
     }

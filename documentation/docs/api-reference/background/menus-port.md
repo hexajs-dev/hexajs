@@ -28,9 +28,9 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 
 ```typescript
 import { MenusPort } from '@hexajs-dev/ports';
-import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { Injectable, HexaContext } from '@hexajs-dev/common';
 
-@Injectable({ context: InjectableContext.Background })
+@Injectable({ context: HexaContext.Background })
 export class ContextMenuService {
   constructor(private readonly menus: MenusPort) {}
 

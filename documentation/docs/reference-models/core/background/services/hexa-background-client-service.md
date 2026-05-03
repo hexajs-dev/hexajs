@@ -36,7 +36,9 @@ sendMessage<TPayload, TResponse>(target: `${namespace}:${api}`, payload?: TPaylo
 ```
 
 **`sendToTab()`**
-> Send a message to a specific tab and await a response.
+> Send a message and await a response.
+Content → background uses runtime.sendMessage.
+Background → content requires a tabId — use BackgroundHexaClient.sendToTab().
 ```typescript
 sendToTab<TPayload, TResponse>(tabId: number, target: `${namespace}:${api}`, payload?: TPayload): Promise<TResponse>
 ```

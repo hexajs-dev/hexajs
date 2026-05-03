@@ -23,6 +23,11 @@ class TabsPort { ... }
 broadcastMessage(message: any, queryInfo?: HexaWebTabsQueryInfo): Promise<void>
 ```
 
+**`captureVisibleTab()`**
+```typescript
+captureVisibleTab(windowId?: number, options?: HexaWebCaptureVisibleTabOptions): Promise<string>
+```
+
 **`emitTabMessage()`**
 ```typescript
 emitTabMessage(tabId: number, message: any): Promise<void>

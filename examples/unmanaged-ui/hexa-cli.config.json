@@ -1,0 +1,144 @@
+{
+  "$schema": "./node_modules/@hexajs-dev/cli/schema/hexa-cli.schema.json",
+  "project": {
+    "name": "unmanaged-ui",
+    "version": "0.0.1",
+    "sourceRoot": "src"
+  },
+  "compilerOptions": {
+    "tsConfig": "tsconfig.json",
+    "assets": [
+      "src/assets/**/*"
+    ],
+    "minify": false,
+    "cssMinify": false,
+    "sourceMap": true,
+    "terserOptions": {}
+  },
+  "tokens": [
+    { "key": "APP_NAME", "value": "unmanaged-ui" }
+  ],
+  "ui": {
+    "popup": {
+      "mode": "external",
+      "distDir": "ui/popup/dist",
+      "indexFile": "index.html",
+      "icons": "src/assets/hexa-logo.svg"
+    },
+    "devtools": {
+      "mode": "none"
+    }
+  },
+  "environments": {
+    "development": {
+      "compilerOptions": {
+        "minify": false,
+        "cssMinify": false,
+        "sourceMap": true
+      },
+      "tokens": [
+        { "key": "BUILD_ENV", "value": "development" }
+      ],
+      "platforms": {
+        "chrome": {
+          "outDir": "dist/chrome",
+          "manifest": "manifest.chrome.json",
+          "tokens": [
+            { "key": "PLATFORM_GREETING", "value": "Running on Google Chrome" }
+          ]
+        },
+        "firefox": {
+          "outDir": "dist/firefox",
+          "manifest": "manifest.firefox.json",
+          "tokens": [
+            { "key": "PLATFORM_GREETING", "value": "Running on Mozilla Firefox" }
+          ]
+        },
+        "safari": {
+          "outDir": "dist/safari",
+          "manifest": "manifest.safari.json",
+          "tokens": [
+            { "key": "PLATFORM_GREETING", "value": "Running on Apple Safari" }
+          ]
+        },
+        "opera": {
+          "outDir": "dist/opera",
+          "manifest": "manifest.opera.json",
+          "tokens": [
+            { "key": "PLATFORM_GREETING", "value": "Running on Opera" }
+          ]
+        },
+        "edge": {
+          "outDir": "dist/edge",
+          "manifest": "manifest.edge.json",
+          "tokens": [
+            { "key": "PLATFORM_GREETING", "value": "Running on Microsoft Edge" }
+          ]
+        },
+        "brave": {
+          "outDir": "dist/brave",
+          "manifest": "manifest.brave.json",
+          "tokens": [
+            { "key": "PLATFORM_GREETING", "value": "Running on Brave" }
+          ]
+        }
+      }
+    },
+    "production": {
+      "compilerOptions": {
+        "minify": true,
+        "cssMinify": true,
+        "sourceMap": false
+      },
+      "tokens": [
+        { "key": "BUILD_ENV", "value": "production" }
+      ],
+      "platforms": {
+        "chrome": {
+          "outDir": "dist/chrome",
+          "manifest": "manifest.chrome.json",
+          "tokens": [
+            { "key": "PLATFORM_GREETING", "value": "Running on Google Chrome" }
+          ]
+        },
+        "firefox": {
+          "outDir": "dist/firefox",
+          "manifest": "manifest.firefox.json",
+          "tokens": [
+            { "key": "PLATFORM_GREETING", "value": "Running on Mozilla Firefox" }
+          ]
+        },
+        "safari": {
+          "outDir": "dist/safari",
+          "manifest": "manifest.safari.json",
+          "tokens": [
+            { "key": "PLATFORM_GREETING", "value": "Running on Apple Safari" }
+          ]
+        },
+        "opera": {
+          "outDir": "dist/opera",
+          "manifest": "manifest.opera.json",
+          "tokens": [
+            { "key": "PLATFORM_GREETING", "value": "Running on Opera" }
+          ]
+        },
+        "edge": {
+          "outDir": "dist/edge",
+          "manifest": "manifest.edge.json",
+          "tokens": [
+            { "key": "PLATFORM_GREETING", "value": "Running on Microsoft Edge" }
+          ]
+        },
+        "brave": {
+          "outDir": "dist/brave",
+          "manifest": "manifest.brave.json",
+          "tokens": [
+            { "key": "PLATFORM_GREETING", "value": "Running on Brave" }
+          ]
+        }
+      }
+    }
+  },
+  "defaultMode": "development",
+  "defaultPlatform": "chrome"
+}

@@ -1,10 +1,10 @@
-import { Inject, Injectable, InjectableContext, HEXA_PLATFORM } from '@hexajs-dev/common';
+import { Inject, Injectable, HexaContext, HEXA_PLATFORM } from '@hexajs-dev/common';
 import { PlatformType } from '../../shared/platforms.methods';
 import { rejectUnsupportedApi, rejectUnsupportedPlatform, throwUnsupportedApi, throwUnsupportedPlatform } from '../../shared/methods/port-errors.methods';
 
 type CookiesChangeListener = (changeInfo: HexaWebCookiesOnChangedChangeInfo) => void;
 
-@Injectable({ context: InjectableContext.Background })
+@Injectable({ context: HexaContext.Background })
 export class CookiesPort {
     constructor(@Inject(HEXA_PLATFORM) readonly platform?: string) {}
 

@@ -55,11 +55,11 @@ export class LastContentCallReducer extends HexaReducer<LastContentCallState> {
 
 ```ts
 import { State } from '@hexajs-dev/core';
-import { InjectableContext } from '@hexajs-dev/common';
+import { HexaContext } from '@hexajs-dev/common';
 import { BackgroundState, LastContentCallReducer } from './background.reducer';
 
 @State<BackgroundState>({
-  context: InjectableContext.Background,
+  context: HexaContext.Background,
   state: {
     lastContentCall: LastContentCallReducer,
   },
@@ -67,7 +67,7 @@ import { BackgroundState, LastContentCallReducer } from './background.reducer';
 export class BackgroundStateConfig {}
 ```
 
-Use `InjectableContext.Content` for content-side state configs.
+Use `HexaContext.Content` for content-side state configs.
 
 ## 3) Inject and consume the store
 

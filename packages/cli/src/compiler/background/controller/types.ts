@@ -1,4 +1,5 @@
 import { TokenDependency } from "../../di/types";
+import { RouteBoundaryPolicyMetadata } from '../../shared/boundary.types';
 
 export interface MethodMetadata {
     methodName: string;
@@ -6,6 +7,8 @@ export interface MethodMetadata {
     eventName?: string;  // For @On
     payloadDtoType?: string;
     responseDtoType?: string;
+    boundaryPolicy?: RouteBoundaryPolicyMetadata;
+    externalSubscribed?: boolean;
 }
 
 export interface ControllerMetadata {

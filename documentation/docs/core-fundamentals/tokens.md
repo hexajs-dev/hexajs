@@ -26,11 +26,11 @@ These tokens are always created by the build foundation layer:
 Use `createToken` to declare token defaults in source code.
 
 ```ts
-import { createToken, Inject, Injectable, InjectableContext } from '@hexajs-dev/common';
+import { createToken, Inject, Injectable, HexaContext } from '@hexajs-dev/common';
 
-export const API_BASE_URL = createToken('API_BASE_URL', 'https://api.example.com', InjectableContext.Background);
+export const API_BASE_URL = createToken('API_BASE_URL', 'https://api.example.com', HexaContext.Background);
 
-@Injectable({ context: InjectableContext.Background })
+@Injectable({ context: HexaContext.Background })
 export class ApiConfigService {
   constructor(@Inject(API_BASE_URL) private apiBaseUrl: string) {}
 

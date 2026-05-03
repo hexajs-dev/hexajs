@@ -15,8 +15,8 @@ HexaJS separates extension code into three isolated runtime contexts, each with 
 
 | Context | Entry Decorator | Typical Role | Can Host State |
 |---------|-----------------|--------------|----------------|
-| **Background** | `@Background()` | Owns orchestration, actions, and browser capabilities through ports | Yes (`@State` with `InjectableContext.Background`) |
-| **Content** | `@Content(...)` | Runs per matching page, reacts to background messages, can read/update DOM | Yes (`@State` with `InjectableContext.Content`) |
+| **Background** | `@Background()` | Owns orchestration, actions, and browser capabilities through ports | Yes (`@State` with `HexaContext.Background`) |
+| **Content** | `@Content(...)` | Runs per matching page, reacts to background messages, can read/update DOM | Yes (`@State` with `HexaContext.Content`) |
 | **Managed UI** | UI bootstrap generated from config | Popup/DevTools UI and user interactions | No `@State` entry today |
 
 Each context runs with its own generated bootstrap and isolated DI container. A service that is valid in one context is not automatically valid in another.

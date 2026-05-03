@@ -12,7 +12,7 @@ const shared = vi.hoisted(() => ({
   getStoreDir: vi.fn(),
   insertImport: vi.fn(),
   loadProject: vi.fn(),
-  mapInjectableContext: vi.fn(),
+  mapHexaContext: vi.fn(),
   printSchematicSuccess: vi.fn(),
   readFileIfExists: vi.fn(),
   resolveGeneratedClassName: vi.fn(),
@@ -47,7 +47,7 @@ vi.mock('../src/bin/programs/schematics/shared', () => ({
   getStoreDir: shared.getStoreDir,
   insertImport: shared.insertImport,
   loadProject: shared.loadProject,
-  mapInjectableContext: shared.mapInjectableContext,
+  mapHexaContext: shared.mapHexaContext,
   printSchematicSuccess: shared.printSchematicSuccess,
   readFileIfExists: shared.readFileIfExists,
   resolveGeneratedClassName: shared.resolveGeneratedClassName,
@@ -78,7 +78,7 @@ describe('generate command', () => {
     shared.getStoreDir.mockReturnValue(path.join('src', 'background', 'store'));
     shared.ensureContext.mockImplementation((value: string) => value);
     shared.ensureStoreContext.mockImplementation((value: string) => value);
-    shared.mapInjectableContext.mockReturnValue('InjectableContext.Background');
+    shared.mapHexaContext.mockReturnValue('HexaContext.Background');
     shared.insertImport.mockImplementation((content: string) => content);
     shared.readFileIfExists.mockResolvedValue('// reducer exists');
     shared.updateFileWithTransform.mockResolvedValue(true);
@@ -105,7 +105,7 @@ describe('generate command', () => {
     await runCli(program, ['generate', 'service', 'logger', 'background']);
 
     expect(shared.ensureContext).toHaveBeenCalledWith('background');
-    expect(serviceTemplateMock).toHaveBeenCalledWith('LoggerService', 'background', 'InjectableContext.Background');
+    expect(serviceTemplateMock).toHaveBeenCalledWith('LoggerService', 'background', 'HexaContext.Background');
     expect(shared.writeFileWithGuard).toHaveBeenCalledWith(
       expect.stringContaining(path.join('src', 'services', 'logger.service.ts')),
       '// service template',

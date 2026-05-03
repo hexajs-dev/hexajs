@@ -36,7 +36,7 @@ function getDecoratorName(decorator: ts.Decorator): string | null {
   return null;
 }
 
-function getInjectableContext(decorator: ts.Decorator): string | null {
+function getHexaContext(decorator: ts.Decorator): string | null {
   const expr = decorator.expression;
   if (!ts.isCallExpression(expr) || expr.arguments.length === 0) return null;
   const arg = expr.arguments[0];
@@ -44,7 +44,7 @@ function getInjectableContext(decorator: ts.Decorator): string | null {
   const contextProp = arg.properties.find(p => ts.isIdentifier(p.name!) && p.name.text === 'context');
   if (!contextProp || !ts.isPropertyAssignment(contextProp)) return null;
   const val = contextProp.initializer;
-  // Handles InjectableContext.Background / InjectableContext.Content / etc.
+  // Handles HexaContext.Background / HexaContext.Content / etc.
   if (ts.isPropertyAccessExpression(val)) return val.name.text.toLowerCase();
   if (ts.isStringLiteral(val)) return val.text.toLowerCase();
   return null;
@@ -62,7 +62,7 @@ function scan(): HexaMetadata {
       if (decorators) {
         const injectable = decorators.find(d => getDecoratorName(d) === 'Injectable');
         if (injectable) {
-          const context = getInjectableContext(injectable) ?? 'general';
+          const context = getHexaContext(injectable) ?? 'general';
           metadata[node.name.text] = { injectable: true, context };
         }
       }

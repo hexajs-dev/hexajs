@@ -20,7 +20,7 @@ DI is not only runtime resolution. During build, HexaJS scans decorators and val
 - UI classes can inject UI or general services.
 - Cross-context violations fail at build time.
 
-This context-awareness is extracted from `@Injectable({ context: InjectableContext.* })` and enforced before bootstrap generation.
+This context-awareness is extracted from `@Injectable({ context: HexaContext.* })` and enforced before bootstrap generation.
 
 ## Context Boundaries and Lifecycle
 
@@ -56,9 +56,9 @@ Valid service contexts are `background`, `content`, `general`, and `ui`.
 ## Declaring a service
 
 ```ts
-import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { Injectable, HexaContext } from '@hexajs-dev/common';
 
-@Injectable({ context: InjectableContext.Background })
+@Injectable({ context: HexaContext.Background })
 export class TabQueryService {
   getActiveIdFromTabs(tabs: Array<{ id?: number }>): number {
     return tabs[0]?.id ?? -1;

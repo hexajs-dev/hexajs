@@ -130,7 +130,8 @@ export async function buildAction(files: string[], resolved: ResolvedBuildConfig
         const popupMode = resolved.ui?.popup?.mode ?? 'none';
         if (!isUiWatchRebuild && popupMode !== 'none' && uiEntries.popup) {
             const popupTarget = path.join(outputDir, path.dirname(uiEntries.popup));
-            printInfoLine(`Built managed popup UI: ${relativePathFromCwd(popupTarget)}`);
+            const popupLabel = popupMode === 'managed' ? 'Built managed popup UI' : 'Copied external popup UI';
+            printInfoLine(`${popupLabel}: ${relativePathFromCwd(popupTarget)}`);
         }
 
         const devtoolsMode = resolved.ui?.devtools?.mode ?? 'none';
@@ -139,7 +140,8 @@ export async function buildAction(files: string[], resolved: ResolvedBuildConfig
         }
         if (!isUiWatchRebuild && devtoolsMode !== 'none' && uiEntries.devtools) {
             const devtoolsTarget = path.join(outputDir, path.dirname(uiEntries.devtools));
-            printInfoLine(`Built managed devtools UI: ${relativePathFromCwd(devtoolsTarget)}`);
+            const devtoolsLabel = devtoolsMode === 'managed' ? 'Built managed devtools UI' : 'Copied external devtools UI';
+            printInfoLine(`${devtoolsLabel}: ${relativePathFromCwd(devtoolsTarget)}`);
         }
     }
 

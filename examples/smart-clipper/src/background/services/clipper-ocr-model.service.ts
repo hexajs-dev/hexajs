@@ -1,4 +1,4 @@
-import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { Injectable, HexaContext } from '@hexajs-dev/common';
 import { RuntimePort, StoragePort } from '@hexajs-dev/ports';
 import { DEFAULT_OCR_LANGUAGE, areAllSelectedLanguagesBundled, OCR_MODEL_CACHE_PATH, parseOcrLanguageSelection, serializeOcrLanguageSelection } from '@contract/ocr-language';
 
@@ -17,7 +17,7 @@ export interface ResolvedOcrModel {
 	source: 'bundled' | 'remote';
 }
 
-@Injectable({ context: InjectableContext.Background })
+@Injectable({ context: HexaContext.Background })
 export class ClipperOcrModelService {
 	constructor(private readonly runtimePort: RuntimePort, private readonly storagePort: StoragePort) {}
 

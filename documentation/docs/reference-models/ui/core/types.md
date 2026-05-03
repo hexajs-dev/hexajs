@@ -6,6 +6,21 @@ description: Public API model reference for ui module packages/ui/src/core/types
 
 ### Types & Interfaces
 
+#### HexaUiCompilerOptions
+
+```ts
+import { HexaUiCompilerOptions } from '@hexajs-dev/ui';
+```
+
+```typescript
+interface HexaUiCompilerOptions {
+    minify: false | 'esbuild' | 'terser';
+    cssMinify: boolean | 'esbuild' | 'lightningcss';
+    sourceMap: boolean | 'inline' | 'hidden';
+    terserOptions: Record<string, unknown>;
+}
+```
+
 #### HexaUiConfig
 
 ```ts
@@ -31,7 +46,6 @@ interface HexaUiSurfaceConfig {
     sourceDir?: string;
     distDir?: string;
     indexFile?: string;
-    buildCommand?: string;
     viteConfig?: string;
 }
 ```

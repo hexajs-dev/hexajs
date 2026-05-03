@@ -24,7 +24,7 @@ function getDecoratorName(decorator: ts.Decorator): string | null {
   return null;
 }
 
-function getInjectableContext(decorator: ts.Decorator): string | null {
+function getHexaContext(decorator: ts.Decorator): string | null {
   const expr = decorator.expression;
   if (!ts.isCallExpression(expr) || expr.arguments.length === 0) return null;
   const arg = expr.arguments[0];
@@ -95,7 +95,7 @@ function scanMetadata(srcDir: string): HexaMetadata {
           return;
         }
 
-        const context = getInjectableContext(injectable) ?? 'general';
+        const context = getHexaContext(injectable) ?? 'general';
         metadata[node.name.text] = { injectable: true, context };
         console.log(`[hexa-metadata]   ✓ ${node.name.text} (${context})`);
       }

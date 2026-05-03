@@ -1,10 +1,10 @@
 import { State } from '@hexajs-dev/core';
-import { InjectableContext } from '@hexajs-dev/common';
+import { HexaContext } from '@hexajs-dev/common';
 import { ContentState, ContentClipsReducer, ContentConfigReducer } from './content.reducer';
 import { ContentEffects } from './content.effects';
 
 @State<ContentState>({
-  context: InjectableContext.Content,
+  context: HexaContext.Content,
   state: {
     clips: ContentClipsReducer,
     config: ContentConfigReducer,

@@ -19,7 +19,8 @@ function installDependencies(projectDir: string, packageManager: PackageManager)
     const child = spawn(install.command, install.args, {
       cwd: projectDir,
       stdio: 'inherit',
-      shell: process.platform === 'win32',
+      shell: false,
+      windowsHide: process.platform === 'win32',
     });
 
     child.on('error', (error) => {
@@ -148,7 +149,7 @@ export const newCommand = (program: Command): void => {
         const devtoolsAnswer = await Enquirer.prompt<{ managedDevtools: boolean }>({
           type: 'confirm',
           name: 'managedDevtools',
-          message: 'Add a managed React DevTools panel? (requires @vitejs/plugin-react)',
+          message: 'Add a React DevTools panel? (managed by Hexa)',
           initial: false,
         } as any);
 

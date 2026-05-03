@@ -1,8 +1,8 @@
-import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { Injectable, HexaContext } from '@hexajs-dev/common';
 import { ClipVaultConfig } from '../../contract/config';
 import { ClipItem } from '../../contract/messages';
 
-@Injectable({ context: InjectableContext.Content })
+@Injectable({ context: HexaContext.Content })
 export class ClipboardFilterService {
   filterClips(clips: ClipItem[], config: ClipVaultConfig, currentDomain: string): ClipItem[] {
     let filtered = clips;

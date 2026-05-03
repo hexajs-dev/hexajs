@@ -287,7 +287,7 @@ export class DIScanner {
 
   /**
    * Scan a top-level node for a createToken() variable declaration.
-   * Detects patterns like: const X = createToken('KEY', defaultValue, InjectableContext.Background)
+   * Detects patterns like: const X = createToken('KEY', defaultValue, HexaContext.Background)
    */
   public scanToken(node: ts.Node): TokenMetadata | null {
     if (!ts.isVariableStatement(node)) return null;
@@ -596,7 +596,7 @@ export class DIScanner {
   }
 
   /**
-   * Map InjectableContext enum values (from @hexajs-dev/core) to HexaContext (CLI internal).
+   * Map HexaContext enum values (from @hexajs-dev/core) to HexaContext (CLI internal).
    */
   private mapCoreContextToHexaContext(coreContext: string): HexaContext {
     switch (coreContext) {

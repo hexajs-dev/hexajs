@@ -10,8 +10,6 @@ export interface HexaUiSurfaceConfig {
   distDir?: string;
   /** Entry HTML file name, e.g. "index.html" */
   indexFile?: string;
-  /** Shell command to run before copying (external mode only) */
-  buildCommand?: string;
   /** Optional name to a Vite config file for this surface (only for managed mode) */
   viteConfig?: string;
 }

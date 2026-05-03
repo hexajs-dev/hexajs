@@ -60,17 +60,26 @@ Add a React popup? (managed by Hexa) (y/N)
 → Type "y" or press Enter for "Yes"
 ```
 
-**5. Add a managed React DevTools panel?**
+**5. Add a React DevTools panel?**
 ```
-Add a managed React DevTools panel? (y/N)
+Add a React DevTools panel? (managed by Hexa) (y/N)
 → Type "n" or press Enter for "No"
 ```
 
-After scaffolding completes, navigate into your project:
+**6. Select package manager**
+```
+Select package manager
+  ◉ npm
+  ○ pnpm
+  ○ yarn
+  ○ bun
+→ Choose your preferred package manager
+```
+
+After scaffolding completes, dependencies are already installed. Navigate into your project:
 
 ```bash
 cd hexa-grayscale
-pnpm install
 ```
 
 You now have:
@@ -153,11 +162,11 @@ This step is optional. Your extension already works without it.
 Create `src/content/services/logger.service.ts`:
 
 ```ts
-import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { Injectable, HexaContext } from '@hexajs-dev/common';
 
 const LOGGER_PREFIX = '[hexa-grayscale]';
 
-@Injectable({ context: InjectableContext.Content })
+@Injectable({ context: HexaContext.Content })
 export class LoggerService {
   log(message: string, data?: unknown): void {
     if (typeof data === 'undefined') {

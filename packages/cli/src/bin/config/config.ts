@@ -21,7 +21,6 @@ export interface UiSurfaceConfig {
     sourceDir?: string;
     distDir?: string;
     indexFile?: string;
-    buildCommand?: string;
     viteConfig?: string;
     icons?: string;
 }

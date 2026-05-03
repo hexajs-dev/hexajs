@@ -471,11 +471,11 @@ If a token injection bug, config typo, or prototype-pollution attack causes `pla
 **File:** `packages/core/src/content/handler/container.ts`
 
 ```typescript
-@Injectable({ context: InjectableContext.Background })   // ← should be Content
+@Injectable({ context: HexaContext.Background })   // ← should be Content
 export class HandlerContainer {
 ```
 
-The `HandlerContainer` (content-side switchboard) is annotated as `InjectableContext.Background`. This is a metadata bug that the CLI's `DIAnalyzer` context-violation checker could catch, but only if `HandlerContainer` itself is analysed as a dependency. In its current form, the wrong context label may confuse the static analyzer and suppress real cross-context violation errors.
+The `HandlerContainer` (content-side switchboard) is annotated as `HexaContext.Background`. This is a metadata bug that the CLI's `DIAnalyzer` context-violation checker could catch, but only if `HandlerContainer` itself is analysed as a dependency. In its current form, the wrong context label may confuse the static analyzer and suppress real cross-context violation errors.
 
 ---
 

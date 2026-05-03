@@ -22,13 +22,13 @@ export class ContentHandlerGenerator {
       handler.methods
         .filter(method => method.handleName)
         .forEach(method => {
-          registrations.push(`  handlerContainer.registerUnicast('${method.handleName}', ${instanceName}.${method.methodName}.bind(${instanceName}));`);
+          registrations.push(`  handlerContainer.registerUnicast('${method.handleName}', ${instanceName}.${method.methodName}.bind(${instanceName}), resolveRouteBoundaryPolicy(${handler.className}, '${method.methodName}'));`);
         });
 
       handler.methods
         .filter(method => method.eventName)
         .forEach(method => {
-          registrations.push(`  handlerContainer.registerMulticast('${method.eventName}', ${instanceName}.${method.methodName}.bind(${instanceName}));`);
+          registrations.push(`  handlerContainer.registerMulticast('${method.eventName}', ${instanceName}.${method.methodName}.bind(${instanceName}), resolveRouteBoundaryPolicy(${handler.className}, '${method.methodName}'));`);
         });
 
       if (handler.hasOnInit) {

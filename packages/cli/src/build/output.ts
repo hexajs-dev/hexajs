@@ -4,6 +4,27 @@ import { cleanIntermediateFiles } from '../bundler';
 import { BuildTarget } from './types';
 import { shouldWriteStoreForTarget } from './target-selection';
 
+function isPathWithinRoot(rootPath: string, candidatePath: string): boolean {
+    const relative = path.relative(rootPath, candidatePath);
+    return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
+}
+
+function resolveSafeCleanupPath(outputDir: string, fileName: string): string | null {
+    if (!fileName || path.isAbsolute(fileName)) {
+        return null;
+    }
+
+    const normalizedFileName = fileName.replace(/\\/g, '/');
+    const candidatePath = path.resolve(outputDir, normalizedFileName);
+    const outputRoot = path.resolve(outputDir);
+
+    if (!isPathWithinRoot(outputRoot, candidatePath)) {
+        return null;
+    }
+
+    return candidatePath;
+}
+
 function removeOutputPath(targetPath: string): void {
     if (!fs.existsSync(targetPath)) {
         return;
@@ -41,7 +62,10 @@ export function prepareOutputDirForTarget(outputDir: string, target: BuildTarget
 
     if (target === 'content') {
         loadPreviousContentScriptFiles(outputDir).forEach((fileName) => {
-            removeOutputPath(path.join(outputDir, fileName));
+            const safePath = resolveSafeCleanupPath(outputDir, fileName);
+            if (safePath) {
+                removeOutputPath(safePath);
+            }
         });
         removeOutputPath(path.join(outputDir, 'content', 'content.validators.js'));
         removeOutputPath(path.join(outputDir, 'content', 'content.store.js'));

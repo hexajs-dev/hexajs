@@ -16,6 +16,8 @@ import { HexaBootstrapPluginOptions } from '@hexajs-dev/ui';
 interface HexaBootstrapPluginOptions {
     watch?: boolean;
     hmrAddress?: string;
+    hmrSessionToken?: string;
+    surface?: 'popup' | 'devtools';
 }
 ```
 

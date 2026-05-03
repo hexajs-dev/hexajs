@@ -1,4 +1,4 @@
-import { ControllerMetadata } from '../../../compiler/background/controller/types';
+import { ControllerMetadata, MethodMetadata } from '../../../compiler/background/controller/types';
 import { buildDependencyArgs, toLowerFirst } from '../../shared';
 
 export class BackgroundControllerGenerator {
@@ -22,13 +22,15 @@ export class BackgroundControllerGenerator {
       controller.methods
         .filter(method => method.actionName)
         .forEach(method => {
-          registrations.push(`  controllerContainer.registerUnicast('${method.actionName}', ${instanceName}.${method.methodName}.bind(${instanceName}));`);
+          const routeOptions = this.buildRouteOptions(method);
+          registrations.push(`  controllerContainer.registerUnicast('${method.actionName}', ${instanceName}.${method.methodName}.bind(${instanceName}), ${routeOptions.policyLiteral}, ${routeOptions.externalSubscribedLiteral});`);
         });
 
       controller.methods
         .filter(method => method.eventName)
         .forEach(method => {
-          registrations.push(`  controllerContainer.registerMulticast('${method.eventName}', ${instanceName}.${method.methodName}.bind(${instanceName}));`);
+          const routeOptions = this.buildRouteOptions(method);
+          registrations.push(`  controllerContainer.registerMulticast('${method.eventName}', ${instanceName}.${method.methodName}.bind(${instanceName}), ${routeOptions.policyLiteral}, ${routeOptions.externalSubscribedLiteral});`);
         });
 
       if (controller.hasOnInit) {
@@ -44,5 +46,27 @@ export class BackgroundControllerGenerator {
 
     registrations.push(`  return { onInit, onDestroy };`);
     return registrations.join('\n');
+  }
+
+  private buildRouteOptions(method: MethodMetadata): { policyLiteral: string; externalSubscribedLiteral: string } {
+    const policy = method.boundaryPolicy ?? { mode: 'internal-only' as const };
+    const policyParts = [`mode: '${policy.mode}'`];
+
+    if (policy.ids && policy.ids.length > 0) {
+      policyParts.push(`ids: ${JSON.stringify(policy.ids)}`);
+    }
+
+    if (policy.origins && policy.origins.length > 0) {
+      policyParts.push(`origins: ${JSON.stringify(policy.origins)}`);
+    }
+
+    const externalSubscribed = typeof method.externalSubscribed === 'boolean'
+      ? method.externalSubscribed
+      : policy.mode === 'allow-external';
+
+    return {
+      policyLiteral: `{ ${policyParts.join(', ')} }`,
+      externalSubscribedLiteral: externalSubscribed ? 'true' : 'false'
+    };
   }
 }

@@ -31,9 +31,9 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 
 ```typescript
 import { CookiesPort } from '@hexajs-dev/ports';
-import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { Injectable, HexaContext } from '@hexajs-dev/common';
 
-@Injectable({ context: InjectableContext.Background })
+@Injectable({ context: HexaContext.Background })
 export class SessionCookieService {
   constructor(private readonly cookies: CookiesPort) {}
 
@@ -61,9 +61,9 @@ Below is the exhaustive, auto-generated technical reference for all types, inter
 
 ```ts
 import { CookiesPort } from '@hexajs-dev/ports';
-import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { Injectable, HexaContext } from '@hexajs-dev/common';
 
-@Injectable({ context: InjectableContext.Background })
+@Injectable({ context: HexaContext.Background })
 export class ExampleService {
   constructor(private readonly port: CookiesPort) {}
 }
