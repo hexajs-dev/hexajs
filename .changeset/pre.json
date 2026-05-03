@@ -9,7 +9,12 @@
     "@hexajs-dev/common": "0.9.2",
     "@hexajs-dev/core": "0.9.2",
     "@hexajs-dev/ports": "0.9.2",
-    "@hexajs-dev/ui": "0.9.2"
+    "@hexajs-dev/ui": "0.9.2",
+    "unmanaged-ui": "0.0.1"
   },
-  "changesets": []
+  "changesets": [
+    "cuddly-parks-scream",
+    "funny-name-heal",
+    "lovely-needles-scream"
+  ]
 }

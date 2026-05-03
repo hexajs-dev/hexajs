@@ -1,5 +1,13 @@
 # @hexajs-dev/common
 
+## 0.9.3-alpha.2
+
+### Patch Changes
+
+- 7b368fd: trigger release
+- license
+- Support external messages and hardening communication
+
 ## 0.9.3-alpha.1
 
 ### Patch Changes
