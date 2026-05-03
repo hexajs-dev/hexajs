@@ -37,6 +37,17 @@ describe('copyExternalPopup edge cases', () => {
     expect(() => copyExternalPopup({ mode: 'external', distDir: 'popup-dist', indexFile: outsideIndex }, outputDir)).toThrow('indexFile must stay inside distDir');
   });
 
+  it('rejects backslash traversal segments that escape distDir', () => {
+    const distDir = path.join(tempRoot, 'popup-dist');
+    const outsideDir = path.join(tempRoot, 'outside');
+    fs.mkdirSync(distDir, { recursive: true });
+    fs.mkdirSync(outsideDir, { recursive: true });
+    fs.writeFileSync(path.join(distDir, 'index.html'), '<html></html>', 'utf-8');
+    fs.writeFileSync(path.join(outsideDir, 'index.html'), '<html>outside</html>', 'utf-8');
+
+    expect(() => copyExternalPopup({ mode: 'external', distDir: 'popup-dist', indexFile: '..\\outside\\index.html' }, outputDir)).toThrow('indexFile must stay inside distDir');
+  });
+
   it('rejects index files whose real path resolves outside distDir', () => {
     const distDir = path.join(tempRoot, 'popup-dist');
     const outsideDir = path.join(tempRoot, 'outside-popup-dir');
