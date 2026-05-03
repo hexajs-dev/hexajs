@@ -39,7 +39,8 @@ export function copyExternalPopup(config: HexaUiSurfaceConfig, outputDir: string
     throw new Error(`UI popup distDir does not exist or is not a directory: ${sourceDistReal}`);
   }
 
-  const sourceIndex = path.resolve(sourceDistReal, config.indexFile);
+  const normalizedIndexFile = config.indexFile.replace(/\\+/g, '/');
+  const sourceIndex = path.resolve(sourceDistReal, normalizedIndexFile);
   if (!isPathWithinRoot(sourceDistReal, sourceIndex)) {
     throw new Error(`UI popup indexFile must stay inside distDir: ${config.indexFile}`);
   }
@@ -58,7 +59,7 @@ export function copyExternalPopup(config: HexaUiSurfaceConfig, outputDir: string
   fs.cpSync(sourceDistReal, targetBase, { recursive: true, force: true });
 
   const manifestEntry = normalizeManifestPath(
-    path.posix.join('ui', 'popup', config.indexFile.replace(/\\/g, '/'))
+    path.posix.join('ui', 'popup', normalizedIndexFile)
   );
   console.log(`✓ popup UI copied: ${sourceDistReal} → ${targetBase}`);
   return manifestEntry;

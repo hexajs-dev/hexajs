@@ -1,9 +1,9 @@
-import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { Injectable, HexaContext } from '@hexajs-dev/common';
 import { StoragePort } from '@hexajs-dev/ports';
 import { CLIPS_STORAGE_KEY } from '../../contract/config';
 import { ClipItem } from '../../contract/messages';
 
-@Injectable({ context: InjectableContext.Background })
+@Injectable({ context: HexaContext.Background })
 export class ClipboardManagerService {
   constructor(private readonly storagePort: StoragePort) {}
 

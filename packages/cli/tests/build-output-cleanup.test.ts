@@ -55,6 +55,32 @@ describe('prepareOutputDirForTarget', () => {
     expect(fs.existsSync(path.join(tempDir, 'manifest.json'))).toBe(true);
   });
 
+  it('ignores manifest content script paths that escape output directory', () => {
+    const outsideFile = path.join(path.dirname(tempDir), `outside-${path.basename(tempDir)}.js`);
+    fs.writeFileSync(outsideFile, 'outside', 'utf-8');
+
+    try {
+      fs.writeFileSync(path.join(tempDir, 'manifest.json'), JSON.stringify({
+        content_scripts: [
+          { js: [`../${path.basename(outsideFile)}`] },
+          { js: [outsideFile] },
+        ],
+      }), 'utf-8');
+
+      fs.mkdirSync(path.join(tempDir, 'content'), { recursive: true });
+      fs.writeFileSync(path.join(tempDir, 'content', 'content.validators.js'), 'validators', 'utf-8');
+      fs.writeFileSync(path.join(tempDir, 'content', 'content.store.js'), 'store', 'utf-8');
+
+      prepareOutputDirForTarget(tempDir, 'content');
+
+      expect(fs.existsSync(outsideFile)).toBe(true);
+    } finally {
+      if (fs.existsSync(outsideFile)) {
+        fs.rmSync(outsideFile, { force: true });
+      }
+    }
+  });
+
   it('removes only previous background outputs during background rebuilds', () => {
     fs.mkdirSync(path.join(tempDir, 'background'), { recursive: true });
     fs.writeFileSync(path.join(tempDir, 'background', 'background.bootstrap.js'), 'background', 'utf-8');

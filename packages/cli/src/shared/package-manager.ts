@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 
 export const ALL_PACKAGE_MANAGERS = ['npm', 'pnpm', 'yarn', 'bun'] as const;
 export type PackageManager = (typeof ALL_PACKAGE_MANAGERS)[number];
@@ -15,11 +15,22 @@ function isPackageManager(value: string): value is PackageManager {
     return (ALL_PACKAGE_MANAGERS as readonly string[]).includes(value);
 }
 
+function getWindowsCommandArgs(commandText: string): string[] {
+    return ['/d', '/s', '/c', commandText];
+}
+
 function runVersionCommand(pm: PackageManager): string {
-    return execSync(`${pm} --version`, {
+    if (process.platform === 'win32') {
+        return execFileSync('cmd.exe', getWindowsCommandArgs(`${pm} --version`), {
+            encoding: 'utf-8',
+            stdio: 'pipe',
+            windowsHide: true,
+        }).trim();
+    }
+
+    return execFileSync(pm, ['--version'], {
         encoding: 'utf-8',
         stdio: 'pipe',
-        shell: process.env.ComSpec ?? (process.platform === 'win32' ? 'cmd.exe' : '/bin/sh'),
     }).trim();
 }
 
@@ -44,6 +55,14 @@ export function getPackageManagerVersion(pm: PackageManager): string {
 }
 
 export function getInstallCommand(pm: PackageManager): CommandParts {
+    if (process.platform === 'win32') {
+        return {
+            command: 'cmd.exe',
+            args: getWindowsCommandArgs(`${pm} install`),
+            display: `${pm} install`,
+        };
+    }
+
     return {
         command: pm,
         args: ['install'],

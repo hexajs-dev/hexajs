@@ -1,4 +1,4 @@
-import { Inject, Injectable, InjectableContext, HEXA_PLATFORM } from '@hexajs-dev/common';
+import { Inject, Injectable, HexaContext, HEXA_PLATFORM } from '@hexajs-dev/common';
 import { PlatformType } from '../../shared/platforms.methods';
 import { throwUnsupportedApi } from '../../shared/methods/port-errors.methods';
 
@@ -10,7 +10,7 @@ export interface ScriptingExecuteOptions {
   files: string[];
 }
 
-@Injectable({ context: InjectableContext.Background })
+@Injectable({ context: HexaContext.Background })
 export class ScriptingPort {
   constructor(@Inject(HEXA_PLATFORM) readonly platform?: string) {}
 

@@ -34,9 +34,9 @@ registerMulticast(name: string, handler: BackgroundHandlerFn): (name: string, ha
 registerUnicast(name: string, handler: BackgroundHandlerFn): (name: string, handler: BackgroundHandlerFn) => void
 ```
 
-**`setPipedClient()`**
+**`setPipeRunner()`**
 ```typescript
-setPipedClient(client: HexaClientBase): (client: HexaClientBase) => void
+setPipeRunner(runner: HexaPipeRunner): (runner: HexaPipeRunner) => void
 ```
 
 

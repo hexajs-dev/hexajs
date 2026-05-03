@@ -1,4 +1,4 @@
-import { InjectableContext } from '@hexajs-dev/common';
+import { HexaContext } from '@hexajs-dev/common';
 import { HexaReducer } from "./reducer.abstract";
 
 export function Reducer(): ClassDecorator {
@@ -18,7 +18,7 @@ export function Reduce<P>(type: string): MethodDecorator {
     };
 }
 
-export function State<T>(options: { context: InjectableContext, 
+export function State<T>(options: { context: HexaContext, 
     state: { [K in keyof T]: new () => HexaReducer<T[K]> },
     effects?: Array<new (...args: any[]) => any> }): ClassDecorator {
     return (target: any) => {

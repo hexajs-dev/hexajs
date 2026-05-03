@@ -62,9 +62,9 @@ const platform = inject(HEXA_PLATFORM);
 For constructor-based DI, token values use `@Inject(...)`:
 
 ```ts
-import { Inject, Injectable, InjectableContext, HEXA_PLATFORM } from '@hexajs-dev/common';
+import { Inject, Injectable, HexaContext, HEXA_PLATFORM } from '@hexajs-dev/common';
 
-@Injectable({ context: InjectableContext.UI })
+@Injectable({ context: HexaContext.UI })
 export class PlatformTokenExample {
   constructor(@Inject(HEXA_PLATFORM) readonly platform: string) {}
 }

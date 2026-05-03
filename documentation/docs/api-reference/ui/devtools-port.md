@@ -27,9 +27,9 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 
 ```typescript
 import { DevtoolsPort } from '@hexajs-dev/ports';
-import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { Injectable, HexaContext } from '@hexajs-dev/common';
 
-@Injectable({ context: InjectableContext.UI })
+@Injectable({ context: HexaContext.UI })
 export class DevtoolsPanelService {
   constructor(private readonly devtools: DevtoolsPort) {}
 

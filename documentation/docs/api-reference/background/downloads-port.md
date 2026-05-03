@@ -30,9 +30,9 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 
 ```typescript
 import { DownloadsPort } from '@hexajs-dev/ports';
-import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { Injectable, HexaContext } from '@hexajs-dev/common';
 
-@Injectable({ context: InjectableContext.Background })
+@Injectable({ context: HexaContext.Background })
 export class ReportExportService {
   constructor(private readonly downloads: DownloadsPort) {}
 

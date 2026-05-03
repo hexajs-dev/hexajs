@@ -1,6 +1,6 @@
 import { brandToken, getInjectMetadata, isBrandedToken, setInjectMetadata, setInjectableMetadata } from './metadata';
 
-export enum InjectableContext {
+export enum HexaContext {
   Empty = 'empty',
   Content = 'content',
   Background = 'background',
@@ -8,7 +8,7 @@ export enum InjectableContext {
 }
 
 export interface InjectableOptions {
-  context?: InjectableContext;
+  context?: HexaContext;
 }
 
 // At runtime, this decorator is just a "noop" or stores metadata 
@@ -23,10 +23,10 @@ export function Injectable(options: InjectableOptions = {}): ClassDecorator {
 export interface HexaTokenRef<T> {
   key: string;
   value: T;
-  context?: InjectableContext;
+  context?: HexaContext;
 }
 
-export const createToken = <T>(key: string, value: T, context?: InjectableContext): HexaTokenRef<T> => 
+export const createToken = <T>(key: string, value: T, context?: HexaContext): HexaTokenRef<T> => 
     brandToken({ key, value, context } as HexaTokenRef<T>);
 
 export function Inject(token: string | HexaTokenRef<any>): ParameterDecorator {

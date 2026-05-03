@@ -54,6 +54,7 @@ declare global {
 	interface HexaWebMessageSender {
 		tab?: HexaWebTab;
 		id?: string;
+		origin?: string;
 		url?: string;
 		frameId?: number;
 	}
@@ -159,6 +160,10 @@ declare global {
 			function connect(connectInfo?: { name?: string }): HexaWebPort;
 			function connect(extensionId: string, connectInfo?: { name?: string }): HexaWebPort;
 			const onMessage: {
+				addListener(callback: (message: any, sender: HexaWebMessageSender, sendResponse: (response?: any) => void) => void | boolean): void;
+				removeListener(callback: (...args: any[]) => void): void;
+			};
+			const onMessageExternal: {
 				addListener(callback: (message: any, sender: HexaWebMessageSender, sendResponse: (response?: any) => void) => void | boolean): void;
 				removeListener(callback: (...args: any[]) => void): void;
 			};

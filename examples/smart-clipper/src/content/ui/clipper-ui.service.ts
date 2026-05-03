@@ -1,4 +1,4 @@
-import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { Injectable, HexaContext } from '@hexajs-dev/common';
 import { InjectView } from '@hexajs-dev/core';
 import { ClipperPoint, ClipperRect, ClippingCancelledMessage, ClippingCompleteMessage, PopupStartClippingMessage, StartClippingAckMessage } from '@contract/messages/messages';
 import { ClipperOverlayView } from './clipper-overlay/clipper-overlay.view';
@@ -9,7 +9,7 @@ interface ClipperUiBridge {
     onCancelled: (payload: ClippingCancelledMessage) => void;
 }
 
-@Injectable({ context: InjectableContext.Content })
+@Injectable({ context: HexaContext.Content })
 export class ClipperUiService {
     private mode: 'idle' | 'armed' | 'dragging' = 'idle';
     private startPoint: ClipperPoint | null = null;

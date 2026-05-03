@@ -1,8 +1,8 @@
-import { Inject, Injectable, InjectableContext, HEXA_PLATFORM } from '@hexajs-dev/common';
+import { Inject, Injectable, HexaContext, HEXA_PLATFORM } from '@hexajs-dev/common';
 import { PlatformType } from '../../shared/platforms.methods';
 import { rejectUnsupportedApi, throwUnsupportedApi } from '../../shared/methods/port-errors.methods';
 
-@Injectable({ context: InjectableContext.Background })
+@Injectable({ context: HexaContext.Background })
 export class ActionPort {
     constructor(@Inject(HEXA_PLATFORM) readonly platform?: string) {}
 

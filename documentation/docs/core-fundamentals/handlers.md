@@ -25,6 +25,60 @@ hexa add handler TabsHandler MyContentEntry
 
 `@Handle` must be unique by full route key. You cannot declare two handles that resolve to the same `namespace:handle` path anywhere in the content context.
 
+`Contents: [MyContentEntry]` binds the handler to specific content entry classes. This is different from background context: background runs as a single script, while content can have multiple entries/scripts. Because of that, content handlers should declare `Contents` so routing and bundling stay scoped to the right content script(s).
+
+## Boundary policy decorators
+
+Handlers follow the same route boundary model as controllers:
+
+- Default: internal-only.
+- `@AllowExternal(...)` opts a class or method into external callers.
+- `@InternalOnly()` can re-lock a method on an externally allowed class.
+
+```ts
+import { AllowExternal, InternalOnly } from '@hexajs-dev/common';
+import { Handle, Handler } from '@hexajs-dev/core';
+
+@AllowExternal({ ids: ['trusted.extension.id'] })
+@Handler({ namespace: 'sync', Contents: [MyContentEntry] })
+export class SyncHandler {
+  @Handle('public')
+  onPublic(payload: unknown): { ok: true } {
+    return { ok: true };
+  }
+
+  @InternalOnly()
+  @Handle('private')
+  onPrivate(payload: unknown): { ok: true } {
+    return { ok: true };
+  }
+}
+```
+
+Method-level `@AllowExternal()` is also supported for handlers:
+
+```ts
+import { AllowExternal, InternalOnly } from '@hexajs-dev/common';
+import { Handle, Handler } from '@hexajs-dev/core';
+
+@InternalOnly()
+@Handler({ namespace: 'sync', Contents: [MyContentEntry] })
+export class SyncHandler {
+  @Handle('private')
+  onPrivate(payload: unknown): { ok: true } {
+    return { ok: true };
+  }
+
+  @AllowExternal()
+  @Handle('admin')
+  onAdmin(payload: unknown): { ok: true } {
+    return { ok: true };
+  }
+}
+```
+
+Important limitation: `runtime.onMessageExternal` is not available in content scripts. External callers should target background first, then background can relay to content routes when needed.
+
 ## Handler Example
 
 ```ts

@@ -1,4 +1,4 @@
-import { Injectable, InjectableContext, InjectWorker } from '@hexajs-dev/common';
+import { Injectable, HexaContext, InjectWorker } from '@hexajs-dev/common';
 import { withWorkerEvents, WorkerCallEvent } from '@hexajs-dev/core';
 import { OcrWorker } from '../workers/ocr.worker';
 import { ClipperOcrModelService } from './clipper-ocr-model.service';
@@ -13,7 +13,7 @@ export interface OcrResult {
 	confidence: number;
 }
 
-@Injectable({ context: InjectableContext.Background })
+@Injectable({ context: HexaContext.Background })
 export class ClipperOcrService {
 	@InjectWorker() private ocrWorker!: OcrWorker;
 

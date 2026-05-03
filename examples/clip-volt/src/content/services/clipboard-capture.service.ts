@@ -1,8 +1,8 @@
-import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { Injectable, HexaContext } from '@hexajs-dev/common';
 import { SENSITIVE_PATTERNS } from '../../contract/config';
 import { ClipItem } from '../../contract/messages';
 
-@Injectable({ context: InjectableContext.Content })
+@Injectable({ context: HexaContext.Content })
 export class ClipboardCaptureService {
   captureFromCopyEvent(event: ClipboardEvent): ClipItem | null {
     const text = this.extractText(event);

@@ -264,7 +264,7 @@ export class ContentGenerator {
    */
   private generateImports(services: ServiceMetadata[], contentEntries: ContentEntryMetadata[], handlers: HandlerMetadata[], requiredPorts: string[], contentStore?: StoreScriptOutput, views: ViewMetadata[] = []): string {
     const imports: string[] = [
-      `import { Container, setContainer, HEXA_PLATFORM } from '@hexajs-dev/common';`,
+      `import { Container, setContainer, HEXA_PLATFORM, resolveRouteBoundaryPolicy } from '@hexajs-dev/common';`,
       `import { HandlerContainer, HexaContentClient, HexaPipeRunner } from '@hexajs-dev/core';`,
       `import { createAotOutboundValidationPipe, createAotValidationPipe } from './content.validators';`
     ];

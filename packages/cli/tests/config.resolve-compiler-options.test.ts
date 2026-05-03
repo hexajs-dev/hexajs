@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import * as path from 'path';
 import { HexaConfig } from '../src/bin/config/config';
 import { resolveConfig } from '../src/bin/config/resolve';
 
@@ -154,5 +155,50 @@ describe('resolveConfig compiler options', () => {
 
     const resolved = resolveConfig(config, 'chrome', 'production');
     expect(resolved.ui.parallelBuild).toBe(true);
+  });
+
+  it('rejects traversal outDir values that escape the project root', () => {
+    const config = createConfig({
+      environments: {
+        production: {
+          compilerOptions: {
+            minify: true,
+            cssMinify: true,
+            sourceMap: false,
+          },
+          platforms: {
+            chrome: {
+              outDir: '../outside',
+              manifest: 'manifest.chrome.json',
+            },
+          },
+        },
+      },
+    });
+
+    expect(() => resolveConfig(config, 'chrome', 'production')).toThrow(/must stay within the project root/i);
+  });
+
+  it('rejects absolute outDir values outside the project root', () => {
+    const outsideAbsolute = path.resolve(process.cwd(), '..', 'outside-absolute');
+    const config = createConfig({
+      environments: {
+        production: {
+          compilerOptions: {
+            minify: true,
+            cssMinify: true,
+            sourceMap: false,
+          },
+          platforms: {
+            chrome: {
+              outDir: outsideAbsolute,
+              manifest: 'manifest.chrome.json',
+            },
+          },
+        },
+      },
+    });
+
+    expect(() => resolveConfig(config, 'chrome', 'production')).toThrow(/must stay within the project root/i);
   });
 });

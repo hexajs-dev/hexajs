@@ -1,6 +1,7 @@
 import ts from "typescript";
 import { ControllerMetadata, MethodMetadata } from "./types";
-import { evalNode, findDecorator, getDecoratorArgument, hasLifecycleMethod } from "../../shared/props.methods";
+import { evalNode, findDecorator, getBoundaryPolicyFromDecorators, getDecoratorArgument, hasLifecycleMethod } from "../../shared/props.methods";
+import { RouteBoundaryPolicyMetadata } from '../../shared/boundary.types';
 
 
 export class ControllerScanner {
@@ -20,6 +21,7 @@ export class ControllerScanner {
         if (!controllerOptions) return null;
         if (!node.name) return null;
         const { namespace } = controllerOptions;
+        const classBoundaryPolicy = getBoundaryPolicyFromDecorators(node, this.checker, ['@hexajs-dev/common']);
         const methods: MethodMetadata[] = [];
 
         // 2. Iterate over class members
@@ -32,20 +34,26 @@ export class ControllerScanner {
                 if (actionName) {
                     const payloadDtoType = this.getFirstPayloadDtoType(member);
                     const responseDtoType = this.getResponseDtoType(member);
+                    const resolvedBoundaryPolicy = this.resolveMethodBoundaryPolicy(member, classBoundaryPolicy);
                     methods.push({
                         methodName,
                         actionName: `${namespace}:${actionName}`, // Combine for unique key
-                        payloadDtoType, 
-                        responseDtoType
+                        payloadDtoType,
+                        responseDtoType,
+                        boundaryPolicy: resolvedBoundaryPolicy,
+                        externalSubscribed: resolvedBoundaryPolicy.mode === 'allow-external'
                     });
                 }
 
                 // Check for @On
                 const eventName = getDecoratorArgument(member, 'On', this.checker, ['@hexajs-dev/core']);
                 if (eventName) {
+                    const resolvedBoundaryPolicy = this.resolveMethodBoundaryPolicy(member, classBoundaryPolicy);
                     methods.push({
                         methodName,
-                        eventName: `${namespace}:${eventName}`
+                        eventName: `${namespace}:${eventName}`,
+                        boundaryPolicy: resolvedBoundaryPolicy,
+                        externalSubscribed: resolvedBoundaryPolicy.mode === 'allow-external'
                     });
                 }
             }
@@ -126,6 +134,20 @@ export class ControllerScanner {
         }
 
         return undefined;
+    }
+
+    private resolveMethodBoundaryPolicy(member: ts.MethodDeclaration, classBoundaryPolicy: RouteBoundaryPolicyMetadata | null): RouteBoundaryPolicyMetadata {
+        const methodBoundaryPolicy = getBoundaryPolicyFromDecorators(member, this.checker, ['@hexajs-dev/common']);
+
+        if (methodBoundaryPolicy) {
+            return methodBoundaryPolicy;
+        }
+
+        if (classBoundaryPolicy) {
+            return classBoundaryPolicy;
+        }
+
+        return { mode: 'internal-only' };
     }
 
 

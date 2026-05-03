@@ -1,17 +1,18 @@
 ---
 title: Designing Popup
 sidebar_position: 3
-description: Build a simple managed popup that mirrors the grayscale feature visually without controlling page state.
+description: Build a managed popup that demonstrates HexaJS UI-context DI with token and service injection.
 ---
 
 # Designing Popup
 
-In this tutorial, the popup is intentionally visual-only.
+In this step, build a popup that stays lightweight but clearly shows HexaJS UI dependency injection in action.
 
-That gives you a clean first extension architecture:
+## What we want from this popup
 
-- Content owns the feature behavior.
-- Popup demonstrates UI composition without controlling page state.
+- Keep feature behavior in content/background.
+- Use popup as a UI surface that reads DI-provided context values.
+- Demonstrate token + service injection in the UI context.
 
 ## Keep popup managed
 
@@ -29,30 +30,77 @@ Your `hexa-cli.config.json` should include:
 }
 ```
 
-## Minimal popup component
+## Add a popup UI service (DI)
 
-The popup is visual-only and displays a simple header and message:
+Create `ui/popup/src/services/popup-context.service.ts`:
+
+```ts
+import { Inject, Injectable, HexaContext, createToken, HEXA_BUILD_MODE, HEXA_PLATFORM } from '@hexajs-dev/common';
+import { RuntimePort } from '@hexajs-dev/ports';
+
+export const POPUP_TITLE = createToken('POPUP_TITLE', 'Hexa Grayscale', HexaContext.UI);
+
+export interface PopupContextViewModel {
+  title: string;
+  platform: string;
+  mode: string;
+  runtimeRoot: string;
+}
+
+@Injectable({ context: HexaContext.UI })
+export class PopupContextService {
+  constructor(@Inject(POPUP_TITLE) private readonly title: string,
+    @Inject(HEXA_PLATFORM) private readonly platform: string,
+    @Inject(HEXA_BUILD_MODE) private readonly mode: string,
+    private readonly runtimePort: RuntimePort) {}
+
+  getViewModel(): PopupContextViewModel {
+    return {
+      title: this.title,
+      platform: this.platform,
+      mode: this.mode,
+      runtimeRoot: this.runtimePort.getURL(''),
+    };
+  }
+}
+```
+
+## Use DI service in App
+
+Update `ui/popup/src/App.tsx`:
 
 ```tsx
-import { useState } from 'react';
+import { inject } from '@hexajs-dev/common';
+import { PopupContextService } from './services/popup-context.service';
 
 export function App() {
-  const [enabled, setEnabled] = useState(false);
+  const popupContext = inject(PopupContextService);
+  const vm = popupContext.getViewModel();
 
   return (
     <div className='popup-root'>
       <header className='popup-header'>
-        <p className='popup-kicker'>Hexa Grayscale</p>
-        <h1>HexaJS Framework</h1>
-        <p className='popup-subtitle'>Toggle from the page eye icon</p>
+        <p className='popup-kicker'>HexaJS Managed Popup</p>
+        <h1>{vm.title}</h1>
+        <p className='popup-subtitle'>UI context is active with DI</p>
       </header>
 
       <main className='popup-content'>
-        <div className='eye-preview'>
-          <div>
-            <p className='eye-preview__text'>This popup is visual only. Use the floating eye icon on each page.</p>
-          </div>
+        <div className='popup-card'>
+          <span>Platform</span>
+          <strong>{vm.platform}</strong>
         </div>
+        <div className='popup-card'>
+          <span>Mode</span>
+          <strong>{vm.mode}</strong>
+        </div>
+        <div className='popup-card'>
+          <span>Runtime root</span>
+          <strong className='mono'>{vm.runtimeRoot}</strong>
+        </div>
+        <p className='popup-note'>
+          This popup does not own feature state. It renders DI-driven context and can later call background actions with HexaUIClient.
+        </p>
       </main>
     </div>
   );
@@ -61,7 +109,7 @@ export function App() {
 
 ## Popup styling
 
-Create `ui/popup/src/style.css` with the following styles:
+Create `ui/popup/src/style.css`:
 
 ```css
 * {
@@ -72,94 +120,122 @@ html,
 body,
 #root {
   margin: 0;
-  padding: 0;
+  width: 320px;
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, sans-serif;
-  background: #f4f4f5;
-  color: #111827;
+  font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+  background: radial-gradient(circle at 20% 20%, #e0f2fe 0%, #f8fafc 50%, #eef2ff 100%);
+  color: #0f172a;
 }
 
 .popup-root {
   width: 320px;
-  background: #f9fafb;
+  min-height: 420px;
+  border: 1px solid #dbe4ff;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
 }
 
 .popup-header {
-  background: linear-gradient(160deg, #18181b 0%, #3f3f46 100%);
-  color: #ffffff;
-  padding: 18px 16px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 65%, #0ea5e9 100%);
+  color: #f8fafc;
+  padding: 18px 16px 16px;
 }
 
 .popup-kicker {
   margin: 0;
   font-size: 11px;
-  opacity: 0.72;
-  letter-spacing: 0.7px;
+  opacity: 0.82;
+  letter-spacing: 0.75px;
   text-transform: uppercase;
 }
 
 .popup-header h1 {
-  margin: 6px 0 2px;
-  font-size: 20px;
-  line-height: 1.2;
+  margin: 8px 0 4px;
+  font-size: 22px;
+  line-height: 1.15;
 }
 
 .popup-subtitle {
   margin: 0;
   font-size: 12.5px;
-  opacity: 0.82;
+  opacity: 0.88;
 }
 
 .popup-content {
   padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  gap: 10px;
 }
 
-.eye-preview {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-  border: 1px solid #e5e7eb;
+.popup-card {
+  border: 1px solid #dbe4ff;
   border-radius: 12px;
   background: #ffffff;
-  padding: 12px;
+  padding: 12px 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
 }
 
-.eye-preview__text {
+.popup-card span {
   margin: 0;
   font-size: 12px;
-  line-height: 1.45;
-  color: #4b5563;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.55px;
+}
+
+.popup-card strong {
+  font-size: 12px;
+  color: #0f172a;
+}
+
+.mono {
+  font-family: 'IBM Plex Mono', Consolas, monospace;
+  max-width: 150px;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.popup-note {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #334155;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 10px 12px;
 }
 ```
 
-Key styling features:
+## Optional: override popup token from config
 
-- **Popup width**: `320px` — compact popup size
-- **Header gradient**: Dark gradient (`#18181b` to `#3f3f46`) for visual hierarchy
-- **Content area**: Light background (`#f9fafb`) with padding
-- **Card styling**: White bordered card with rounded corners for the preview section
-- **Typography**: System fonts with carefully tuned sizes for readability
+You can override `POPUP_TITLE` in `hexa-cli.config.json`:
 
-## Why popup is visual-only
+```json
+{
+  "environments": {
+    "development": {
+      "tokens": [
+        { "key": "POPUP_TITLE", "value": "Hexa Grayscale (Dev)", "context": "ui" }
+      ]
+    }
+  }
+}
+```
 
-For this minimal extension, the popup serves as a simple UI shell:
+This lets you change popup labels per mode/platform without hardcoding values in UI components.
 
-- All feature logic lives in content (per-tab control).
-- Popup provides branding and instructions.
-- No cross-context messaging complexity.
+## Why this popup design works
 
-When you are ready to add persistence or background coordination, you can add `HexaUIClient` messaging and move state into background.
+- It proves DI is available in managed popup UI.
+- It keeps business logic outside the popup.
+- It gives you a clean base for adding typed UI-to-background messaging next.
 
-## Design guidance
-
-For this specific example:
-
-- Use a clean header with project branding.
-- Include a single, clear message about how to use the extension.
-- Avoid state toggles or complex interactions in the popup.
-- Let the content-side eye icon be the primary interaction point.
+When you are ready, inject `HexaUIClient` in the same service layer and call background actions without changing your component DI pattern.

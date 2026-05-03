@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { execSync } from 'child_process';
 import { createRequire } from 'module';
 import { ResolvedBuildConfig } from '../bin/config/resolve';
 import { UiSurfaceConfig } from '../bin/config/config';
@@ -33,15 +32,6 @@ function resolveForComparison(filePath: string): string {
 function isPathWithinRoot(rootPath: string, candidatePath: string): boolean {
     const relative = path.relative(rootPath, candidatePath);
     return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
-}
-
-function runUiBuildCommand(surface: 'popup' | 'devtools', command: string): void {
-    console.log(`→ Running ${surface} build command: ${command}`);
-    execSync(command, {
-        cwd: process.cwd(),
-        stdio: 'inherit',
-        shell: process.env.ComSpec ?? (process.platform === 'win32' ? 'cmd.exe' : '/bin/sh'),
-    });
 }
 
 function copyExternalSurface(surface: 'popup' | 'devtools', config: UiSurfaceConfig, outputDir: string): string {
@@ -133,7 +123,6 @@ export async function buildUiEntries(resolved: ResolvedBuildConfig, outputDir: s
         const { buildManagedPopup } = hexaUi!;
         entries.popup = await buildManagedPopup(popupConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken);
     } else if (popupMode === 'external') {
-        if (popupConfig?.buildCommand) runUiBuildCommand('popup', popupConfig.buildCommand);
         entries.popup = copyExternalSurface('popup', popupConfig!, outputDir);
     }
 
@@ -141,7 +130,6 @@ export async function buildUiEntries(resolved: ResolvedBuildConfig, outputDir: s
         const { buildManagedDevtools } = hexaUi!;
         entries.devtools = await buildManagedDevtools(devtoolsConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken);
     } else if (devtoolsMode === 'external') {
-        if (devtoolsConfig?.buildCommand) runUiBuildCommand('devtools', devtoolsConfig.buildCommand);
         entries.devtools = copyExternalSurface('devtools', devtoolsConfig!, outputDir);
     }
 

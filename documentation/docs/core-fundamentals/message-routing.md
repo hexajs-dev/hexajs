@@ -14,6 +14,71 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 
 Messages travel between isolated contexts (UI, content, background) using **typed routes** in the form `namespace:action`. Controllers define the routes; clients send the messages.
 
+## Security boundary defaults
+
+Routes are **internal-only by default**.
+
+- Internal sender calls continue to work without extra configuration.
+- Background external listeners are resolved at CLI build time.
+- External callers must be explicitly allowed with `@AllowExternal()`.
+- Method decorators override class decorators.
+
+For background routes, both `@Action` (unicast) and `@On` (multicast) can be externally exposed with method-level `@AllowExternal()`.
+
+Use boundary decorators from `@hexajs-dev/common`:
+
+```ts
+import { AllowExternal, InternalOnly } from '@hexajs-dev/common';
+import { Action, Controller } from '@hexajs-dev/core';
+
+@AllowExternal({
+  ids: ['trusted.extension.id'],
+  origins: ['https://partner.example.com'],
+})
+@Controller({ namespace: 'integration' })
+export class IntegrationController {
+  @Action('public')
+  onPublic(payload: unknown): { ok: true } {
+    return { ok: true };
+  }
+
+  @InternalOnly()
+  @Action('admin')
+  onAdmin(payload: unknown): { ok: true } {
+    return { ok: true };
+  }
+}
+```
+
+Method-level `@AllowExternal()` is also supported. This is useful when most routes stay internal-only and only specific routes are exposed:
+
+```ts
+import { AllowExternal, InternalOnly } from '@hexajs-dev/common';
+import { Action, Controller } from '@hexajs-dev/core';
+
+@InternalOnly()
+@Controller({ namespace: 'integration' })
+export class IntegrationController {
+  @Action('public')
+  onPublic(payload: unknown): { ok: true } {
+    return { ok: true };
+  }
+
+  @AllowExternal()
+  @Action('admin')
+  onAdmin(payload: unknown): { ok: true } {
+    return { ok: true };
+  }
+}
+```
+
+External behavior in background is channel-aware:
+
+- Routes without `@AllowExternal()` are not externally subscribed and are ignored on `runtime.onMessageExternal`.
+- Externally subscribed unicast routes return `__hexa_code__ = 'HEXA_BOUNDARY_POLICY_DENIED'` when `ids`/`origins` checks fail.
+- Externally subscribed multicast routes are dropped and logged when `ids`/`origins` checks fail.
+- Content scripts still use internal runtime messaging only. Browser runtime external listeners are background-only.
+
 ## Message flow fundamentals
 
 ### Request/Response pattern

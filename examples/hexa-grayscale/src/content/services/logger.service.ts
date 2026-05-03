@@ -1,8 +1,8 @@
-import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { Injectable, HexaContext } from '@hexajs-dev/common';
 
 const LOGGER_PREFIX = '[hexa-grayscale]';
 
-@Injectable({ context: InjectableContext.Content })
+@Injectable({ context: HexaContext.Content })
 export class LoggerService {
 	log(message: string, data?: unknown): void {
 		if (typeof data === 'undefined') {

@@ -2,11 +2,11 @@ import type { ScaffoldContext } from '../models/scaffold.types';
 
 export const contentStateTemplate = (_ctx: ScaffoldContext): string => `\
 import { State } from '@hexajs-dev/core';
-import { InjectableContext } from '@hexajs-dev/common';
+import { HexaContext } from '@hexajs-dev/common';
 import { ContentState, LastBackgroundCallReducer } from './content.reducer';
 
 @State<ContentState>({
-  context: InjectableContext.Content,
+  context: HexaContext.Content,
   state: {
     lastBackgroundCall: LastBackgroundCallReducer,
   },

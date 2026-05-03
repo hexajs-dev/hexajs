@@ -63,7 +63,7 @@ export class ${className} {
 export function serviceTemplate(className: string, context: HexaRuntimeContext, injectableContextRef: string | null): string {
   const decorator = injectableContextRef ? `@Injectable({ context: ${injectableContextRef} })` : '@Injectable()';
   const commonImport = injectableContextRef
-    ? `import { Injectable, InjectableContext } from '@hexajs-dev/common';`
+    ? `import { Injectable, HexaContext } from '@hexajs-dev/common';`
     : `import { Injectable } from '@hexajs-dev/common';`;
 
   return `${commonImport}
@@ -93,10 +93,10 @@ export class ${className} extends HexaReducer<${stateName}> {
 
 export function stateTemplate(context: 'background' | 'content', reducerImportPath: string, reducerClassName: string, reducerStateName: string, featureName: string): string {
   const rootStateName = context === 'background' ? 'BackgroundState' : 'ContentState';
-  const contextRef = context === 'background' ? 'InjectableContext.Background' : 'InjectableContext.Content';
+  const contextRef = context === 'background' ? 'HexaContext.Background' : 'HexaContext.Content';
   const configClassName = context === 'background' ? 'BackgroundStateConfig' : 'ContentStateConfig';
 
-  return `import { InjectableContext } from '@hexajs-dev/common';
+  return `import { HexaContext } from '@hexajs-dev/common';
 import { State } from '@hexajs-dev/core';
 import { ${reducerClassName}, ${reducerStateName} } from '${reducerImportPath}';
 

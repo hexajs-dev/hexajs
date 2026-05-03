@@ -13,9 +13,10 @@ npm install -g @hexajs-dev/cli
 ```bash
 hexa new my-extension
 cd my-extension
-pnpm install
 hexa build --platform chrome
 ```
+
+`hexa new` prompts you to choose a package manager (npm, pnpm, yarn, or bun) and installs project dependencies automatically.
 
 ## Documentation
 

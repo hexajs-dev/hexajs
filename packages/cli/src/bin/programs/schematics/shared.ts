@@ -266,11 +266,11 @@ export function relativeImport(fromFile: string, toFile: string): string {
   return rel;
 }
 
-export function mapInjectableContext(context: HexaRuntimeContext): string | null {
+export function mapHexaContext(context: HexaRuntimeContext): string | null {
   switch (context) {
-    case 'background': return 'InjectableContext.Background';
-    case 'content': return 'InjectableContext.Content';
-    case 'ui': return 'InjectableContext.UI';
+    case 'background': return 'HexaContext.Background';
+    case 'content': return 'HexaContext.Content';
+    case 'ui': return 'HexaContext.UI';
     case 'general': return null;
   }
 }

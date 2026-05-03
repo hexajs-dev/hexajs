@@ -1,10 +1,10 @@
-import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { Injectable, HexaContext } from '@hexajs-dev/common';
 import { TabsPort } from '@hexajs-dev/ports';
 import { ClippingCompleteMessage } from '@contract/messages/messages';
 import { ClipperImageCropService } from './clipper-image-crop.service';
 import { ClipperCapturedImage } from './clipper-session.service';
 
-@Injectable({ context: InjectableContext.Background })
+@Injectable({ context: HexaContext.Background })
 export class ClipperCaptureService {
 	constructor(private readonly cropService: ClipperImageCropService, private tabsPort: TabsPort) {}
 

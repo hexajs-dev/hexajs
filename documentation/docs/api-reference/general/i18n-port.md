@@ -25,9 +25,9 @@ import ApiReferenceAppendix from '@site/src/components/ApiReferenceAppendix';
 
 ```typescript
 import { I18nPort } from '@hexajs-dev/ports';
-import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { Injectable, HexaContext } from '@hexajs-dev/common';
 
-@Injectable({ context: InjectableContext.Background })
+@Injectable({ context: HexaContext.Background })
 export class LocalizationService {
   constructor(private readonly i18n: I18nPort) {}
 

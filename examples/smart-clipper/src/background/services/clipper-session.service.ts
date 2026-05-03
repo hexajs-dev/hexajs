@@ -1,4 +1,4 @@
-import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { Injectable, HexaContext } from '@hexajs-dev/common';
 import { ClipperRect } from '@contract/messages/messages';
 
 export interface ClipperCapturedImage {
@@ -14,7 +14,7 @@ interface ClipperSessionState {
 	startedAt: number;
 }
 
-@Injectable({ context: InjectableContext.Background })
+@Injectable({ context: HexaContext.Background })
 export class ClipperSessionService {
 	private readonly sessions = new Map<number, ClipperSessionState>();
 	private readonly captures = new Map<number, ClipperCapturedImage>();

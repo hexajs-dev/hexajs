@@ -105,6 +105,22 @@ function normalizeCompilerOptions(compilerOptions: HexaConfig['compilerOptions']
     };
 }
 
+function isPathWithinRoot(rootPath: string, candidatePath: string): boolean {
+    const relative = path.relative(rootPath, candidatePath);
+    return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
+}
+
+function resolveSafeOutDir(baseOutDir: string, mode: string): string {
+    const projectRoot = path.resolve(process.cwd());
+    const absoluteOutDir = path.resolve(projectRoot, baseOutDir, mode);
+
+    if (!isPathWithinRoot(projectRoot, absoluteOutDir)) {
+        throw new Error(`Invalid outDir "${baseOutDir}" for mode "${mode}". Output path must stay within the project root.`);
+    }
+
+    return path.relative(projectRoot, absoluteOutDir).replace(/\\/g, '/');
+}
+
 // ─── Config Resolution ────────────────────────────────────────────────────────
 
 /**
@@ -165,7 +181,7 @@ export function resolveConfig(config: HexaConfig, platform: string, mode: string
     // ── Resolve outDir ───────────────────────────────────────────────────────
     // Chain: environments[m].platforms[p].outDir, then /<mode>/ appended
     const baseOutDir = envPlatformConfig.outDir ?? `dist/${platform}`;
-    const outDir = path.join(baseOutDir, mode);
+    const outDir = resolveSafeOutDir(baseOutDir, mode);
 
     // ── Resolve tokens ───────────────────────────────────────────────────────
     // Chain: root.tokens → env.tokens → env.platform.tokens

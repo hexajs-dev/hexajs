@@ -1,4 +1,4 @@
-import { Injectable, InjectableContext } from '@hexajs-dev/common';
+import { Injectable, HexaContext } from '@hexajs-dev/common';
 import { ClipperRect } from '@contract/messages/messages';
 
 export interface CropActiveTabImageInput {
@@ -14,7 +14,7 @@ export interface CropActiveTabImageResult {
 	imageHeight: number;
 }
 
-@Injectable({ context: InjectableContext.Background })
+@Injectable({ context: HexaContext.Background })
 export class ClipperImageCropService {
 	async cropActiveTabImage(input: CropActiveTabImageInput): Promise<CropActiveTabImageResult> {
 		if (input.rect.width <= 0 || input.rect.height <= 0) {

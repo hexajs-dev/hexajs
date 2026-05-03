@@ -84,6 +84,7 @@ describe('new command', () => {
       packageManagerVersion: '10.9.0',
     });
     expect(spawnMock).toHaveBeenCalledTimes(1);
+    expect(spawnMock.mock.calls[0]?.[2]).toMatchObject({ shell: false });
     expect(printSuccessMock).toHaveBeenCalledTimes(1);
   });
 

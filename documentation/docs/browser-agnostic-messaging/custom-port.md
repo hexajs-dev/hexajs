@@ -31,14 +31,14 @@ Let's build a `NotificationPort`. This is a great example because Chrome and Fir
 A custom Port is simply an `@Injectable` class that checks the injected platform token and executes the correct native API or messaging protocol.
 
 ```ts
-import { Inject, Injectable, InjectableContext, HEXA_PLATFORM } from '@hexajs-dev/common';
+import { Inject, Injectable, HexaContext, HEXA_PLATFORM } from '@hexajs-dev/common';
 import { PlatformType } from '@hexajs-dev/ports';
 
 export interface NotificationOptions {
   iconUrl?: string;
 }
 
-@Injectable({ context: InjectableContext.Background })
+@Injectable({ context: HexaContext.Background })
 export class NotificationPort {
   constructor(@Inject(HEXA_PLATFORM) private readonly platform: string) {}
 

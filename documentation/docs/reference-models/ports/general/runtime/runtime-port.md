@@ -18,9 +18,14 @@ class RuntimePort { ... }
 
 #### Methods
 
+**`getURL()`**
+```typescript
+getURL(path?: string): string
+```
+
 **`onMessage()`**
 ```typescript
-onMessage(callback: (message: any, sender: webExt.runtime.MessageSender, sendResponse: (response?: any) => void) => void): () => void
+onMessage(callback: (message: any, sender: webExt.runtime.MessageSender, sendResponse: (response?: any) => void) => boolean | void): () => void
 ```
 
 **`onSuspend()`**
