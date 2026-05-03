@@ -1,5 +1,19 @@
 # @hexajs-dev/ui
 
+## 0.9.3-alpha.2
+
+### Patch Changes
+
+- 7b368fd: trigger release
+- license
+- Support external messages and hardening communication
+- Updated dependencies [7b368fd]
+- Updated dependencies
+- Updated dependencies
+  - @hexajs-dev/common@0.9.3-alpha.2
+  - @hexajs-dev/ports@0.9.3-alpha.2
+  - @hexajs-dev/core@0.9.3-alpha.2
+
 ## 0.9.3-alpha.1
 
 ### Patch Changes
