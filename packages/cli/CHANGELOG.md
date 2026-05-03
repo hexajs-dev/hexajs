@@ -1,5 +1,21 @@
 # @hexajs-dev/cli
 
+## 0.9.3-alpha.1
+
+### Patch Changes
+
+- a6044cb: license
+- Updated dependencies [a6044cb]
+  - @hexajs-dev/common@0.9.3-alpha.1
+
+## 0.9.3-alpha.0
+
+### Patch Changes
+
+- a6044cb: license
+- Updated dependencies [a6044cb]
+  - @hexajs-dev/common@0.9.3-alpha.0
+
 ## 0.9.2
 
 ### Patch Changes
