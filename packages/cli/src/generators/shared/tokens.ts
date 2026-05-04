@@ -17,7 +17,7 @@ export function generateTokenRegistrations(tokens: ConfigToken[]): string {
 
   tokens.forEach(token => {
     const valueStr = JSON.stringify(token.value);
-    registrations.push(`  container.register('${token.key}', () => ${valueStr});`);
+    registrations.push(`  container.register(${JSON.stringify(token.key)}, () => ${valueStr});`);
   });
 
   return registrations.join('\n');

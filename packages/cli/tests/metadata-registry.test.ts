@@ -3,6 +3,17 @@ import { MetadataRegistry } from '../src/compiler/registry';
 import { HEXA_PLATFORM } from '@hexajs-dev/common';
 
 describe('MetadataRegistry', () => {
+  it('rejects invalid token keys that contain disallowed characters', () => {
+    const registry = new MetadataRegistry();
+
+    expect(() => registry.addToken({
+      key: 'INVALID KEY',
+      defaultValue: 'chrome',
+      context: 'general',
+      importPath: 'src/platform.token.ts'
+    })).toThrow(/invalid token key/i);
+  });
+
   it('rejects reserved framework token keys', () => {
     const registry = new MetadataRegistry();
 

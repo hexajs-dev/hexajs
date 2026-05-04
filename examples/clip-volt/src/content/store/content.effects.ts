@@ -1,13 +1,13 @@
-import { Injectable, inject } from '@hexajs-dev/common';
+import { HexaContext, Injectable, inject } from '@hexajs-dev/common';
 import { Actions, createEffect, ofType, select } from '@hexajs-dev/core';
 import { map, withLatestFrom } from 'rxjs/operators';
 import * as ContentActions from './content.actions';
 import { ContentState } from './content.reducer';
 import { HexaContentStore } from '@hexajs-dev/core';
 import { ClipItem } from '../../contract/messages';
-import { ClipVaultConfig, SENSITIVE_PATTERNS } from '../../contract/config';
+import { ClipVaultConfig } from '../../contract/config';
 
-@Injectable()
+@Injectable({context: HexaContext.Content})
 export class ContentEffects {
   private actions$ = inject(Actions);
   private store = inject(HexaContentStore<ContentState>);

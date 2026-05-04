@@ -9,6 +9,7 @@ import { DtoValidationMetadata } from './dto/types';
 import { ViewMetadata } from './content/view/types';
 import { PackageMetadata } from '../shared/models';
 import { HEXA_BUILD_MODE, HEXA_DEBUG, HEXA_PLATFORM } from '@hexajs-dev/common';
+import { assertValidTokenKey } from '../shared/token-security';
 
 const RESERVED_FRAMEWORK_TOKEN_KEYS = new Set([HEXA_PLATFORM, HEXA_BUILD_MODE, HEXA_DEBUG]);
 
@@ -184,6 +185,7 @@ export class MetadataRegistry {
 
   // Tokens
   public addToken(meta: TokenMetadata) {
+    assertValidTokenKey(meta.key, `createToken() in ${meta.importPath}`);
     if (RESERVED_FRAMEWORK_TOKEN_KEYS.has(meta.key)) {
       throw new Error(
         `HexaJS Build Error: Token key "${meta.key}" is reserved by the framework and cannot be redefined by user code.`

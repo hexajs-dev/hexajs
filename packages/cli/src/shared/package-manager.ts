@@ -15,20 +15,40 @@ function isPackageManager(value: string): value is PackageManager {
     return (ALL_PACKAGE_MANAGERS as readonly string[]).includes(value);
 }
 
+function assertPackageManager(value: string, source: string): PackageManager {
+    if (!isPackageManager(value)) {
+        throw new Error(`Invalid package manager "${value}" in ${source}. Allowed values: ${ALL_PACKAGE_MANAGERS.join(', ')}.`);
+    }
+    return value;
+}
+
+function getWindowsCmdPath(): string {
+    const systemRoot = process.env.SystemRoot || process.env.WINDIR;
+    if (systemRoot) {
+        const cmdPath = path.join(systemRoot, 'System32', 'cmd.exe');
+        if (fs.existsSync(cmdPath)) {
+            return cmdPath;
+        }
+    }
+
+    throw new Error('Unable to resolve trusted Windows cmd.exe path from SystemRoot/WINDIR.');
+}
+
 function getWindowsCommandArgs(commandText: string): string[] {
     return ['/d', '/s', '/c', commandText];
 }
 
 function runVersionCommand(pm: PackageManager): string {
+    const safePm = assertPackageManager(pm, 'runVersionCommand()');
     if (process.platform === 'win32') {
-        return execFileSync('cmd.exe', getWindowsCommandArgs(`${pm} --version`), {
+        return execFileSync(getWindowsCmdPath(), getWindowsCommandArgs(`${safePm} --version`), {
             encoding: 'utf-8',
             stdio: 'pipe',
             windowsHide: true,
         }).trim();
     }
 
-    return execFileSync(pm, ['--version'], {
+    return execFileSync(safePm, ['--version'], {
         encoding: 'utf-8',
         stdio: 'pipe',
     }).trim();
@@ -55,37 +75,42 @@ export function getPackageManagerVersion(pm: PackageManager): string {
 }
 
 export function getInstallCommand(pm: PackageManager): CommandParts {
+    const safePm = assertPackageManager(pm, 'getInstallCommand()');
     if (process.platform === 'win32') {
         return {
-            command: 'cmd.exe',
-            args: getWindowsCommandArgs(`${pm} install`),
-            display: `${pm} install`,
+            command: getWindowsCmdPath(),
+            args: getWindowsCommandArgs(`${safePm} install`),
+            display: `${safePm} install`,
         };
     }
 
     return {
-        command: pm,
+        command: safePm,
         args: ['install'],
-        display: `${pm} install`,
+        display: `${safePm} install`,
     };
 }
 
 export function getRunScriptCommand(pm: PackageManager, script: string): string {
-    switch (pm) {
+    const safePm = assertPackageManager(pm, 'getRunScriptCommand()');
+
+    switch (safePm) {
         case 'npm':
             return `npm run ${script}`;
         case 'bun':
             return `bun run ${script}`;
         case 'pnpm':
         case 'yarn':
-            return `${pm} ${script}`;
+            return `${safePm} ${script}`;
         default:
             return `npm run ${script}`;
     }
 }
 
 export function getAddDependencyCommand(pm: PackageManager, pkg: string, dev = false): string {
-    switch (pm) {
+    const safePm = assertPackageManager(pm, 'getAddDependencyCommand()');
+
+    switch (safePm) {
         case 'npm':
             return `npm install ${dev ? '--save-dev ' : ''}${pkg}`.trim();
         case 'pnpm':

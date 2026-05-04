@@ -140,4 +140,14 @@ describe('add command', () => {
       }
     );
   });
+
+  it('fails fast when project sourceRoot escapes the project root', async () => {
+    shared.loadProject.mockRejectedValueOnce(new Error('Invalid project.sourceRoot "../outside". sourceRoot must stay within the project root.'));
+
+    const program = new Command();
+    addCommand(program);
+
+    await expect(runCli(program, ['add', 'content', 'user', 'https://*/*'])).rejects.toThrow(/sourceRoot must stay within the project root/i);
+    expect(shared.writeFileWithGuard).not.toHaveBeenCalled();
+  });
 });

@@ -32,7 +32,7 @@ export function buildDependencyArgs(meta: DependencyMetadata, options: Dependenc
     if (viewDep) {
       args.push(`${containerVarName}.resolve('__hexa_view_ref__${viewDep.viewClassName}')`);
     } else if (tokenDep) {
-      args.push(`${containerVarName}.resolve('${tokenDep.tokenKey}')`);
+      args.push(`${containerVarName}.resolve(${JSON.stringify(tokenDep.tokenKey)})`);
     } else {
       const dep = meta.dependencies[classDepIndex++];
       args.push(`${containerVarName}.resolve(${dep})`);

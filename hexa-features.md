@@ -90,6 +90,8 @@ Add a background service worker class.
 | `<name>` | `string` | Class name |
 | `--allow-multiple` | boolean flag | Allows adding a second `@Background`; errors without it if one already exists |
 
+Multiple `@Background` classes are supported — all entries are compiled into a single `background/background.bootstrap.js` file. However, this is **not recommended**: `@Background` is an entry point, not a logic container. Business logic should live in `@Controller` classes instead.
+
 ```
 hexa add background my-background
 hexa add background another-bg --allow-multiple --force

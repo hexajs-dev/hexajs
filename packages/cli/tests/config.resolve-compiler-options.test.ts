@@ -201,4 +201,35 @@ describe('resolveConfig compiler options', () => {
 
     expect(() => resolveConfig(config, 'chrome', 'production')).toThrow(/must stay within the project root/i);
   });
+
+  it('rejects traversal tsConfig values that escape the project root', () => {
+    const config = createConfig({
+      environments: {
+        production: {
+          tsConfig: '../outside.tsconfig.json',
+          compilerOptions: {
+            minify: true,
+            cssMinify: true,
+            sourceMap: false,
+          },
+          platforms: {
+            chrome: {
+              outDir: 'dist/chrome',
+              manifest: 'manifest.chrome.json',
+            },
+          },
+        },
+      },
+    });
+
+    expect(() => resolveConfig(config, 'chrome', 'production')).toThrow(/tsconfig path must stay within the project root/i);
+  });
+
+  it('rejects token keys that do not match the strict token policy', () => {
+    const config = createConfig({
+      tokens: [{ key: 'bad key', value: 'x' } as any],
+    });
+
+    expect(() => resolveConfig(config, 'chrome', 'production')).toThrow(/invalid token key/i);
+  });
 });

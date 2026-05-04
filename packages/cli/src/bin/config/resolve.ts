@@ -1,5 +1,7 @@
 import * as path from 'path';
 import { HexaConfig, ConfigToken, UiConfig, MinifyOption, CssMinifyOption, SourceMapOption } from './config';
+import { assertPathWithinRoot } from '../../shared/path-utils';
+import { assertValidTokenKey } from '../../shared/token-security';
 
 // ─── Resolved Build Config ────────────────────────────────────────────────────
 
@@ -71,6 +73,7 @@ function mergeTokens(...layers: (ConfigToken[] | undefined)[]): ConfigToken[] {
     for (const layer of layers) {
         if (!layer) continue;
         for (const token of layer) {
+            assertValidTokenKey(token.key, 'hexa-cli token configuration');
             map.set(token.key, { ...token });
         }
     }
@@ -105,20 +108,30 @@ function normalizeCompilerOptions(compilerOptions: HexaConfig['compilerOptions']
     };
 }
 
-function isPathWithinRoot(rootPath: string, candidatePath: string): boolean {
-    const relative = path.relative(rootPath, candidatePath);
-    return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
-}
-
 function resolveSafeOutDir(baseOutDir: string, mode: string): string {
     const projectRoot = path.resolve(process.cwd());
     const absoluteOutDir = path.resolve(projectRoot, baseOutDir, mode);
 
-    if (!isPathWithinRoot(projectRoot, absoluteOutDir)) {
-        throw new Error(`Invalid outDir "${baseOutDir}" for mode "${mode}". Output path must stay within the project root.`);
-    }
+    assertPathWithinRoot(
+        projectRoot,
+        absoluteOutDir,
+        `Invalid outDir "${baseOutDir}" for mode "${mode}". Output path must stay within the project root.`
+    );
 
     return path.relative(projectRoot, absoluteOutDir).replace(/\\/g, '/');
+}
+
+function resolveSafeTsConfig(tsConfig: string): string {
+    const projectRoot = path.resolve(process.cwd());
+    const absoluteTsConfig = path.resolve(projectRoot, tsConfig);
+
+    assertPathWithinRoot(
+        projectRoot,
+        absoluteTsConfig,
+        `Invalid tsConfig "${tsConfig}". tsConfig path must stay within the project root.`
+    );
+
+    return path.relative(projectRoot, absoluteTsConfig).replace(/\\/g, '/');
 }
 
 // ─── Config Resolution ────────────────────────────────────────────────────────
@@ -160,6 +173,7 @@ export function resolveConfig(config: HexaConfig, platform: string, mode: string
         ?? envConfig.tsConfig
         ?? config.compilerOptions.tsConfig
         ?? 'tsconfig.json';
+    const resolvedTsConfig = resolveSafeTsConfig(tsConfig);
 
     // ── Resolve manifest ─────────────────────────────────────────────────────
     // Chain: env.manifest → env.platform.manifest
@@ -174,7 +188,7 @@ export function resolveConfig(config: HexaConfig, platform: string, mode: string
         ...config.compilerOptions,
         ...(envConfig.compilerOptions || {}),
         // tsConfig is resolved separately above — use the resolved one
-        tsConfig,
+        tsConfig: resolvedTsConfig,
     };
     const normalizedCompilerOptions = normalizeCompilerOptions(compilerOptions);
 
@@ -198,7 +212,7 @@ export function resolveConfig(config: HexaConfig, platform: string, mode: string
     );
 
     return {
-        tsConfig,
+        tsConfig: resolvedTsConfig,
         manifest,
         outDir,
         compilerOptions: normalizedCompilerOptions,

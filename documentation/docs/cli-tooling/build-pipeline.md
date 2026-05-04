@@ -23,6 +23,10 @@ HexaJS build is AOT-first. The CLI scans metadata before runtime and emits conte
 - Invalid payloads can be rejected before business logic runs.
 - Context map constrains rebuilds and validation to relevant areas.
 
+## Tree shaking and platform branches
+
+Platform-aware ports use `__HEXA_PLATFORM__` as a compile-time constant and `HEXA_PLATFORM` as a token fallback. The bundler can statically eliminate dead branches for each target platform, keeping each build output lean and free of unused platform code.
+
 ## Context map and runtime safety
 
 Hexa builds a context map from source imports and root context entry points.
