@@ -1,53 +1,81 @@
 import ts from "typescript";
 import { RouteBoundaryPolicyMetadata } from './boundary.types';
 
+const MAX_EVAL_DEPTH = 32;
+
+interface EvalContext {
+    depth: number;
+    resolvingSymbols: Set<ts.Symbol>;
+}
+
+function createEvalContext(): EvalContext {
+    return { depth: 0, resolvingSymbols: new Set<ts.Symbol>() };
+}
+
+function nextEvalContext(context: EvalContext): EvalContext {
+    return { depth: context.depth + 1, resolvingSymbols: context.resolvingSymbols };
+}
+
+function isEvalDepthExceeded(context: EvalContext): boolean {
+    return context.depth > MAX_EVAL_DEPTH;
+}
 
 export function extractProp(checker: ts.TypeChecker, prop?: ts.ObjectLiteralElementLike): any {
+    const context = createEvalContext();
     if (!prop) return undefined;
-    if (ts.isPropertyAssignment(prop)) return evalNode(checker, prop.initializer);
+    if (ts.isPropertyAssignment(prop)) return evalNode(checker, prop.initializer, context);
     if (ts.isShorthandPropertyAssignment(prop)) {
         const sym = checker.getSymbolAtLocation(prop.name);
-        return resolveSymbolValue(checker, sym);
+        return resolveSymbolValue(checker, sym, context);
     }
     return undefined;
 }
 
-export function evalNode(checker: ts.TypeChecker, node: ts.Expression): any {
+export function evalNode(checker: ts.TypeChecker, node: ts.Expression, context: EvalContext = createEvalContext()): any {
+    if (isEvalDepthExceeded(context)) return undefined;
     if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) return node.text;
     if (ts.isNumericLiteral(node)) return Number(node.text);
     if (node.kind === ts.SyntaxKind.TrueKeyword) return true;
     if (node.kind === ts.SyntaxKind.FalseKeyword) return false;
-    if (ts.isAsExpression(node)) return evalNode(checker, node.expression);
-    if (ts.isArrayLiteralExpression(node)) return node.elements.map(e => evalNode(checker, e as ts.Expression));
+    if (ts.isAsExpression(node)) return evalNode(checker, node.expression, nextEvalContext(context));
+    if (ts.isArrayLiteralExpression(node)) return node.elements.map(e => evalNode(checker, e as ts.Expression, nextEvalContext(context)));
     if (ts.isObjectLiteralExpression(node)) {
         const out: any = {};
         for (const p of node.properties) {
             if (ts.isPropertyAssignment(p) && p.name) {
                 const key = p.name.getText().replace(/^['"]|['"]$/g, "");
-                out[key] = evalNode(checker, p.initializer);
+                out[key] = evalNode(checker, p.initializer, nextEvalContext(context));
             }
         }
         return out;
     }
     if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node)) {
         const sym = checker.getSymbolAtLocation(node);
-        return resolveSymbolValue(checker, sym);
+        return resolveSymbolValue(checker, sym, nextEvalContext(context));
     }
     return undefined;
 }
 
-function resolveSymbolValue(checker: ts.TypeChecker, sym?: ts.Symbol): any {
-    if (!sym) return undefined;
+function resolveSymbolValue(checker: ts.TypeChecker, sym?: ts.Symbol, context: EvalContext = createEvalContext()): any {
+    if (!sym || isEvalDepthExceeded(context)) return undefined;
     const real = (sym.flags & ts.SymbolFlags.Alias) ? checker.getAliasedSymbol(sym) : sym;
+    if (context.resolvingSymbols.has(real)) return undefined;
+
+    context.resolvingSymbols.add(real);
+
     const decl = real.valueDeclaration || real.declarations?.[0];
-    if (!decl) return undefined;
-    if (ts.isVariableDeclaration(decl) && decl.initializer) return evalNode(checker, decl.initializer as ts.Expression);
-    if (ts.isPropertyAssignment(decl)) return evalNode(checker, decl.initializer as ts.Expression);
-    if (ts.isEnumMember(decl)) {
-        const constVal = checker.getConstantValue(decl as any);
-        if (constVal !== undefined) return constVal;
+    try {
+        if (!decl) return undefined;
+        if (ts.isVariableDeclaration(decl) && decl.initializer) return evalNode(checker, decl.initializer as ts.Expression, nextEvalContext(context));
+        if (ts.isPropertyAssignment(decl)) return evalNode(checker, decl.initializer as ts.Expression, nextEvalContext(context));
+        if (ts.isEnumMember(decl)) {
+            const constVal = checker.getConstantValue(decl as any);
+            if (constVal !== undefined) return constVal;
+        }
+        return undefined;
+    } finally {
+        context.resolvingSymbols.delete(real);
     }
-    return undefined;
 }
 
 

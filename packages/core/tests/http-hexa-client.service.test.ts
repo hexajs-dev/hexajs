@@ -1,6 +1,6 @@
 /// <reference types="vitest/globals" />
 
-import { firstValueFrom } from 'rxjs';
+import { catchError, firstValueFrom, map, of } from 'rxjs';
 import { HttpHexaClient, HttpHexaClientError, HttpHexaClientResponseLike } from '../src/services/http-hexa-client.service';
 
 interface MockResponseOptions {
@@ -120,5 +120,43 @@ describe('HttpHexaClient', () => {
         runtimeGlobal.fetch = fetchMock;
 
         await expect(firstValueFrom(client.get('https://api.test/items'))).rejects.toBe(expectedError);
+    });
+
+    it('works with RxJS pipe transformations', async () => {
+        const client = new HttpHexaClient();
+        const fetchMock = vi.fn().mockResolvedValue(createResponse({ body: { items: [2, 3, 5] } }));
+
+        runtimeGlobal.fetch = fetchMock;
+
+        const result = await firstValueFrom(
+            client.get<{ items: number[] }>('https://api.test/items').pipe(
+                map((response) => response.items.reduce((sum, value) => sum + value, 0)),
+            ),
+        );
+
+        expect(result).toBe(10);
+    });
+
+    it('works with RxJS catchError fallback for HttpHexaClientError', async () => {
+        const client = new HttpHexaClient();
+        const fetchMock = vi.fn().mockResolvedValue(createResponse({
+            ok: false,
+            status: 500,
+            statusText: 'Server Error',
+            body: { error: 'boom' }
+        }));
+
+        runtimeGlobal.fetch = fetchMock;
+
+        const result = await firstValueFrom(
+            client.get<{ ok: boolean }>('https://api.test/failing').pipe(
+                catchError((error: unknown) => {
+                    expect(error).toBeInstanceOf(HttpHexaClientError);
+                    return of({ ok: false });
+                }),
+            ),
+        );
+
+        expect(result).toEqual({ ok: false });
     });
 });

@@ -7,6 +7,7 @@ import { HEXA_METADATA_HMAC_KEY } from "@hexajs-dev/common";
 import { HexaContext, ServiceMetadata, TokenMetadata, TokenDependency, ViewPropertyDependency, WorkerPropertyDependency } from "./types";
 import { ViewDependency } from "../content/view/types";
 import { extractProp, findDecorator, hasLifecycleMethod, isDecoratorNamed } from "../shared/props.methods";
+import { assertValidTokenKey } from "../../shared/token-security";
 
 /** Workspace root markers: stop filesystem walk at these files/dirs */
 const WORKSPACE_ROOT_MARKERS = ['.git', 'pnpm-workspace.yaml', 'package-lock.json', 'yarn.lock', 'bun.lockb'];
@@ -315,7 +316,10 @@ export class DIScanner {
           `createToken() first argument (key) must be a string literal. Found in ${node.getSourceFile().fileName}`
         );
       }
-      const key = keyArg.text;
+      const key = this.assertTokenKey(
+        keyArg.text,
+        `createToken() in ${node.getSourceFile().fileName}`
+      );
 
       // Extract defaultValue (2nd arg — must be a static literal)
       const defaultValue = this.resolveExpressionValue(args[1]);
@@ -509,7 +513,7 @@ export class DIScanner {
 
       // Case 1: @Inject('TOKEN_KEY') — string literal
       if (ts.isStringLiteral(arg)) {
-        return arg.text;
+        return this.assertInjectTokenKey(arg.text, param);
       }
 
       // Case 2: @Inject(myTokenRef) — identifier referring to a string constant or a createToken() result
@@ -517,7 +521,7 @@ export class DIScanner {
         // Case 2a: identifier resolves to a plain string constant (e.g. const HEXA_PLATFORM = 'HEXA_PLATFORM')
         const resolved = this.resolveExpressionValue(arg);
         if (typeof resolved === 'string') {
-          return resolved;
+          return this.assertInjectTokenKey(resolved, param);
         }
 
         const tokenSym = this.checker.getSymbolAtLocation(arg);
@@ -526,18 +530,18 @@ export class DIScanner {
           const tokenType = this.checker.getTypeOfSymbolAtLocation(realTokenSym, arg);
           if (tokenType && (tokenType.flags & ts.TypeFlags.StringLiteral) !== 0) {
             const literal = tokenType as ts.StringLiteralType;
-            return literal.value;
+            return this.assertInjectTokenKey(literal.value, param);
           }
         }
 
         const identifierType = this.checker.getTypeAtLocation(arg);
         if (identifierType && (identifierType.flags & ts.TypeFlags.StringLiteral) !== 0) {
           const literal = identifierType as ts.StringLiteralType;
-          return literal.value;
+          return this.assertInjectTokenKey(literal.value, param);
         }
 
         if (arg.text === 'HEXA_PLATFORM' || arg.text === 'HEXA_BUILD_MODE' || arg.text === 'HEXA_DEBUG') {
-          return arg.text;
+          return this.assertInjectTokenKey(arg.text, param);
         }
 
         // Case 2b: identifier refers to a createToken() variable declaration
@@ -550,7 +554,7 @@ export class DIScanner {
             if (ts.isIdentifier(callExpr.expression) && callExpr.expression.text === 'createToken') {
               const keyArg = callExpr.arguments[0];
               if (keyArg && ts.isStringLiteral(keyArg)) {
-                return keyArg.text;
+                return this.assertInjectTokenKey(keyArg.text, param);
               }
             }
           }
@@ -559,6 +563,21 @@ export class DIScanner {
     }
 
     return null;
+  }
+
+  private assertTokenKey(tokenKey: string, source: string): string {
+    assertValidTokenKey(tokenKey, source);
+    return tokenKey;
+  }
+
+  private assertInjectTokenKey(tokenKey: string, param: ts.ParameterDeclaration): string {
+    const classDeclaration =
+      ts.isConstructorDeclaration(param.parent) && ts.isClassDeclaration(param.parent.parent)
+        ? param.parent.parent
+        : undefined;
+    const className = classDeclaration?.name?.text ?? '<anonymous>';
+    const source = `@Inject() on ${className}::${this.getParameterName(param)} in ${param.getSourceFile().fileName}`;
+    return this.assertTokenKey(tokenKey, source);
   }
 
   private getParameterName(param: ts.ParameterDeclaration): string {

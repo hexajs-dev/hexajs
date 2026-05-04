@@ -124,4 +124,14 @@ describe('generate command', () => {
 
     expect(shared.writeFileWithGuard).not.toHaveBeenCalled();
   });
+
+  it('fails fast when project sourceRoot escapes the project root', async () => {
+    shared.loadProject.mockRejectedValueOnce(new Error('Invalid project.sourceRoot "../outside". sourceRoot must stay within the project root.'));
+
+    const program = new Command();
+    generateCommand(program);
+
+    await expect(runCli(program, ['generate', 'controller', 'user'])).rejects.toThrow(/sourceRoot must stay within the project root/i);
+    expect(shared.writeFileWithGuard).not.toHaveBeenCalled();
+  });
 });

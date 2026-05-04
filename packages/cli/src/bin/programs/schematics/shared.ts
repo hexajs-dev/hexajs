@@ -4,7 +4,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { Command } from 'commander';
 import { HexaConfig, UiSurfaceConfig, loadHexaConfigFrom } from '../../config/config';
-import { relativePathFromCwd } from '../../../shared/path-utils';
+import { assertPathWithinRoot, relativePathFromCwd } from '../../../shared/path-utils';
 
 export type HexaRuntimeContext = 'background' | 'content' | 'general' | 'ui';
 export type UiSurface = 'devtools' | 'popup';
@@ -120,6 +120,15 @@ export function getConfigPath(cwd: string): string {
   return path.join(cwd, 'hexa-cli.json');
 }
 
+function assertSchematicPathInProject(projectRoot: string, targetPath: string, label: string): void {
+  const absolutePath = path.resolve(targetPath);
+  assertPathWithinRoot(
+    projectRoot,
+    absolutePath,
+    `${label} must stay within the project root. Refusing path "${absolutePath}".`
+  );
+}
+
 export async function loadProject(options: SchematicCommandOptions): Promise<LoadedProject> {
   const cwd = path.resolve(options.cwd || process.cwd());
   const configPath = getConfigPath(cwd);
@@ -128,6 +137,12 @@ export async function loadProject(options: SchematicCommandOptions): Promise<Loa
   }
 
   const config = await loadHexaConfigFrom(cwd);
+  const sourceRootPath = path.resolve(cwd, config.project.sourceRoot);
+  assertPathWithinRoot(
+    cwd,
+    sourceRootPath,
+    `Invalid project.sourceRoot "${config.project.sourceRoot}". sourceRoot must stay within the project root.`
+  );
   return { config, configPath, cwd };
 }
 
@@ -209,6 +224,9 @@ export async function readFileIfExists(filePath: string): Promise<string | null>
 }
 
 export async function writeFileWithGuard(filePath: string, content: string, options: SchematicCommandOptions): Promise<void> {
+  const projectRoot = path.resolve(options.cwd || process.cwd());
+  assertSchematicPathInProject(projectRoot, filePath, 'Generated file path');
+
   const exists = await fs.pathExists(filePath);
   if (exists && !options.force) {
     throw new Error(`File already exists: ${filePath}. Re-run with --force to overwrite.`);
@@ -224,6 +242,9 @@ export async function writeFileWithGuard(filePath: string, content: string, opti
 }
 
 export async function updateFileWithTransform(filePath: string, options: SchematicCommandOptions, transform: (content: string) => string): Promise<boolean> {
+  const projectRoot = path.resolve(options.cwd || process.cwd());
+  assertSchematicPathInProject(projectRoot, filePath, 'Updated file path');
+
   const current = await readFileIfExists(filePath);
   if (current === null) {
     throw new Error(`File not found: ${filePath}`);
@@ -283,6 +304,9 @@ export function ensureUiSurfaceMissing(config: HexaConfig, surface: UiSurface): 
 }
 
 export async function updateUiSurfaceConfig(configPath: string, surface: UiSurface, options: SchematicCommandOptions, overrides: UiSurfaceConfig): Promise<void> {
+  const projectRoot = path.resolve(options.cwd || process.cwd());
+  assertSchematicPathInProject(projectRoot, configPath, 'UI config path');
+
   const raw = await fs.readJSON(configPath) as HexaConfig;
   const next: HexaConfig = {
     ...raw,

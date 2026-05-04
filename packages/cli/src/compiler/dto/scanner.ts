@@ -1,6 +1,8 @@
 import ts from 'typescript';
-import { getDecoratorName } from '../shared/props.methods';
+import { getDecoratorName, isDecoratorNamed } from '../shared/props.methods';
 import { DtoDecoratorMetadata, DtoPropertyMetadata, DtoValidationMetadata } from './types';
+
+const DTO_DECORATOR_SOURCES = ['@hexajs-dev/common'] as const;
 
 const SUPPORTED_DECORATORS = new Set<string>([
     'IsDefined', 'IsOptional', 'Equals', 'NotEquals', 'IsEmpty', 'IsNotEmpty', 'IsIn', 'IsNotIn',
@@ -60,6 +62,10 @@ export class DtoScanner {
     private toDecoratorMetadata(decorator: ts.Decorator): DtoDecoratorMetadata | null {
         const name = getDecoratorName(decorator);
         if (!name) {
+            return null;
+        }
+
+        if (!isDecoratorNamed(decorator, this.checker, name, DTO_DECORATOR_SOURCES)) {
             return null;
         }
 

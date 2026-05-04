@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import ts from 'typescript';
 import { CssMinifyOption, SourceMapOption } from './bin/config/config';
+import { assertPathWithinRoot } from './shared/path-utils';
 
 export interface BundleOptions {
   /** Absolute path to the output directory containing the bootstrap files */
@@ -85,7 +86,16 @@ function resolveAliasedFile(candidate: string): string | null {
 }
 
 function loadTsPathMappings(projectRoot: string, tsConfigPath?: string): TsPathMapping[] {
-  const resolvedConfigPath = path.resolve(projectRoot, tsConfigPath || 'tsconfig.json');
+  const normalizedProjectRoot = path.resolve(projectRoot);
+  const requestedConfigPath = tsConfigPath || 'tsconfig.json';
+  const resolvedConfigPath = path.resolve(normalizedProjectRoot, requestedConfigPath);
+
+  assertPathWithinRoot(
+    normalizedProjectRoot,
+    resolvedConfigPath,
+    `Invalid tsConfigPath "${requestedConfigPath}". tsConfig path must stay within the project root.`
+  );
+
   if (!fs.existsSync(resolvedConfigPath)) {
     return [];
   }
