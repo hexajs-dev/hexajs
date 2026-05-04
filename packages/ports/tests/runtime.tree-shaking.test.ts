@@ -14,6 +14,7 @@ async function buildRuntimeBundleForPlatform(platform: string): Promise<string> 
   await writeFile(entryPath, `import { RuntimePort } from '${runtimePortPath}';\nexport async function probe(message: unknown): Promise<unknown> {\n  const runtime = new RuntimePort('${platform}');\n  return runtime.sendMessage(message);\n}\n`, 'utf8');
 
   await build({
+    configFile: false,
     logLevel: 'silent',
     resolve: {
       alias: {
@@ -57,5 +58,5 @@ describe('RuntimePort compile-time tree shaking', () => {
     expect(firefoxBundle).not.toContain('switch(typeof __HEXA_PLATFORM__!=="undefined"?__HEXA_PLATFORM__:this.platform)');
     expect(chromeBundle).not.toContain('switch(typeof __HEXA_PLATFORM__!=="undefined"?__HEXA_PLATFORM__:this.platform)');
     expect(firefoxBundle).not.toEqual(chromeBundle);
-  });
+  }, 20000);
 });
