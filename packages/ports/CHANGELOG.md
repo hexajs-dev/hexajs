@@ -1,5 +1,13 @@
 # @hexajs-dev/ports
 
+## 0.9.3-alpha.3
+
+### Patch Changes
+
+- 1804e01: Hardening
+- Updated dependencies [1804e01]
+  - @hexajs-dev/common@0.9.3-alpha.3
+
 ## 0.9.3-alpha.2
 
 ### Patch Changes

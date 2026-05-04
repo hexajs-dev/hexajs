@@ -1,5 +1,11 @@
 # @hexajs-dev/common
 
+## 0.9.3-alpha.3
+
+### Patch Changes
+
+- 1804e01: Hardening
+
 ## 0.9.3-alpha.2
 
 ### Patch Changes
