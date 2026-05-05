@@ -5,6 +5,16 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      promote_version_to_latest:
+        description: "Promote released versions to npm latest dist-tag"
+        required: false
+        type: boolean
+        default: true
+      version_to_promote:
+        description: "Optional explicit version to tag as latest (for example: 0.9.3-alpha.3)"
+        required: false
+        type: string
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -75,3 +85,72 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Promote explicit version to latest dist-tag
+        if: github.event_name == 'workflow_dispatch' && inputs.promote_version_to_latest && inputs.version_to_promote != ''
+        env:
+          VERSION_TO_PROMOTE: ${{ inputs.version_to_promote }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          packages=(
+            "@hexajs-dev/common"
+            "@hexajs-dev/ports"
+            "@hexajs-dev/core"
+            "@hexajs-dev/ui"
+            "@hexajs-dev/cli"
+          )
+
+          for pkg in "${packages[@]}"; do
+            spec="${pkg}@${VERSION_TO_PROMOTE}"
+            echo "Promoting ${spec} to latest"
+            npm dist-tag add "${spec}" latest
+          done
+
+      - name: Promote newly published versions to latest dist-tag
+        if: steps.changesets.outputs.published == 'true' && (github.event_name != 'workflow_dispatch' || (inputs.promote_version_to_latest && inputs.version_to_promote == ''))
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PUBLISHED_PACKAGES: ${{ steps.changesets.outputs.publishedPackages }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${PUBLISHED_PACKAGES}" ] || [ "${PUBLISHED_PACKAGES}" = "[]" ]; then
+            echo "No published package payload found; skipping latest-tag promotion."
+            exit 0
+          fi
+
+          node <<'NODE'
+          const { execSync } = require('node:child_process');
+
+          const raw = process.env.PUBLISHED_PACKAGES ?? '[]';
+          let publishedPackages;
+
+          try {
+            publishedPackages = JSON.parse(raw);
+          } catch (error) {
+            console.error('Failed to parse publishedPackages output:', error);
+            process.exit(1);
+          }
+
+          if (!Array.isArray(publishedPackages) || publishedPackages.length === 0) {
+            console.log('No packages were published; skipping latest-tag promotion.');
+            process.exit(0);
+          }
+
+          const internalPackages = publishedPackages.filter((pkg) => {
+            return typeof pkg?.name === 'string' && pkg.name.startsWith('@hexajs-dev/') && typeof pkg?.version === 'string';
+          });
+
+          if (internalPackages.length === 0) {
+            console.log('No @hexajs-dev packages to retag.');
+            process.exit(0);
+          }
+
+          for (const pkg of internalPackages) {
+            const spec = `${pkg.name}@${pkg.version}`;
+            console.log(`Promoting ${spec} to latest`);
+            execSync(`npm dist-tag add "${spec}" latest`, { stdio: 'inherit' });
+          }
+          NODE
