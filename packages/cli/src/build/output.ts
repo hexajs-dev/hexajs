@@ -45,7 +45,10 @@ function loadPreviousContentScriptFiles(outputDir: string): string[] {
         };
 
         const files = manifest.content_scripts?.flatMap((entry) => entry.js ?? []) ?? [];
-        return Array.from(new Set(files.filter((fileName) => fileName.endsWith('.js'))));
+        return Array.from(new Set(files.filter((fileName) => {
+            const normalized = fileName.replace(/\\/g, '/');
+            return normalized.endsWith('.js') && normalized.startsWith('content/');
+        })));
     } catch {
         return [];
     }

@@ -79,7 +79,7 @@ For platform-specific customization, specify manifest files in your config:
 | Field | Source |
 |-------|--------|
 | `background.service_worker` | Compiled background entry |
-| `content_scripts[].js` | Compiled content entries + matched URLs |
+| `content_scripts[].js` | Compiled content entries + preserved user-provided external entries |
 | `action.default_popup` | Managed UI popup entry |
 | `devtools_page` | Managed DevTools entry |
 | `icons` | Generated from SVG source |
@@ -93,11 +93,12 @@ These are always generated and cannot be overridden:
 
 - `manifest_version` — Always 3
 - `background` — Generated from compiled code
-- `content_scripts` — Generated from compiled content scripts
 - `action` — Generated from UI config
 - `devtools_page` — Generated from UI config
 
-**Why**: these must match your compiled artifacts.
+**Note on `content_scripts`**: Hexa always injects compiled content script entries. User-provided entries are preserved as additional entries (for example `external_content.js`), but generated entries cannot be removed.
+
+**Why**: framework-owned fields must match compiled artifacts.
 
 ### User-Customizable Keys
 
@@ -106,6 +107,7 @@ When you provide a custom manifest file, these keys are merged:
 - `name`, `version`, `description`
 - `host_permissions`
 - `permissions`
+- `content_scripts` (additional user entries are preserved)
 - `content_security_policy`
 - `commands`
 - `externally_connectable`
@@ -113,7 +115,25 @@ When you provide a custom manifest file, these keys are merged:
 - `browser_specific_settings` (Firefox only)
 - Any other custom keys
 
-**Merge behavior**: User values override defaults *except* for framework-controlled keys.
+**Merge behavior**: User values override defaults *except* for framework-controlled keys. For `content_scripts`, Hexa-generated entries are always present and user entries are appended.
+
+### Preserving External Content Scripts
+
+You can keep externally-managed content scripts in a platform manifest file:
+
+```json
+{
+	"content_scripts": [
+		{
+			"matches": ["https://example.com/*"],
+			"js": ["external_content.js"],
+			"run_at": "document_start"
+		}
+	]
+}
+```
+
+During build, Hexa merges this with compiled content entries so both appear in the final `manifest.json`.
 
 ## Platform-Specific Examples
 

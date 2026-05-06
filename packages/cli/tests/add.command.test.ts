@@ -86,6 +86,9 @@ describe('add command', () => {
     shared.resolveContentRunAt.mockReturnValue('ContentRunAt.DocumentIdle');
     shared.collectDecoratedClasses.mockResolvedValue([]);
     shared.ensureUiSurface.mockImplementation((value: string) => value);
+    shared.insertImport.mockImplementation((content: string) => content);
+    shared.updateFileWithTransform.mockResolvedValue(undefined);
+    shared.relativeImport.mockReturnValue('../content/user.content');
   });
 
   it('routes add content and writes the content schematic file', async () => {
@@ -104,6 +107,19 @@ describe('add command', () => {
     );
   });
 
+  it('routes add content with an explicit run-at value', async () => {
+    shared.parseUrlList.mockReturnValueOnce(['https://example.com/*']);
+    shared.resolveContentRunAt.mockReturnValueOnce('ContentRunAt.DocumentStart');
+
+    const program = new Command();
+    addCommand(program);
+
+    await runCli(program, ['add', 'content', 'metrics', 'https://example.com/*', '--run-at', 'document-start']);
+
+    expect(shared.resolveContentRunAt).toHaveBeenCalledWith('document-start');
+    expect(contentTemplateMock).toHaveBeenCalledWith('MetricsContent', ['https://example.com/*'], 'ContentRunAt.DocumentStart');
+  });
+
   it('rejects add background when a background class exists and allow-multiple is false', async () => {
     shared.collectDecoratedClasses.mockResolvedValue([{ className: 'MainBackground', filePath: 'D:/repo/src/background/main.background.ts' }]);
 
@@ -113,6 +129,24 @@ describe('add command', () => {
     await expect(runCli(program, ['add', 'background', 'main'])).rejects.toThrow('A @Background class already exists');
 
     expect(shared.writeFileWithGuard).not.toHaveBeenCalled();
+  });
+
+  it('routes add background with allow-multiple when an existing class is present', async () => {
+    shared.collectDecoratedClasses.mockResolvedValue([{ className: 'MainBackground', filePath: 'D:/repo/src/background/main.background.ts' }]);
+
+    const program = new Command();
+    addCommand(program);
+
+    await runCli(program, ['add', 'background', 'secondary', '--allow-multiple']);
+
+    expect(backgroundTemplateMock).toHaveBeenCalledWith('SecondaryBackground');
+    expect(shared.writeFileWithGuard).toHaveBeenCalledTimes(1);
+    expect(String(shared.writeFileWithGuard.mock.calls[0][0])).toContain(path.join('src', 'background', 'secondary.background.ts'));
+    expect(shared.printSchematicSuccess).toHaveBeenCalledWith(
+      'Added background SecondaryBackground',
+      [expect.stringContaining(path.join('src', 'background', 'secondary.background.ts'))],
+      expect.any(Object)
+    );
   });
 
   it('routes add ui popup and updates project ui config', async () => {
@@ -138,6 +172,62 @@ describe('add command', () => {
         sourceDir: 'ui/popup',
         indexFile: 'index.html',
       }
+    );
+  });
+
+  it('routes add ui devtools and updates project ui config', async () => {
+    shared.ensureUiSurface.mockReturnValue('devtools');
+
+    const program = new Command();
+    addCommand(program);
+
+    await runCli(program, ['add', 'ui', 'devtools']);
+
+    expect(devtoolsFallbackHtmlTemplateMock).toHaveBeenCalledTimes(1);
+    expect(shared.writeFileWithGuard).toHaveBeenCalledWith(
+      expect.stringContaining(path.join('ui', 'devtools', 'index.html')),
+      '<devtools-fallback/>',
+      expect.any(Object)
+    );
+    expect(shared.updateUiSurfaceConfig).toHaveBeenCalledWith(
+      'D:/repo/hexa-cli.config.json',
+      'devtools',
+      expect.any(Object),
+      {
+        mode: 'managed',
+        sourceDir: 'ui/devtools',
+        indexFile: 'index.html',
+      }
+    );
+  });
+
+  it('routes add handler and appends content class to handler decorator Contents', async () => {
+    shared.findClassByName
+      .mockResolvedValueOnce({ className: 'DomHandler', filePath: 'D:/repo/src/handlers/dom.handler.ts' })
+      .mockResolvedValueOnce({ className: 'UserContent', filePath: 'D:/repo/src/content/user.content.ts' });
+    shared.insertImport.mockImplementation((content: string, importStatement: string) => `${importStatement}\n${content}`);
+    shared.updateFileWithTransform.mockImplementation(async (_filePath: string, _options: unknown, transform: (content: string) => string) => {
+      const next = transform('@Handler({ Contents: [] })\nexport class DomHandler {}');
+      expect(next).toContain("import { UserContent } from '../content/user.content';");
+      expect(next).toContain('Contents: [UserContent]');
+    });
+
+    const program = new Command();
+    addCommand(program);
+
+    await runCli(program, ['add', 'handler', 'dom', 'user']);
+
+    expect(shared.findClassByName).toHaveBeenNthCalledWith(1, 'D:/repo', 'dom', 'Handler', 'Handler');
+    expect(shared.findClassByName).toHaveBeenNthCalledWith(2, 'D:/repo', 'user', 'Content', 'Content');
+    expect(shared.updateFileWithTransform).toHaveBeenCalledWith(
+      'D:/repo/src/handlers/dom.handler.ts',
+      expect.any(Object),
+      expect.any(Function)
+    );
+    expect(shared.printSchematicSuccess).toHaveBeenCalledWith(
+      'Attached UserContent to DomHandler',
+      ['D:/repo/src/handlers/dom.handler.ts'],
+      expect.any(Object)
     );
   });
 
