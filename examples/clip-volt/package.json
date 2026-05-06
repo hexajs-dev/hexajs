@@ -25,17 +25,17 @@
     "production:brave": "hexa build --platform brave --mode production"
   },
   "dependencies": {
-    "@hexajs-dev/common": "0.9.3-alpha.3",
-    "@hexajs-dev/core": "0.9.3-alpha.3",
-    "@hexajs-dev/ports": "0.9.3-alpha.3",
-    "@hexajs-dev/ui": "0.9.3-alpha.3",
+    "@hexajs-dev/common": "workspace:*",
+    "@hexajs-dev/core": "workspace:*",
+    "@hexajs-dev/ports": "workspace:*",
+    "@hexajs-dev/ui": "workspace:*",
     "lucide-react": "^1.0.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "rxjs": "^7.8.2"
   },
   "devDependencies": {
-    "@hexajs-dev/cli": "0.9.3-alpha.3",
+    "@hexajs-dev/cli": "workspace:*",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.7.0",
