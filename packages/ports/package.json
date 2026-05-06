@@ -39,8 +39,11 @@
     "lint": "echo \"Error: no lint specified\" && exit 1",
     "clean": "rm -rf dist"
   },
+  "dependencies": {
+    "@hexajs-dev/common": "workspace:^"
+  },
   "devDependencies": {
-    "@hexajs-dev/common": "workspace:*",
+    "@hexajs-dev/common": "workspace:^",
     "@types/node": "^25.0.10",
     "typescript": "^5.0.0",
     "vite": "^7.3.1",
@@ -48,7 +51,6 @@
     "vitest": "^1.6.1"
   },
   "peerDependencies": {
-    "@hexajs-dev/common": "workspace:*",
     "typescript": "^5.0.0"
   }
 }

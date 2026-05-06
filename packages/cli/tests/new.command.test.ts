@@ -40,13 +40,30 @@ vi.mock('child_process', () => ({
 import { newCommand } from '../src/bin/programs/new/new';
 
 describe('new command', () => {
-  const wireSuccessfulInstall = () => {
-    spawnMock.mockImplementation(() => ({
+  const createSpawnResult = (code: number, stderrOutput = '') => {
+    return {
+      stdout: {
+        on(_event: string, _handler: (...args: any[]) => void) {
+          return this;
+        },
+      },
+      stderr: {
+        on(event: string, handler: (...args: any[]) => void) {
+          if (event === 'data' && stderrOutput) {
+            handler(stderrOutput);
+          }
+          return this;
+        },
+      },
       on(event: string, handler: (...args: any[]) => void) {
-        if (event === 'close') handler(0);
+        if (event === 'close') handler(code);
         return this;
       },
-    }));
+    };
+  };
+
+  const wireSuccessfulInstall = () => {
+    spawnMock.mockImplementation(() => createSpawnResult(0));
   };
 
   beforeEach(() => {
@@ -111,6 +128,31 @@ describe('new command', () => {
       packageManager: 'npm',
       packageManagerVersion: '10.9.0',
     });
+  });
+
+  it('retries npm install with --legacy-peer-deps when npm returns ERESOLVE', async () => {
+    promptMock
+      .mockResolvedValueOnce({ template: 'full' })
+      .mockResolvedValueOnce({ reactPopup: false })
+      .mockResolvedValueOnce({ managedDevtools: false })
+      .mockResolvedValueOnce({ packageManager: 'npm' });
+
+    spawnMock
+      .mockImplementationOnce(() => createSpawnResult(
+        1,
+        'npm ERR! code ERESOLVE\nnpm ERR! ERESOLVE unable to resolve dependency tree\n'
+      ))
+      .mockImplementationOnce(() => createSpawnResult(0));
+
+    const program = new Command();
+    newCommand(program);
+
+    await runCli(program, ['new', 'my-extension', '--platform', 'chrome']);
+
+    expect(spawnMock).toHaveBeenCalledTimes(2);
+    expect(spawnMock.mock.calls[1]?.[1]).toEqual(['install', '--legacy-peer-deps']);
+    expect(printSuccessMock).toHaveBeenCalledTimes(1);
+    expect(printErrorMock).not.toHaveBeenCalled();
   });
 
   it('reports error and exits when --platform contains invalid values', async () => {
