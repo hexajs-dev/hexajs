@@ -1,5 +1,12 @@
 # @hexajs-dev/cli
 
+## 0.9.3-alpha.4
+
+### Patch Changes
+
+- cd1d4cd: support external content script in manifest merge
+  - @hexajs-dev/common@0.9.3-alpha.4
+
 ## 0.9.3-alpha.3
 
 ### Patch Changes
