@@ -1,5 +1,15 @@
 # @hexajs-dev/ui
 
+## 0.9.3-alpha.5
+
+### Patch Changes
+
+- fec6a5c: Fix npm scaffolding dependency resolution by improving internal package linkage metadata and adding an npm ERESOLVE install retry fallback in hexa new.
+- Updated dependencies [fec6a5c]
+  - @hexajs-dev/core@0.9.3-alpha.5
+  - @hexajs-dev/ports@0.9.3-alpha.5
+  - @hexajs-dev/common@0.9.3-alpha.5
+
 ## 0.9.3-alpha.4
 
 ### Patch Changes
