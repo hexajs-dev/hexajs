@@ -24,17 +24,21 @@ export class ManifestGenerator {
     generate(): string {
         // 1. Start from the platform default template (deep copy)
         const manifest = getTemplateForPlatform(this.resolved.platform);
+        let userContentScripts: ManifestV3['content_scripts'] = [];
 
         // 2. Apply project metadata from hexa config
         manifest.name = this.resolved.project.name;
         manifest.version = this.resolved.project.version;
 
-        // 3. If user provided a base manifest path, try to merge it — user fields win on all except
-        //    content_scripts and background, which HexaJS always controls.
+        // 3. If user provided a base manifest path, try to merge it.
+        //    HexaJS always controls background/action/devtools/manifest_version and always
+        //    generates compiled content script entries. User-provided content_scripts are kept
+        //    as additional entries.
         //    If the path is set but the file is missing, a warning is printed and we fall back to the platform template.
         if (this.resolved.manifest) {
             const userManifest = this.loadUserManifest(this.resolved.manifest);
             if (userManifest) {
+                userContentScripts = this.extractUserContentScripts(userManifest);
                 this.mergeUserManifest(manifest, userManifest);
             }
         }
@@ -42,15 +46,17 @@ export class ManifestGenerator {
         // 4. HexaJS always owns background — inject from template (already set by getTemplateForPlatform)
         //    nothing to do here, it's already in the template
 
-        // 5. HexaJS always owns content_scripts — build from contentBootstraps.
-        //    Content scripts are bundled as IIFE (self-contained), so no
+        // 5. HexaJS always generates compiled content_scripts from contentBootstraps.
+        //    User content_scripts from manifest merge are preserved as additional entries.
+        //    Generated content scripts are bundled as IIFE (self-contained), so no
         //    `type: "module"` is needed — they work on all browsers.
-        manifest.content_scripts = this.contentBootstraps.map(cs => ({
+        const generatedContentScripts: ManifestV3['content_scripts'] = this.contentBootstraps.map(cs => ({
             js: [`content/${cs.name}.js`],
             matches: cs.matches,
             run_at: cs.runAt,
             all_frames: cs.allFrames,
         }));
+        manifest.content_scripts = this.mergeContentScripts(generatedContentScripts, userContentScripts);
 
         this.applyUiEntries(manifest);
         this.applyWorkerMutations(manifest);
@@ -86,6 +92,46 @@ export class ManifestGenerator {
             }
             (base as Record<string, unknown>)[key] = value;
         }
+    }
+
+    private extractUserContentScripts(user: Partial<ManifestV3>): ManifestV3['content_scripts'] {
+        if (!Array.isArray(user.content_scripts)) {
+            return [];
+        }
+
+        return user.content_scripts.filter((entry): entry is ManifestV3['content_scripts'][number] => {
+            if (!entry || !Array.isArray(entry.js) || entry.js.length === 0) {
+                return false;
+            }
+            return Array.isArray(entry.matches) && entry.matches.length > 0;
+        });
+    }
+
+    private mergeContentScripts(generated: ManifestV3['content_scripts'], userScripts: ManifestV3['content_scripts']): ManifestV3['content_scripts'] {
+        const merged: ManifestV3['content_scripts'] = [];
+        const seen = new Set<string>();
+
+        for (const entry of [...generated, ...userScripts]) {
+            const key = JSON.stringify({
+                js: entry.js,
+                css: entry.css,
+                matches: entry.matches,
+                exclude_matches: entry.exclude_matches,
+                run_at: entry.run_at,
+                all_frames: entry.all_frames,
+                world: entry.world,
+                type: entry.type,
+            });
+
+            if (seen.has(key)) {
+                continue;
+            }
+
+            seen.add(key);
+            merged.push(entry);
+        }
+
+        return merged;
     }
 
     private applyUiEntries(manifest: ManifestV3): void {

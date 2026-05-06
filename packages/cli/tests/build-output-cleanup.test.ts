@@ -81,6 +81,24 @@ describe('prepareOutputDirForTarget', () => {
     }
   });
 
+  it('does not remove user-managed external content scripts outside content output folder', () => {
+    fs.writeFileSync(path.join(tempDir, 'manifest.json'), JSON.stringify({
+      content_scripts: [
+        { js: ['content/content.js'] },
+        { js: ['external_content.js'] },
+      ],
+    }), 'utf-8');
+
+    fs.mkdirSync(path.join(tempDir, 'content'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, 'content', 'content.js'), 'content', 'utf-8');
+    fs.writeFileSync(path.join(tempDir, 'external_content.js'), 'external', 'utf-8');
+
+    prepareOutputDirForTarget(tempDir, 'content');
+
+    expect(fs.existsSync(path.join(tempDir, 'content', 'content.js'))).toBe(false);
+    expect(fs.existsSync(path.join(tempDir, 'external_content.js'))).toBe(true);
+  });
+
   it('removes only previous background outputs during background rebuilds', () => {
     fs.mkdirSync(path.join(tempDir, 'background'), { recursive: true });
     fs.writeFileSync(path.join(tempDir, 'background', 'background.bootstrap.js'), 'background', 'utf-8');
