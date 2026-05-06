@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "changeset": "changeset",
-    "version-packages": "changeset version",
+    "version-packages": "changeset version && pnpm install --lockfile-only",
     "version-alpha": "changeset pre enter alpha",
     "release": "pnpm run build:packages && changeset publish",
     "build": "pnpm run rebuild",
