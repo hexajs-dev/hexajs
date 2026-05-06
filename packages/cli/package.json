@@ -1,6 +1,6 @@
 {
   "name": "@hexajs-dev/cli",
-  "version": "0.9.3-alpha.5",
+  "version": "0.9.3-alpha.6",
   "license": "MIT",
   "description": "HexaJS CLI and compiler",
   "homepage": "https://hexajs.dev",

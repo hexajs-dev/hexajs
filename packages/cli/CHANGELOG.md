@@ -1,5 +1,12 @@
 # @hexajs-dev/cli
 
+## 0.9.3-alpha.6
+
+### Patch Changes
+
+- 24057f2: fix missing package manager in new extension generation
+  - @hexajs-dev/common@0.9.3-alpha.6
+
 ## 0.9.3-alpha.5
 
 ### Patch Changes
