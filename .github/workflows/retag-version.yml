@@ -1,0 +1,106 @@
+name: Retag Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to retag across all @hexajs-dev packages (for example: 0.9.3-alpha.3)"
+        required: true
+        type: string
+      channel_tag:
+        description: "Optional dist-tag to add in addition to auto-detected prerelease channel"
+        required: false
+        type: string
+      apply_latest:
+        description: "Also apply the latest dist-tag"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  retag:
+    name: Retag npm package versions
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Ensure npm token exists
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "NPM_TOKEN secret is not set."
+            exit 1
+          fi
+
+      - name: Verify npm auth
+        run: npm whoami
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Retag requested version for HexaJS packages
+        env:
+          VERSION: ${{ inputs.version }}
+          CHANNEL_TAG: ${{ inputs.channel_tag }}
+          APPLY_LATEST: ${{ inputs.apply_latest }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          derived_channel=""
+
+          if [[ "${VERSION}" == *-* ]]; then
+            prerelease_part="${VERSION#*-}"
+            first_identifier="${prerelease_part%%.*}"
+            derived_channel="$(printf '%s' "${first_identifier}" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-')"
+
+            if [ -z "${derived_channel}" ]; then
+              derived_channel="next"
+            fi
+          fi
+
+          channel_to_apply="${CHANNEL_TAG}"
+
+          if [ -z "${channel_to_apply}" ]; then
+            channel_to_apply="${derived_channel}"
+          fi
+
+          if [ -z "${channel_to_apply}" ] && [ "${APPLY_LATEST}" != "true" ]; then
+            echo "No tags requested. Set apply_latest=true or provide channel_tag."
+            exit 1
+          fi
+
+          packages=(
+            "@hexajs-dev/common"
+            "@hexajs-dev/ports"
+            "@hexajs-dev/core"
+            "@hexajs-dev/ui"
+            "@hexajs-dev/cli"
+          )
+
+          for pkg in "${packages[@]}"; do
+            spec="${pkg}@${VERSION}"
+
+            if [ -n "${channel_to_apply}" ]; then
+              echo "Applying ${channel_to_apply} to ${spec}"
+              npm dist-tag add "${spec}" "${channel_to_apply}"
+            fi
+
+            if [ "${APPLY_LATEST}" = "true" ]; then
+              echo "Applying latest to ${spec}"
+              npm dist-tag add "${spec}" latest
+            fi
+          done
+
+          echo "Retag completed for ${VERSION}."

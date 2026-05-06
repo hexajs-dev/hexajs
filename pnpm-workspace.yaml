@@ -2,4 +2,12 @@ packages:
   - 'packages/*'
   - 'examples/*'
   - 'documentation'
-
+sharedWorkspaceLockfile: true
+lockfile: true
+overrides:
+  webpackbar: 7.0.0
+allowBuilds:
+  '@parcel/watcher': true
+  core-js: true
+  esbuild: true
+  sharp: true

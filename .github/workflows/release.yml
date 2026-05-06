@@ -5,16 +5,6 @@ on:
     branches:
       - main
   workflow_dispatch:
-    inputs:
-      promote_version_to_latest:
-        description: "Promote released versions to npm latest dist-tag"
-        required: false
-        type: boolean
-        default: true
-      version_to_promote:
-        description: "Optional explicit version to tag as latest (for example: 0.9.3-alpha.3)"
-        required: false
-        type: string
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -45,7 +35,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
         with:
-          version: 9.0.0
+          version: 11.0.6
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -86,30 +76,8 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Promote explicit version to latest dist-tag
-        if: github.event_name == 'workflow_dispatch' && inputs.promote_version_to_latest && inputs.version_to_promote != ''
-        env:
-          VERSION_TO_PROMOTE: ${{ inputs.version_to_promote }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          set -euo pipefail
-
-          packages=(
-            "@hexajs-dev/common"
-            "@hexajs-dev/ports"
-            "@hexajs-dev/core"
-            "@hexajs-dev/ui"
-            "@hexajs-dev/cli"
-          )
-
-          for pkg in "${packages[@]}"; do
-            spec="${pkg}@${VERSION_TO_PROMOTE}"
-            echo "Promoting ${spec} to latest"
-            npm dist-tag add "${spec}" latest
-          done
-
-      - name: Promote newly published versions to latest dist-tag
-        if: steps.changesets.outputs.published == 'true' && (github.event_name != 'workflow_dispatch' || (inputs.promote_version_to_latest && inputs.version_to_promote == ''))
+      - name: Apply dist-tags to newly published versions
+        if: steps.changesets.outputs.published == 'true'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           PUBLISHED_PACKAGES: ${{ steps.changesets.outputs.publishedPackages }}
@@ -117,11 +85,13 @@ jobs:
           set -euo pipefail
 
           if [ -z "${PUBLISHED_PACKAGES}" ] || [ "${PUBLISHED_PACKAGES}" = "[]" ]; then
-            echo "No published package payload found; skipping latest-tag promotion."
+            echo "No published package payload found; skipping dist-tag updates."
             exit 0
           fi
 
           node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
           const { execSync } = require('node:child_process');
 
           const raw = process.env.PUBLISHED_PACKAGES ?? '[]';
@@ -135,7 +105,7 @@ jobs:
           }
 
           if (!Array.isArray(publishedPackages) || publishedPackages.length === 0) {
-            console.log('No packages were published; skipping latest-tag promotion.');
+            console.log('No packages were published; skipping dist-tag updates.');
             process.exit(0);
           }
 
@@ -148,9 +118,77 @@ jobs:
             process.exit(0);
           }
 
+          const preModePath = path.join(process.cwd(), '.changeset', 'pre.json');
+          let isPreMode = false;
+          let preTag = null;
+
+          if (fs.existsSync(preModePath)) {
+            try {
+              const preData = JSON.parse(fs.readFileSync(preModePath, 'utf8'));
+              isPreMode = preData?.mode === 'pre';
+
+              if (typeof preData?.tag === 'string' && preData.tag.trim() !== '') {
+                preTag = preData.tag.trim().toLowerCase();
+              }
+            } catch (error) {
+              console.error('Failed to parse .changeset/pre.json:', error);
+              process.exit(1);
+            }
+          }
+
+          const getPrereleaseChannel = (version) => {
+            const hyphenIndex = version.indexOf('-');
+
+            if (hyphenIndex === -1) {
+              return null;
+            }
+
+            const prereleasePart = version.slice(hyphenIndex + 1);
+            const firstIdentifier = prereleasePart.split('.')[0] ?? '';
+            const normalized = firstIdentifier.toLowerCase().replace(/[^0-9a-z-]/g, '');
+            return normalized || 'next';
+          };
+
+          console.log(`Prerelease mode active: ${isPreMode ? 'yes' : 'no'}${preTag ? ` (tag: ${preTag})` : ''}`);
+
+          const summary = [];
+
           for (const pkg of internalPackages) {
             const spec = `${pkg.name}@${pkg.version}`;
-            console.log(`Promoting ${spec} to latest`);
-            execSync(`npm dist-tag add "${spec}" latest`, { stdio: 'inherit' });
+            const channel = getPrereleaseChannel(pkg.version);
+            const tags = new Set();
+
+            if (channel === null) {
+              tags.add('latest');
+            } else {
+              tags.add(channel);
+
+              if (isPreMode && (preTag === null || channel === preTag)) {
+                tags.add('latest');
+              }
+            }
+
+            if (tags.size === 0) {
+              console.log(`No tags selected for ${spec}; skipping.`);
+              continue;
+            }
+
+            for (const tag of tags) {
+              console.log(`Applying dist-tag \"${tag}\" to ${spec}`);
+              execSync(`npm dist-tag add \"${spec}\" \"${tag}\"`, { stdio: 'inherit' });
+            }
+
+            summary.push({
+              packageName: pkg.name,
+              version: pkg.version,
+              channel: channel ?? 'stable',
+              tags: [...tags],
+            });
+          }
+
+          console.log('Tagging summary:');
+
+          for (const item of summary) {
+            console.log(`- ${item.packageName}@${item.version} [${item.channel}] => ${item.tags.join(', ')}`);
           }
           NODE
