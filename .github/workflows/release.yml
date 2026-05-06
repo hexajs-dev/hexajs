@@ -53,7 +53,7 @@ jobs:
           head -n 3 pnpm-lock.yaml
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: Verify npm token and @hexajs scope access
         run: |
@@ -67,6 +67,7 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
+          version: pnpm version-packages
           publish: pnpm release
           commit: Version Packages
           title: Version Packages
