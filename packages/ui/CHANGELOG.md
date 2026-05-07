@@ -1,5 +1,14 @@
 # @hexajs-dev/ui
 
+## 0.9.3-alpha.7
+
+### Patch Changes
+
+- 02fae69: Refactor code structure for improved readability and maintainability
+  - @hexajs-dev/common@0.9.3-alpha.7
+  - @hexajs-dev/core@0.9.3-alpha.7
+  - @hexajs-dev/ports@0.9.3-alpha.7
+
 ## 0.9.3-alpha.6
 
 ### Patch Changes
