@@ -50,6 +50,18 @@ describe('manifest watch mode mutations', () => {
     expect(manifest.host_permissions).toContain('*://*.google.com/*');
   });
 
+  it('keeps manifest output readable when minify is enabled', () => {
+    const resolved = createResolved('chrome');
+    resolved.compilerOptions.minify = 'esbuild';
+
+    const generator = new ManifestGenerator([], resolved);
+    const output = generator.generate();
+
+    expect(output).toContain('\n');
+    expect(output).toContain('\n  "manifest_version": 3');
+    expect(() => JSON.parse(output)).not.toThrow();
+  });
+
   it('patches firefox extension_pages script-src with localhost patch origin in watch mode', () => {
     const generator = new ManifestGenerator([], createResolved('firefox'), {}, {
       watch: true,

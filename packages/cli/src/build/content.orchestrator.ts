@@ -22,5 +22,5 @@ export function runContentOrchestrator(foundation: BuildFoundationOutput): Conte
         generatedRows.push(writeGeneratedFile(contentPath, contentScript.content));
     });
 
-    return { contentBootstraps, contentBundleEntries, generatedRows };
+    return { contentBootstraps, contentBundleEntries, contentValidatorPath: contentValidatorsPath, generatedRows };
 }

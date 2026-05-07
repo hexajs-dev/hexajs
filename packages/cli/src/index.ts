@@ -18,6 +18,7 @@ import { runUiOrchestrator } from './build/ui.orchestrator';
 import { cleanupStoresForTarget, prepareOutputDirForTarget } from './build/output';
 import { shouldRunStage, shouldWriteStoreForTarget } from './build/target-selection';
 import { BuildActionOptions, BuildTarget, GeneratedArtifactRow } from './build/types';
+import { minifyValidatorArtifacts } from './build/validator-minify';
 import { withQuietLogs, writeGeneratedFile } from './build/runtime';
 import { printGeneratedTable, printInfoLine, printWarningLine } from './shared/logging';
 import { relativePathFromCwd } from './shared/path-utils';
@@ -118,6 +119,7 @@ export async function buildAction(files: string[], resolved: ResolvedBuildConfig
     let backgroundBundleEntries: string[] = [];
     let contentBundleEntries: string[] = [];
     let workerBundleEntries: string[] = [];
+    const validatorArtifactPaths: string[] = [];
     let hasOffscreenPage = false;
     let backgroundBootstrap = '';
 
@@ -149,6 +151,7 @@ export async function buildAction(files: string[], resolved: ResolvedBuildConfig
         const contentResult = runContentOrchestrator(foundation);
         contentBootstraps = contentResult.contentBootstraps;
         contentBundleEntries = contentResult.contentBundleEntries;
+        validatorArtifactPaths.push(contentResult.contentValidatorPath);
         generatedRows.push(...contentResult.generatedRows);
         persistDebugGeneratedArtifacts(resolved, outputDir, contentResult.generatedRows, 'content');
     }
@@ -157,6 +160,7 @@ export async function buildAction(files: string[], resolved: ResolvedBuildConfig
         const backgroundResult = runBackgroundOrchestrator(foundation);
         backgroundBootstrap = backgroundResult.backgroundBootstrap;
         backgroundBundleEntries = backgroundResult.backgroundBundleEntries;
+        validatorArtifactPaths.push(backgroundResult.backgroundValidatorPath);
         workerBundleEntries = backgroundResult.workerBundleEntries;
         hasOffscreenPage = backgroundResult.hasOffscreenPage;
         generatedRows.push(...backgroundResult.generatedRows);
@@ -231,6 +235,8 @@ export async function buildAction(files: string[], resolved: ResolvedBuildConfig
             tsConfigPath: resolved.tsConfig,
         });
     }
+
+    await minifyValidatorArtifacts({ outputDir, validatorArtifactPaths, resolved });
 
     cleanupStoresForTarget(outputDir, storeOutputs.map(s => s.context), target);
 

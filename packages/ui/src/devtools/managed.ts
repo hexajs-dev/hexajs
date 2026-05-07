@@ -8,42 +8,69 @@ import { normalizeManifestPath } from '../core/normalize';
 import { hexaBootstrapPlugin } from '../core/vendor';
 import { getDefaultViteConfig, loadUserViteConfig, mergeViteConfigs } from '../core/config';
 
+function resolveForComparison(filePath: string): string {
+  try {
+    return fs.realpathSync(filePath);
+  } catch {
+    return path.resolve(filePath);
+  }
+}
+
+function isPathWithinRoot(rootPath: string, candidatePath: string): boolean {
+  const relative = path.relative(rootPath, candidatePath);
+  return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
+}
+
 /**
  * Build a managed devtools panel from `config.sourceDir` using an internal Vite build.
  * Returns the manifest-relative entry path (e.g. "ui/devtools/index.html").
  */
 export async function buildManagedDevtools(config: HexaUiSurfaceConfig | undefined, outputDir: string, compilerOptions: HexaUiCompilerOptions, bootstrapPath: string, platform: string, watch: boolean = false, hmrAddress?: string, hmrSessionToken?: string, cwd: string = process.cwd()): Promise<string> {
-  const sourceDir = path.resolve(cwd, config?.sourceDir ?? path.join('ui', 'devtools'));
-  const indexFile = config?.indexFile ?? 'index.html';
-  const sourceIndex = path.join(sourceDir, indexFile);
+  const projectRoot = resolveForComparison(cwd);
+  const sourceDir = path.resolve(projectRoot, config?.sourceDir ?? path.join('ui', 'devtools'));
+  const sourceDirReal = resolveForComparison(sourceDir);
+  if (!isPathWithinRoot(projectRoot, sourceDirReal)) {
+    throw new Error(`Managed devtools sourceDir must stay inside project root: ${config?.sourceDir ?? path.join('ui', 'devtools')}`);
+  }
 
-  if (!fs.existsSync(sourceDir) || !fs.statSync(sourceDir).isDirectory()) {
-    console.warn(`⚠ Managed devtools source directory not found at ${sourceDir}. Falling back to generated HTML.`);
+  const indexFile = config?.indexFile ?? 'index.html';
+  const normalizedIndex = indexFile.replace(/\\+/g, '/');
+  const sourceIndex = path.resolve(sourceDirReal, normalizedIndex);
+  if (!isPathWithinRoot(sourceDirReal, sourceIndex)) {
+    throw new Error(`Managed devtools indexFile must stay inside sourceDir: ${indexFile}`);
+  }
+
+  const sourceIndexReal = resolveForComparison(sourceIndex);
+  if (!isPathWithinRoot(sourceDirReal, sourceIndexReal)) {
+    throw new Error(`Managed devtools indexFile resolves outside sourceDir: ${sourceIndexReal}`);
+  }
+
+  if (!fs.existsSync(sourceDirReal) || !fs.statSync(sourceDirReal).isDirectory()) {
+    console.warn(`⚠ Managed devtools source directory not found at ${sourceDirReal}. Falling back to generated HTML.`);
     return createFallbackSurface('devtools', outputDir);
   }
 
-  if (!fs.existsSync(sourceIndex) || !fs.statSync(sourceIndex).isFile()) {
-    console.warn(`⚠ Managed devtools entry file not found at ${sourceIndex}. Falling back to generated HTML.`);
+  if (!fs.existsSync(sourceIndexReal) || !fs.statSync(sourceIndexReal).isFile()) {
+    console.warn(`⚠ Managed devtools entry file not found at ${sourceIndexReal}. Falling back to generated HTML.`);
     return createFallbackSurface('devtools', outputDir);
   }
 
   const targetBase = path.join(outputDir, 'ui', 'devtools');
-  const normalizedIndex = indexFile.replace(/\\/g, '/');
-  const bridgeHtml = path.join(sourceDir, 'devtools.html');
+  const bridgeHtml = path.join(sourceDirReal, 'devtools.html');
   const react = loadReactPlugin(cwd);
   const bootstrap = hexaBootstrapPlugin(bootstrapPath, { watch, hmrAddress, hmrSessionToken, surface: 'devtools' });
 
   // Build both the bridge entry (devtools.html → devtools.ts) and the panel
   // (index.html → src/main.tsx) in one Vite pass, sharing the vendor plugin.
   const inputs: Record<string, string> = {
-    panel: path.join(sourceDir, normalizedIndex),
+    panel: sourceIndexReal,
   };
   if (fs.existsSync(bridgeHtml)) {
     inputs['devtools'] = bridgeHtml;
   }
 
-  const defaultViteConfig = getDefaultViteConfig(sourceDir, targetBase, compilerOptions, inputs, [react, bootstrap], { __HEXA_PLATFORM__: JSON.stringify(platform) });
-  const userViteConfig = await loadUserViteConfig(sourceDir, watch ? 'development' : 'production') ?? {};
+  const defaultViteConfig = getDefaultViteConfig(sourceDirReal, targetBase, compilerOptions, inputs, [react, bootstrap], { __HEXA_PLATFORM__: JSON.stringify(platform) });
+  const userViteConfig = await loadUserViteConfig(sourceDirReal, watch ? 'development' : 'production') ?? {};
 
   await viteBuild(mergeViteConfigs(defaultViteConfig, userViteConfig));
 
@@ -57,6 +84,6 @@ export async function buildManagedDevtools(config: HexaUiSurfaceConfig | undefin
     ? normalizeManifestPath(path.posix.join('ui', 'devtools', 'devtools.html'))
     : normalizeManifestPath(path.posix.join('ui', 'devtools', normalizedIndex));
 
-  console.log(`✓ Built managed devtools UI: ${sourceDir} → ${targetBase}`);
+  console.log(`✓ Built managed devtools UI: ${sourceDirReal} → ${targetBase}`);
   return bridgeManifestEntry;
 }

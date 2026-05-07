@@ -4,6 +4,22 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   plugins: ['docusaurus-plugin-sass'],
+  themes: [
+    [
+      '@easyops-cn/docusaurus-search-local',
+      {
+        hashed: true,
+        indexDocs: true,
+        indexBlog: false,
+        indexPages: false,
+        docsRouteBasePath: '/docs',
+        language: 'en',
+        highlightSearchTermsOnTargetPage: true,
+        searchResultLimits: 12,
+        searchBarPosition: 'right',
+      },
+    ],
+  ],
   title: 'HexaJS',
   tagline: 'Build browser extensions like real applications',
   favicon: 'img/hexa-logo.svg',
