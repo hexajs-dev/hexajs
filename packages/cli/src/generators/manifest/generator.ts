@@ -62,11 +62,8 @@ export class ManifestGenerator {
         this.applyWorkerMutations(manifest);
         this.applyWatchModeMutations(manifest);
 
-        // 6. Stringify with minify strategy
-        const shouldMinify = this.resolved.compilerOptions.minify !== false;
-        return shouldMinify
-            ? JSON.stringify(manifest)
-            : JSON.stringify(manifest, null, 2);
+        // 6. Always write a readable manifest in dist, regardless of bundle minification settings.
+        return JSON.stringify(manifest, null, 2);
     }
 
     private loadUserManifest(manifestPath: string): Partial<ManifestV3> | null {

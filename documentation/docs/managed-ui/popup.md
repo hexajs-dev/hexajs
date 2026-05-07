@@ -100,6 +100,44 @@ export class PlatformTokenExample {
 }
 ```
 
+## Customize the Vite build
+
+Each managed surface ships with a `vite.config.ts` in its source directory. HexaJS merges it with the internal build config, so you can extend it without replacing defaults.
+
+```ts title="ui/popup/vite.config.ts"
+import { defineConfig } from 'vite';
+import path from 'path';
+
+export default defineConfig({
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+  css: {
+    modules: {
+      localsConvention: 'camelCase',
+    },
+  },
+  define: {
+    'import.meta.env.EXTENSION_VERSION': JSON.stringify(process.env.npm_package_version),
+  },
+  plugins: [
+    // add extra Vite plugins here
+  ],
+});
+```
+
+Merge behaviour:
+- **`plugins`** — your plugins are loaded first, then HexaJS injects its own (React, bootstrap). Duplicates by name are skipped.
+- **`resolve.alias`** — merged with path aliases derived from `tsconfig.json` in the source directory.
+- **`define`** — merged with HexaJS platform defines.
+- **`build`** — you can extend most options, but managed output controls are preserved: `outDir`, `emptyOutDir`, `rollupOptions.input`, and `rollupOptions.output`. The internal `external` list is always preserved and merged with your additions.
+
+:::note
+The React framework plugin (`@vitejs/plugin-react`) is injected automatically. You do not need to add it — if it is detected in your config it will be skipped to avoid loading it twice.
+:::
+
 ## Notes
 
 - Keep business state in background/content stores.

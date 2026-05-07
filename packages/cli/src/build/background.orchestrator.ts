@@ -43,6 +43,7 @@ export function runBackgroundOrchestrator(foundation: BuildFoundationOutput): Ba
     return {
         backgroundBootstrap,
         backgroundBundleEntries: [backgroundPath],
+        backgroundValidatorPath: backgroundValidatorsPath,
         workerBundleEntries,
         hasOffscreenPage: offscreenHtml !== null,
         generatedRows,

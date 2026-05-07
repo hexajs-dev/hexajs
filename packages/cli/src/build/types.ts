@@ -40,6 +40,7 @@ export interface BuildFoundationOutput {
 export interface BackgroundOrchestratorOutput {
     backgroundBootstrap: string;
     backgroundBundleEntries: string[];
+    backgroundValidatorPath: string;
     workerBundleEntries: string[];
     hasOffscreenPage: boolean;
     generatedRows: GeneratedArtifactRow[];
@@ -55,6 +56,7 @@ export interface BackgroundBuildOutput {
 export interface ContentOrchestratorOutput {
     contentBootstraps: ContentScriptOutput[];
     contentBundleEntries: string[];
+    contentValidatorPath: string;
     generatedRows: GeneratedArtifactRow[];
 }
 

@@ -6,6 +6,9 @@ on:
       - main
     paths:
       - documentation/**
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
       - .github/workflows/docs-pages.yml
 
 permissions:
@@ -45,6 +48,14 @@ jobs:
 
       - name: Build documentation
         run: pnpm --filter @hexajs-dev/documentation run build
+
+      - name: Verify local search index artifact
+        run: |
+          if [ ! -f documentation/build/search-index.json ]; then
+            echo "Missing documentation/build/search-index.json."
+            echo "@easyops-cn/docusaurus-search-local index is generated only by docusaurus build."
+            exit 1
+          fi
 
       - name: Upload documentation artifact
         uses: actions/upload-pages-artifact@v4

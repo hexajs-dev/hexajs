@@ -47,6 +47,8 @@ export interface BundleOptions {
   context?: 'background' | 'content' | 'worker';
   /** Path to the project's tsconfig file (relative to projectRoot or absolute). */
   tsConfigPath?: string;
+  /** Optional Rollup preserveEntrySignatures mode override for specialized entry builds. */
+  preserveEntrySignatures?: false | 'strict' | 'exports-only' | 'allow-extension';
 }
 
 interface TsPathMapping {
@@ -201,10 +203,12 @@ export async function bundleBootstrapFiles(options: BundleOptions): Promise<void
       cssMinify: options.cssMinify,
       ...(options.minify === 'terser' ? { terserOptions: options.terserOptions } : {}),
       rollupOptions: {
-        // Worker scripts export a `methods` map consumed via dynamic import()
-        // from hexa.worker.js. Rollup cannot trace this statically, so we must
-        // preserve entry exports to prevent tree-shaking them away.
-        ...(context === 'worker' ? { preserveEntrySignatures: 'exports-only' as const } : {}),
+        ...(options.preserveEntrySignatures !== undefined
+          ? { preserveEntrySignatures: options.preserveEntrySignatures }
+          // Worker scripts export a `methods` map consumed via dynamic import()
+          // from hexa.worker.js. Rollup cannot trace this statically, so we must
+          // preserve entry exports to prevent tree-shaking them away.
+          : (context === 'worker' ? { preserveEntrySignatures: 'exports-only' as const } : {})),
         input: rollupInput,
         output: [
           isContent

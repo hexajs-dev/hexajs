@@ -5,6 +5,19 @@ import { createRequire } from 'module';
 import { loadConfigFromFile } from 'vite';
 import { HexaUiCompilerOptions } from './types';
 
+function resolveForComparison(filePath: string): string {
+    try {
+        return fs.realpathSync(filePath);
+    } catch {
+        return path.resolve(filePath);
+    }
+}
+
+function isPathWithinRoot(rootPath: string, candidatePath: string): boolean {
+    const relative = path.relative(rootPath, candidatePath);
+    return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
+}
+
 function stripJsonCommentsAndTrailingCommas(source: string): string {
     const withoutBlockComments = source.replace(/\/\*[\s\S]*?\*\//g, '');
     const withoutLineComments = withoutBlockComments.replace(/^\s*\/\/.*$/gm, '');
@@ -70,6 +83,18 @@ function toAliasRecord(aliasValue: unknown): Record<string, string> {
     return {};
 }
 
+function toExternalList(externalValue: unknown): any[] {
+    if (externalValue === undefined || externalValue === null) {
+        return [];
+    }
+
+    if (Array.isArray(externalValue)) {
+        return externalValue;
+    }
+
+    return [externalValue];
+}
+
 export const getDefaultViteConfig = (sourceDir: string, targetBase: string, compilerOptions: HexaUiCompilerOptions, inputs: Record<string, string>, plugins: any[] = [], define: Record<string, string> = {}) => ({
     configFile: false,
     root: sourceDir,
@@ -90,14 +115,28 @@ export const getDefaultViteConfig = (sourceDir: string, targetBase: string, comp
         ...(compilerOptions.minify === 'terser' ? { terserOptions: compilerOptions.terserOptions } : {}),
         rollupOptions: {
             input: inputs,
+            external: [
+                'react',
+                'react-dom',
+                'react-dom/client',
+                /^react\//,
+                /^react-dom\//,
+            ],
         },
     },
 });
 
 export const loadUserViteConfig = async (configDir: string, mode: 'development' | 'production' = 'production'): Promise<Record<string, any> | null> => {
+    const workspaceRoot = resolveForComparison(process.cwd());
+    const configDirReal = resolveForComparison(configDir);
+    if (!isPathWithinRoot(workspaceRoot, configDirReal)) {
+        console.warn(`⚠ Skipping user Vite config outside project root: ${configDirReal}`);
+        return null;
+    }
+
     // Try .ts first, then .js — matches the file we scaffold
     const candidates = ['vite.config.ts', 'vite.config.js', 'vite.config.mjs'];
-    const configPath = candidates.map(f => path.resolve(configDir, f)).find(p => fs.existsSync(p));
+    const configPath = candidates.map(f => path.resolve(configDirReal, f)).find(p => fs.existsSync(p));
 
     if (!configPath) return null;
 
@@ -107,7 +146,7 @@ export const loadUserViteConfig = async (configDir: string, mode: 'development' 
     const importsVite = /from\s+['\"]vite['\"]|require\(['\"]vite['\"]\)/.test(configSource);
     if (importsVite) {
         try {
-            const localRequire = createRequire(path.join(configDir, 'package.json'));
+            const localRequire = createRequire(path.join(configDirReal, 'package.json'));
             localRequire.resolve('vite');
         } catch {
             console.warn(`⚠ Skipping user Vite config at ${configPath} because it imports "vite" but "vite" is not installed in this extension workspace.`);
@@ -116,10 +155,11 @@ export const loadUserViteConfig = async (configDir: string, mode: 'development' 
     }
 
     try {
-        const result = await loadConfigFromFile({ command: 'build', mode }, configPath, configDir);
+        const result = await loadConfigFromFile({ command: 'build', mode }, configPath, configDirReal);
         return result?.config ?? null;
     } catch (err) {
-        console.warn(`⚠ Could not load user Vite config at ${configPath}. Proceeding with default config.`, err);
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        console.warn(`⚠ Could not load user Vite config at ${configPath}. Proceeding with default config. ${errorMessage}`);
         return null;
     }
 }
@@ -164,11 +204,36 @@ export const mergeViteConfigs = (defaultConfig: ReturnType<typeof getDefaultVite
         },
     };
 
+    // Merge rollupOptions while preserving default externals
+    const defaultRollupOptions = defaultConfig.build?.rollupOptions || {};
+    const userRollupOptions = userConfig.build?.rollupOptions || {};
+    const mergedRollupOptions = {
+        ...defaultRollupOptions,
+        ...userRollupOptions,
+        // Managed UI controls entry points and output layout.
+        input: defaultRollupOptions.input,
+        output: defaultRollupOptions.output,
+        // Merge external arrays to preserve default externals when user adds more
+        external: [
+            ...toExternalList(defaultRollupOptions.external),
+            ...toExternalList(userRollupOptions.external),
+        ],
+    };
+
     return {
         ...defaultConfig,
         ...userConfig,
+        configFile: false,
+        root: defaultConfig.root,
         plugins: mergedPlugins,
         define: mergedDefine,
         resolve: mergedResolve,
+        build: {
+            ...(defaultConfig.build || {}),
+            ...(userConfig.build || {}),
+            outDir: defaultConfig.build?.outDir,
+            emptyOutDir: defaultConfig.build?.emptyOutDir,
+            rollupOptions: mergedRollupOptions,
+        },
     };  
 }
