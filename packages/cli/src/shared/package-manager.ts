@@ -11,6 +11,13 @@ interface CommandParts {
     display: string;
 }
 
+function getVersionCommandEnv(): NodeJS.ProcessEnv {
+    return {
+        ...process.env,
+        COREPACK_ENABLE_DOWNLOAD_PROMPT: '0',
+    };
+}
+
 function isPackageManager(value: string): value is PackageManager {
     return (ALL_PACKAGE_MANAGERS as readonly string[]).includes(value);
 }
@@ -38,12 +45,34 @@ function getWindowsCommandArgs(commandText: string): string[] {
     return ['/d', '/s', '/c', commandText];
 }
 
+function isCommandAvailable(commandName: string): boolean {
+    try {
+        if (process.platform === 'win32') {
+            execFileSync(getWindowsCmdPath(), getWindowsCommandArgs(`where ${commandName}`), {
+                encoding: 'utf-8',
+                stdio: 'pipe',
+                windowsHide: true,
+            });
+            return true;
+        }
+
+        execFileSync('which', [commandName], {
+            encoding: 'utf-8',
+            stdio: 'pipe',
+        });
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 function runVersionCommand(pm: PackageManager): string {
     const safePm = assertPackageManager(pm, 'runVersionCommand()');
     if (process.platform === 'win32') {
         return execFileSync(getWindowsCmdPath(), getWindowsCommandArgs(`${safePm} --version`), {
             encoding: 'utf-8',
             stdio: 'pipe',
+            env: getVersionCommandEnv(),
             windowsHide: true,
         }).trim();
     }
@@ -51,18 +80,12 @@ function runVersionCommand(pm: PackageManager): string {
     return execFileSync(safePm, ['--version'], {
         encoding: 'utf-8',
         stdio: 'pipe',
+        env: getVersionCommandEnv(),
     }).trim();
 }
 
 export function detectAvailablePMs(): PackageManager[] {
-    return ALL_PACKAGE_MANAGERS.filter((pm) => {
-        try {
-            runVersionCommand(pm);
-            return true;
-        } catch {
-            return false;
-        }
-    });
+    return ALL_PACKAGE_MANAGERS.filter((pm) => isCommandAvailable(pm));
 }
 
 export function getPackageManagerVersion(pm: PackageManager): string {

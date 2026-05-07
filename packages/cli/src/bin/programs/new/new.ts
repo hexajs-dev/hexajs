@@ -12,15 +12,35 @@ const VALID_NAME_RE = /^[a-z0-9][a-z0-9-_]*$/i;
 const ALL_PLATFORMS = ['chrome', 'firefox', 'safari', 'opera', 'edge', 'brave'] as const;
 type Platform = (typeof ALL_PLATFORMS)[number];
 
-function installDependencies(projectDir: string, packageManager: PackageManager): Promise<void> {
+class InstallCommandError extends Error {
+  constructor(public readonly exitCode: number | null, public readonly output: string) {
+    super(`Dependency installation failed with exit code ${exitCode ?? 'unknown'}.`);
+    this.name = 'InstallCommandError';
+  }
+}
+
+function runInstall(projectDir: string, packageManager: PackageManager, extraArgs: string[] = []): Promise<void> {
   const install = getInstallCommand(packageManager);
 
   return new Promise((resolve, reject) => {
-    const child = spawn(install.command, install.args, {
+    let output = '';
+    const child = spawn(install.command, [...install.args, ...extraArgs], {
       cwd: projectDir,
-      stdio: 'inherit',
+      stdio: ['inherit', 'pipe', 'pipe'],
       shell: false,
       windowsHide: process.platform === 'win32',
+    });
+
+    child.stdout?.on('data', (chunk: Buffer | string) => {
+      const text = chunk.toString();
+      output += text;
+      process.stdout.write(text);
+    });
+
+    child.stderr?.on('data', (chunk: Buffer | string) => {
+      const text = chunk.toString();
+      output += text;
+      process.stderr.write(text);
     });
 
     child.on('error', (error) => {
@@ -33,9 +53,29 @@ function installDependencies(projectDir: string, packageManager: PackageManager)
         return;
       }
 
-      reject(new Error(`Dependency installation failed with exit code ${code ?? 'unknown'}.`));
+      reject(new InstallCommandError(code, output));
     });
   });
+}
+
+async function installDependencies(projectDir: string, packageManager: PackageManager): Promise<void> {
+  try {
+    await runInstall(projectDir, packageManager);
+  } catch (error) {
+    if (
+      packageManager !== 'npm' ||
+      !(error instanceof InstallCommandError) ||
+      !/ERESOLVE|unable to resolve dependency tree/i.test(error.output)
+    ) {
+      throw error;
+    }
+
+    console.log(chalk.yellow('  npm reported a dependency resolution conflict (ERESOLVE).'));
+    console.log(chalk.yellow('  Retrying once with --legacy-peer-deps…'));
+    console.log('');
+
+    await runInstall(projectDir, packageManager, ['--legacy-peer-deps']);
+  }
 }
 
 /** Parse a comma-separated platform string into a validated list */
