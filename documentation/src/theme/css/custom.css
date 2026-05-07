@@ -191,6 +191,33 @@
     visibility: visible !important;
     opacity: 1 !important;
   }
+
+  /* Keep GitHub + theme icons visible next to search on the home page. */
+  .home-page .theme-layout-navbar-right.navbar__items--right {
+    width: auto;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .home-page .theme-layout-navbar-right .header-github-link.navbar__item {
+    display: flex !important;
+  }
+
+  .home-page .theme-layout-navbar-right [class*='colorModeToggle'] {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .home-page .theme-layout-navbar-right .navbarSearchContainer_AQ23 {
+    position: static !important;
+    right: auto !important;
+    padding: 0 !important;
+  }
+
+  .home-page .theme-layout-navbar-right .navbar__search .navbar__search-input {
+    width: clamp(8.25rem, 42vw, 11rem);
+  }
 }
 
 /* ---------- Footer ---------- */
@@ -805,5 +832,66 @@ html[data-theme='dark'] .searchBar .dropdownMenu .suggestion.cursor {
 
 html[data-theme='dark'] .searchBar .dropdownMenu .suggestion.cursor mark {
   color: inherit !important;
+}
+
+/* ---------- Search input — prevent Ctrl+K overlap ---------- */
+.navbar__search .navbar__search-input {
+  width: clamp(11rem, 20vw, 13rem);
+  padding-right: 5rem;
+}
+
+.navbar__search [class*='searchHintContainer_'] {
+  right: 0.6rem;
+  pointer-events: none;
+}
+
+@media (max-width: 996px) {
+  .navbar__search .navbar__search-input {
+    width: 11rem;
+    padding-right: 4.8rem;
+  }
+
+  .navbar__search [class*='searchHint_'] {
+    min-width: 1.1rem;
+    padding: 0 0.35rem;
+  }
+}
+
+/* ---------- Search dropdown — keep results scrollable ---------- */
+.navbar__search [role='listbox'],
+.navbar__search [class*='dropdownMenu_'] {
+  max-height: min(70vh, 520px) !important;
+  overflow-y: hidden !important;
+  overflow-x: hidden !important;
+}
+
+.navbar__search [class*='dataset_'] {
+  max-height: 100% !important;
+  overflow-y: hidden !important;
+  overflow-x: hidden !important;
+}
+
+.navbar__search [class*='suggestions_'] {
+  display: block;
+  max-height: calc(min(70vh, 520px) - 46px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(64, 181, 194, 0.24) transparent;
+}
+
+.navbar__search [class*='suggestions_']::-webkit-scrollbar {
+  width: 6px;
+}
+
+.navbar__search [class*='suggestions_']::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.navbar__search [class*='suggestions_']::-webkit-scrollbar-thumb {
+  background: rgba(64, 181, 194, 0.24);
+  border-radius: 4px;
 }
 
