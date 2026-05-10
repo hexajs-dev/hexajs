@@ -157,8 +157,11 @@ export async function bundleBootstrapFiles(options: BundleOptions): Promise<void
   }
 
   // Content scripts are bundled as IIFE (self-contained, no imports).
-  // Background service workers must use ES modules.
-  const isContent = context === 'content';
+  // Background service workers must use ES modules — except on Safari, where
+  // relative ES module imports inside service workers fail with a permissions
+  // error.  Safari background scripts are therefore also bundled as IIFE
+  // (single file, no import statements) and the manifest omits type:module.
+  const isContent = context === 'content' || (context === 'background' && platform === 'safari');
   const vendorChunkName = context ? `background/hexa-vendor-${context}` : 'background/hexa-vendor';
   const tsPathMappings = loadTsPathMappings(projectRoot, tsConfigPath);
   const tsPathResolverPlugin: Plugin = {

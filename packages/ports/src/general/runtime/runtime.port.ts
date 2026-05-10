@@ -38,7 +38,8 @@ export class RuntimePort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.runtime?.onMessage) {
-                    throwUnsupportedApi('RuntimePort.onMessage', this.platform, 'runtime.onMessage');
+                    console.warn('[RuntimePort.onMessage] runtime.onMessage is not available on this platform.');
+                    return () => {};
                 }
                 const wrapper = (message: any, sender: webExt.runtime.MessageSender, sendResponse: (response?: any) => void) => callback(message, sender, sendResponse);
                 browserApi.runtime.onMessage.addListener(wrapper);
@@ -66,7 +67,8 @@ export class RuntimePort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.runtime?.onMessageExternal) {
-                    throwUnsupportedApi('RuntimePort.onMessageExternal', this.platform, 'runtime.onMessageExternal');
+                    console.warn('[RuntimePort.onMessageExternal] runtime.onMessageExternal is not available on this platform.');
+                    return () => {};
                 }
                 const wrapper = (message: any, sender: webExt.runtime.MessageSender, sendResponse: (response?: any) => void) => callback(message, sender, sendResponse);
                 browserApi.runtime.onMessageExternal.addListener(wrapper);
@@ -94,7 +96,10 @@ export class RuntimePort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.runtime?.onSuspend) {
-                    throwUnsupportedApi('RuntimePort.onSuspend', this.platform, 'runtime.onSuspend');
+                    // Safari MV3 service workers do not expose runtime.onSuspend.
+                    // Silently no-op — destroy callbacks will simply not fire on suspend.
+                    console.warn('[RuntimePort.onSuspend] runtime.onSuspend is not available on this platform. onDestroy lifecycle will not be called on suspend.');
+                    return;
                 }
                 browserApi.runtime.onSuspend.addListener(callback);
                 return;

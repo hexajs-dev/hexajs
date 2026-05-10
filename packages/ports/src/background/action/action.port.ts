@@ -222,7 +222,8 @@ export class ActionPort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.action?.onClicked?.addListener) {
-                    throwUnsupportedApi('ActionPort.onClickedAddListener', this.platform, 'action.onClicked.addListener');
+                    console.warn('[ActionPort.onClickedAddListener] action.onClicked.addListener is not available on this platform.');
+                    return;
                 }
                 browserApi.action.onClicked.addListener(listener);
                 return;
@@ -248,7 +249,8 @@ export class ActionPort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.action?.onClicked?.removeListener) {
-                    throwUnsupportedApi('ActionPort.onClickedRemoveListener', this.platform, 'action.onClicked.removeListener');
+                    console.warn('[ActionPort.onClickedRemoveListener] action.onClicked.removeListener is not available on this platform.');
+                    return;
                 }
                 browserApi.action.onClicked.removeListener(listener);
                 return;

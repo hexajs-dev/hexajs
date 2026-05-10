@@ -135,7 +135,8 @@ export class NotificationsPort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.notifications?.onClicked?.addListener) {
-                    throwUnsupportedApi('NotificationsPort.onClickedAddListener', this.platform, 'notifications.onClicked.addListener');
+                    console.warn('[NotificationsPort.onClickedAddListener] notifications.onClicked.addListener is not available on this platform.');
+                    return;
                 }
                 browserApi.notifications.onClicked.addListener(listener);
                 return;
@@ -161,7 +162,8 @@ export class NotificationsPort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.notifications?.onClicked?.removeListener) {
-                    throwUnsupportedApi('NotificationsPort.onClickedRemoveListener', this.platform, 'notifications.onClicked.removeListener');
+                    console.warn('[NotificationsPort.onClickedRemoveListener] notifications.onClicked.removeListener is not available on this platform.');
+                    return;
                 }
                 browserApi.notifications.onClicked.removeListener(listener);
                 return;
@@ -187,7 +189,8 @@ export class NotificationsPort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.notifications?.onClosed?.addListener) {
-                    throwUnsupportedApi('NotificationsPort.onClosedAddListener', this.platform, 'notifications.onClosed.addListener');
+                    console.warn('[NotificationsPort.onClosedAddListener] notifications.onClosed.addListener is not available on this platform.');
+                    return;
                 }
                 browserApi.notifications.onClosed.addListener(listener);
                 return;
@@ -213,7 +216,8 @@ export class NotificationsPort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.notifications?.onClosed?.removeListener) {
-                    throwUnsupportedApi('NotificationsPort.onClosedRemoveListener', this.platform, 'notifications.onClosed.removeListener');
+                    console.warn('[NotificationsPort.onClosedRemoveListener] notifications.onClosed.removeListener is not available on this platform.');
+                    return;
                 }
                 browserApi.notifications.onClosed.removeListener(listener);
                 return;
@@ -239,7 +243,8 @@ export class NotificationsPort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.notifications?.onButtonClicked?.addListener) {
-                    throwUnsupportedApi('NotificationsPort.onButtonClickedAddListener', this.platform, 'notifications.onButtonClicked.addListener');
+                    console.warn('[NotificationsPort.onButtonClickedAddListener] notifications.onButtonClicked.addListener is not available on this platform.');
+                    return;
                 }
                 browserApi.notifications.onButtonClicked.addListener(listener);
                 return;
@@ -265,7 +270,8 @@ export class NotificationsPort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.notifications?.onButtonClicked?.removeListener) {
-                    throwUnsupportedApi('NotificationsPort.onButtonClickedRemoveListener', this.platform, 'notifications.onButtonClicked.removeListener');
+                    console.warn('[NotificationsPort.onButtonClickedRemoveListener] notifications.onButtonClicked.removeListener is not available on this platform.');
+                    return;
                 }
                 browserApi.notifications.onButtonClicked.removeListener(listener);
                 return;

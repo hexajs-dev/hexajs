@@ -5,7 +5,7 @@ type PlatformTemplateMap = {
 };
 
 /**
- * Chrome, Edge, Brave, Opera, Safari — all use MV3 service_worker for background.
+ * Chrome, Edge, Brave, Opera — use MV3 service_worker with type:module for background.
  */
 const ServiceWorkerTemplate: ManifestV3 = {
     manifest_version: 3,
@@ -30,6 +30,37 @@ const ServiceWorkerTemplate: ManifestV3 = {
     background: {
         service_worker: 'background/background.bootstrap.js',
         type: 'module',
+    },
+};
+
+/**
+ * Safari MV3 — service_worker without type:module.
+ * Safari cannot resolve relative ES module imports (import statements) from
+ * background service workers when the script is split into multiple chunks.
+ * Bundling as a classic IIFE (single self-contained file) avoids this.
+ */
+const SafariTemplate: ManifestV3 = {
+    manifest_version: 3,
+    name: 'My HexaJS Extension',
+    version: '1.0.0',
+    description: 'A browser extension built with HexaJS',
+    icons: {
+        '16': 'assets/icons/icon16.png',
+        '32': 'assets/icons/icon32.png',
+        '48': 'assets/icons/icon48.png',
+        '128': 'assets/icons/icon128.png',
+    },
+    action: {
+        default_icon: {
+            '16': 'assets/icons/icon16.png',
+            '32': 'assets/icons/icon32.png',
+        },
+    },
+    content_scripts: [],
+    permissions: ['storage', 'tabs'],
+    host_permissions: ['<all_urls>'],
+    background: {
+        service_worker: 'background/background.bootstrap.js',
     },
 };
 
@@ -68,7 +99,7 @@ export const platformTemplates: PlatformTemplateMap = {
     edge: ServiceWorkerTemplate,
     brave: ServiceWorkerTemplate,
     opera: ServiceWorkerTemplate,
-    safari: ServiceWorkerTemplate,
+    safari: SafariTemplate,
     firefox: FirefoxTemplate,
 };
 

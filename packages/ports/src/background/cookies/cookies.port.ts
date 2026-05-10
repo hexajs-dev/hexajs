@@ -362,7 +362,8 @@ export class CookiesPort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.cookies?.onChanged?.addListener) {
-                    throwUnsupportedApi('CookiesPort.onChangedAddListener', this.platform, 'cookies.onChanged.addListener');
+                    console.warn('[CookiesPort.onChangedAddListener] cookies.onChanged.addListener is not available on this platform.');
+                    return;
                 }
                 browserApi.cookies.onChanged.addListener(listener);
                 return;
@@ -390,7 +391,8 @@ export class CookiesPort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.cookies?.onChanged?.removeListener) {
-                    throwUnsupportedApi('CookiesPort.onChangedRemoveListener', this.platform, 'cookies.onChanged.removeListener');
+                    console.warn('[CookiesPort.onChangedRemoveListener] cookies.onChanged.removeListener is not available on this platform.');
+                    return;
                 }
                 browserApi.cookies.onChanged.removeListener(listener);
                 return;

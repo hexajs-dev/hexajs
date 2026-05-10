@@ -308,7 +308,8 @@ export class BookmarksPort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.bookmarks?.onCreated?.addListener) {
-                    throwUnsupportedApi('BookmarksPort.onCreatedAddListener', this.platform, 'bookmarks.onCreated.addListener');
+                    console.warn('[BookmarksPort.onCreatedAddListener] bookmarks.onCreated.addListener is not available on this platform.');
+                    return;
                 }
                 browserApi.bookmarks.onCreated.addListener(listener);
                 return;
@@ -334,7 +335,8 @@ export class BookmarksPort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.bookmarks?.onCreated?.removeListener) {
-                    throwUnsupportedApi('BookmarksPort.onCreatedRemoveListener', this.platform, 'bookmarks.onCreated.removeListener');
+                    console.warn('[BookmarksPort.onCreatedRemoveListener] bookmarks.onCreated.removeListener is not available on this platform.');
+                    return;
                 }
                 browserApi.bookmarks.onCreated.removeListener(listener);
                 return;
@@ -360,7 +362,8 @@ export class BookmarksPort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.bookmarks?.onRemoved?.addListener) {
-                    throwUnsupportedApi('BookmarksPort.onRemovedAddListener', this.platform, 'bookmarks.onRemoved.addListener');
+                    console.warn('[BookmarksPort.onRemovedAddListener] bookmarks.onRemoved.addListener is not available on this platform.');
+                    return;
                 }
                 browserApi.bookmarks.onRemoved.addListener(listener);
                 return;
@@ -386,7 +389,8 @@ export class BookmarksPort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.bookmarks?.onRemoved?.removeListener) {
-                    throwUnsupportedApi('BookmarksPort.onRemovedRemoveListener', this.platform, 'bookmarks.onRemoved.removeListener');
+                    console.warn('[BookmarksPort.onRemovedRemoveListener] bookmarks.onRemoved.removeListener is not available on this platform.');
+                    return;
                 }
                 browserApi.bookmarks.onRemoved.removeListener(listener);
                 return;
@@ -412,7 +416,8 @@ export class BookmarksPort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.bookmarks?.onChanged?.addListener) {
-                    throwUnsupportedApi('BookmarksPort.onChangedAddListener', this.platform, 'bookmarks.onChanged.addListener');
+                    console.warn('[BookmarksPort.onChangedAddListener] bookmarks.onChanged.addListener is not available on this platform.');
+                    return;
                 }
                 browserApi.bookmarks.onChanged.addListener(listener);
                 return;
@@ -438,7 +443,8 @@ export class BookmarksPort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.bookmarks?.onChanged?.removeListener) {
-                    throwUnsupportedApi('BookmarksPort.onChangedRemoveListener', this.platform, 'bookmarks.onChanged.removeListener');
+                    console.warn('[BookmarksPort.onChangedRemoveListener] bookmarks.onChanged.removeListener is not available on this platform.');
+                    return;
                 }
                 browserApi.bookmarks.onChanged.removeListener(listener);
                 return;
@@ -464,7 +470,8 @@ export class BookmarksPort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.bookmarks?.onMoved?.addListener) {
-                    throwUnsupportedApi('BookmarksPort.onMovedAddListener', this.platform, 'bookmarks.onMoved.addListener');
+                    console.warn('[BookmarksPort.onMovedAddListener] bookmarks.onMoved.addListener is not available on this platform.');
+                    return;
                 }
                 browserApi.bookmarks.onMoved.addListener(listener);
                 return;
@@ -490,7 +497,8 @@ export class BookmarksPort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.bookmarks?.onMoved?.removeListener) {
-                    throwUnsupportedApi('BookmarksPort.onMovedRemoveListener', this.platform, 'bookmarks.onMoved.removeListener');
+                    console.warn('[BookmarksPort.onMovedRemoveListener] bookmarks.onMoved.removeListener is not available on this platform.');
+                    return;
                 }
                 browserApi.bookmarks.onMoved.removeListener(listener);
                 return;
