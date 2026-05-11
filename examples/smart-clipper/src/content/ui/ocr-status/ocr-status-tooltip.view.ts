@@ -8,6 +8,7 @@ interface OcrTooltipState {
     visible: boolean;
     variant: OcrTooltipVariant;
     message: string;
+    copyAction: (() => void) | null;
 }
 
 @View({
@@ -21,7 +22,8 @@ export class OcrStatusTooltipView extends HexaView {
     private state: OcrTooltipState = {
         visible: false,
         variant: 'progress',
-        message: ''
+        message: '',
+        copyAction: null
     };
 
     subscribe(listener: () => void): () => void {
@@ -41,7 +43,8 @@ export class OcrStatusTooltipView extends HexaView {
         this.setState({
             visible: true,
             variant: 'progress',
-            message: `${stageLabel}... ${progress}%`
+            message: `${stageLabel}... ${progress}%`,
+            copyAction: null
         });
     }
 
@@ -50,7 +53,18 @@ export class OcrStatusTooltipView extends HexaView {
         this.setState({
             visible: true,
             variant: 'success',
-            message: `Copied to clipboard: ${preview}`
+            message: `Copied to clipboard: ${preview}`,
+            copyAction: null
+        });
+    }
+
+    showCopyPrompt(text: string, onCopy: () => void): void {
+        const preview = text.length > 60 ? `${text.slice(0, 60)}...` : text;
+        this.setState({
+            visible: true,
+            variant: 'success',
+            message: preview,
+            copyAction: onCopy
         });
     }
 
@@ -58,7 +72,8 @@ export class OcrStatusTooltipView extends HexaView {
         this.setState({
             visible: true,
             variant: 'error',
-            message: reason
+            message: reason,
+            copyAction: null
         });
     }
 

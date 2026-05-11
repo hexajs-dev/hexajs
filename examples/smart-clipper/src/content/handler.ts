@@ -41,7 +41,16 @@ export class SmartClipperHandler {
 				await this.clipboardPort.writeText(payload.text);
 				this.clipperUi.showOcrSuccess(payload.text);
 			} catch {
-				this.clipperUi.showOcrError('Clipboard access denied');
+				// Safari (and some other contexts) block clipboard writes from message handlers
+				// because there is no user gesture. Show a "tap to copy" prompt instead.
+				this.clipperUi.showOcrCopyPrompt(payload.text, () => {
+					navigator.clipboard?.writeText(payload.text!)
+						.then(() => this.clipperUi.showOcrSuccess(payload.text!))
+						.catch(e => {
+							console.error('[smart-clipper] Tap-to-copy failed:', e);
+							this.clipperUi.showOcrError('Clipboard access denied');
+						});
+				});
 			}
 		} else {
 			console.error('[smart-clipper] OCR failed:', payload.error);

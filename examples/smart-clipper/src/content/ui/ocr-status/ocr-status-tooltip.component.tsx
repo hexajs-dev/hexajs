@@ -16,8 +16,15 @@ export function OcrStatusTooltipComponent({ controller }: OcrStatusTooltipProps)
     }
 
     return (
-        <div className={`hexa-ocr-status hexa-ocr-status--${state.variant}`}>
-            {state.message}
+        <div className={`hexa-ocr-status hexa-ocr-status--${state.variant}${state.copyAction ? ' hexa-ocr-status--interactive' : ''}`}>
+            {state.copyAction ? (
+                <>
+                    <span className="hexa-ocr-status__copy-label">Tap to copy: </span>
+                    <button className="hexa-ocr-status__copy-btn" onClick={state.copyAction}>{state.message}</button>
+                </>
+            ) : (
+                state.message
+            )}
         </div>
     );
 }
