@@ -13,6 +13,7 @@
     "unmanaged-ui": "0.0.1"
   },
   "changesets": [
+    "beta-release",
     "cuddly-parks-scream",
     "funny-name-heal",
     "light-worlds-start",
