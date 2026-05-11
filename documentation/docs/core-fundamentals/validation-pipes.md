@@ -108,6 +108,8 @@ In these routes:
 
 During build, the CLI scans DTO classes and stores property-level validation metadata. It only generates validators for DTOs that are actually referenced by routed controller or handler methods.
 
+DTO classes without supported validation decorators are ignored, so validation is never forced for undecorated route contracts.
+
 ### 2. Route to DTO mapping
 
 For each route, the scanner extracts:
@@ -238,7 +240,7 @@ That means response DTOs are useful not just for request validation, but also fo
 
 Inside the pipe system, validation failures become `HexaPipeValidationError`. The container catches that error and serializes it into a structured message payload.
 
-The current transport-level failure shape is:
+The transport-level failure shape remains:
 
 ```ts
 {
@@ -254,17 +256,47 @@ For outbound failures, the code is typically:
 'HEXA_RESPONSE_VALIDATION_FAILED'
 ```
 
-Important: today these failures are sent back as structured error payloads by the container. They are not automatically re-thrown on the caller side by `sendMessage(...)`, so callers should inspect the response when they expect validation-sensitive routes.
+`sendMessage(...)` and `sendToTab(...)` now reject their promise when the response payload has a validation code:
 
-Example:
+- `HEXA_VALIDATION_FAILED`
+- `HEXA_RESPONSE_VALIDATION_FAILED`
+
+The client maps the internal transport payload to `HexaRemoteError`, so your catch blocks use standard error fields:
+
+- `error.message`
+- `error.code`
+- `error.details`
+
+Other structured Hexa payloads (for example `HEXA_BOUNDARY_POLICY_DENIED`) are still returned as resolved responses.
+
+`Promise.catch(...)` example:
 
 ```ts
-const response = await contentClient.sendMessage(configApi.Get, {
-  requestedAt: 'not-a-number',
-});
+import { HexaRemoteError } from '@hexajs-dev/core';
 
-if (response && typeof response === 'object' && '__hexa_error__' in response) {
-  console.error(response.__hexa_code__, response.__hexa_error__, response.__hexa_details__);
+contentClient
+  .sendMessage(configApi.Get, { requestedAt: 'not-a-number' })
+  .catch((error: unknown) => {
+    if (error instanceof HexaRemoteError) {
+      console.error(error.code, error.message, error.details);
+      return;
+    }
+
+    throw error;
+  });
+```
+
+`async/await` example:
+
+```ts
+import { HexaRemoteError } from '@hexajs-dev/core';
+
+try {
+  await contentClient.sendMessage(configApi.Get, { requestedAt: 'not-a-number' });
+} catch (error: unknown) {
+  if (error instanceof HexaRemoteError) {
+    console.error(error.code, error.message, error.details);
+  }
 }
 ```
 
@@ -275,11 +307,12 @@ if (response && typeof response === 'object' && '__hexa_error__' in response) {
 - Keep DTOs small and serializable.
 - Prefer explicit DTOs over anonymous object types if you want generated validation.
 - Treat response DTOs as part of the route contract, not just a convenience.
-- Check for `__hexa_error__` in callers when handling potentially invalid remote input.
+- Use `try/catch` (or `.catch`) around validation-sensitive calls and narrow errors with `instanceof HexaRemoteError`.
 
 ## Limits to know
 
 - Validation is route-driven: no route, no generated validator.
+- Validation is decorator-driven: DTOs without supported decorators do not get generated validators.
 - Only the first method parameter is used as the inbound DTO contract.
 - Primitive return types like `string` or `number` do not generate DTO validators.
 - Decorators are compile-time metadata, not runtime enforcement by themselves.

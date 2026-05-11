@@ -2,6 +2,7 @@ import Heading from '@theme/Heading';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import { QuickStartTerminal } from './QuickStartTerminal/QuickStartTerminal';
 import './Hompage.scss';
 
 
@@ -25,6 +26,7 @@ export function HomepageHexa() {
             GitHub
           </Link>
         </div>
+        <QuickStartTerminal />
       </div>
     </header>
   );

@@ -98,4 +98,30 @@ describe('ValidatorGenerator', () => {
     expect(output.background).not.toContain("'missing': validateMissingBackgroundDto,");
     expect(output.content).not.toContain("'missingResponse': validateResponseMissingContentDto,");
   });
+
+  it('keeps validation opt-in for routed DTOs without decorator metadata', () => {
+    const registry = new MetadataRegistry();
+
+    registry.addController({
+      className: 'PlainController',
+      namespace: 'plain',
+      methods: [
+        {
+          methodName: 'get',
+          actionName: 'plain:get',
+          payloadDtoType: 'PlainDto',
+        },
+      ],
+      dependencies: [],
+      tokenDependencies: [],
+      importPath: 'src/plain/controller.ts',
+      hasOnInit: false,
+      hasOnDestroy: false,
+    });
+
+    const output = new ValidatorGenerator(registry).generate();
+
+    expect(output.background).not.toContain("'plain:get': validatePlainDto,");
+    expect(output.background).not.toContain('function validatePlainDto(data)');
+  });
 });
