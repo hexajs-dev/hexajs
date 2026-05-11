@@ -14,6 +14,7 @@ import { runBackgroundOrchestrator } from './build/background.orchestrator';
 import { runContentOrchestrator } from './build/content.orchestrator';
 import { persistDebugGeneratedArtifacts } from './build/debug-snapshot';
 import { runFoundationOrchestrator } from './build/foundation.orchestrator';
+import { UsedPortsCollector } from './build/used-ports.collector';
 import { runUiOrchestrator } from './build/ui.orchestrator';
 import { cleanupStoresForTarget, prepareOutputDirForTarget } from './build/output';
 import { shouldRunStage, shouldWriteStoreForTarget } from './build/target-selection';
@@ -52,7 +53,7 @@ function readExistingUiEntries(outputDir: string): ManifestUiEntries {
     }
 }
 
-async function finalizeFullBuild(resolved: ResolvedBuildConfig, outputDir: string, contentBootstraps: ContentScriptOutput[], uiEntries: ManifestUiEntries, generatedRows: GeneratedArtifactRow[], watch?: boolean, hmrAddress?: string, hasOffscreenPage?: boolean): Promise<void> {
+async function finalizeFullBuild(resolved: ResolvedBuildConfig, outputDir: string, contentBootstraps: ContentScriptOutput[], uiEntries: ManifestUiEntries, generatedRows: GeneratedArtifactRow[], watch?: boolean, hmrAddress?: string, hasOffscreenPage?: boolean, usedPorts: string[] = []): Promise<void> {
     await copyStaticAssets(resolved, outputDir);
 
     if (resolved.manifest) {
@@ -62,7 +63,7 @@ async function finalizeFullBuild(resolved: ResolvedBuildConfig, outputDir: strin
         }
     }
 
-    const manifestGenerator = new ManifestGenerator(contentBootstraps, resolved, uiEntries, { watch, hmrAddress, hasOffscreenPage });
+    const manifestGenerator = new ManifestGenerator(contentBootstraps, resolved, uiEntries, { watch, hmrAddress, hasOffscreenPage, usedPorts });
     const manifestJson = await withQuietLogs(true, () => manifestGenerator.generate());
     const manifestPath = path.join(outputDir, 'manifest.json');
     generatedRows.push(writeGeneratedFile(manifestPath, manifestJson));
@@ -105,6 +106,7 @@ export async function buildAction(files: string[], resolved: ResolvedBuildConfig
     foundation.hmrAddress = buildOptions?.hmrAddress;
     foundation.hmrSessionToken = buildOptions?.hmrSessionToken;
     const { storeOutputs, program, registry } = foundation;
+    const usedPorts = new UsedPortsCollector(registry).collect();
 
     storeOutputs
         .filter(store => shouldWriteStoreForTarget(target, store.context))
@@ -175,7 +177,7 @@ export async function buildAction(files: string[], resolved: ResolvedBuildConfig
     }
 
     if (target === 'all' || (target === 'content' && !!buildOptions?.watch)) {
-        await finalizeFullBuild(resolved, outputDir, contentBootstraps, uiEntries, generatedRows, buildOptions?.watch, buildOptions?.hmrAddress, hasOffscreenPage);
+        await finalizeFullBuild(resolved, outputDir, contentBootstraps, uiEntries, generatedRows, buildOptions?.watch, buildOptions?.hmrAddress, hasOffscreenPage, usedPorts);
     }
 
     if (backgroundBundleEntries.length > 0) {

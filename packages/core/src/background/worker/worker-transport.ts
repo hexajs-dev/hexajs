@@ -16,6 +16,7 @@ const PlatformType = {
 
 const OFFSCREEN_PAGE_CANDIDATES = ['background/hexa-offscreen.html', 'hexa-offscreen.html'] as const;
 const WORKER_SCRIPT_CANDIDATES = ['background/hexa.worker.js', 'hexa.worker.js'] as const;
+const WORKER_CONSTRUCTOR_CANDIDATES: Array<{ type: 'module' } | undefined> = [{ type: 'module' }, undefined];
 
 export class WorkerTransportEngine {
   private static hostReady: Promise<void> | null = null;
@@ -87,20 +88,33 @@ export class WorkerTransportEngine {
 
   private static bootWebWorker(): void {
     if (this.workerInstance) return;
+
+    const WorkerCtor = (globalThis as any).Worker;
+    if (typeof WorkerCtor !== 'function') {
+      throw new Error('[HexaJS] Web Worker API is not available in this background runtime. DOM workers require a worker-capable background context.');
+    }
+
     let worker: any = null;
     let lastError: unknown;
 
     for (const scriptPath of WORKER_SCRIPT_CANDIDATES) {
-      try {
-        worker = new (globalThis as any).Worker(scriptPath, { type: 'module' });
+      for (const constructorOptions of WORKER_CONSTRUCTOR_CANDIDATES) {
+        try {
+          worker = constructorOptions ? new WorkerCtor(scriptPath, constructorOptions) : new WorkerCtor(scriptPath);
+          break;
+        } catch (error) {
+          lastError = error;
+        }
+      }
+
+      if (worker) {
         break;
-      } catch (error) {
-        lastError = error;
       }
     }
 
     if (!worker) {
-      throw lastError instanceof Error ? lastError : new Error('Failed to initialize HexaJS worker host');
+      const reason = lastError instanceof Error ? lastError.message : String(lastError ?? 'unknown error');
+      throw new Error(`[HexaJS] Failed to initialize worker host using scripts (${WORKER_SCRIPT_CANDIDATES.join(', ')}): ${reason}`);
     }
 
     this.workerInstance = worker;

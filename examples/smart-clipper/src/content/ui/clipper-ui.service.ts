@@ -164,6 +164,12 @@ export class ClipperUiService {
         this.scheduleOcrDismiss(3000);
     }
 
+    showOcrCopyPrompt(text: string, onCopy: () => void): void {
+        this.ensureOcrTooltipMounted();
+        this.ocrStatusView.showCopyPrompt(text, onCopy);
+        // No auto-dismiss — user must tap to copy first
+    }
+
     showOcrError(reason: string): void {
         this.ensureOcrTooltipMounted();
         this.ocrStatusView.showError(reason);

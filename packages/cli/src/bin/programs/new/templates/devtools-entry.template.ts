@@ -13,5 +13,7 @@ devtools.panels.create('${ctx.name}', '', 'ui/devtools/index.html').then((panel)
   panel.onShown.addListener((_panelWindow: Window) => {
     console.log('[HexaJS] DevTools panel shown');
   });
+}).catch((error: unknown) => {
+  console.error('[HexaJS] Failed to create DevTools panel', error);
 });
 `;

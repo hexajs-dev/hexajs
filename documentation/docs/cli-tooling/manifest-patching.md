@@ -32,9 +32,14 @@ Hexa automatically generates **16×16, 32×32, 48×48, 128×128** PNG icons and 
 
 Hexa starts with a template for your target platform:
 
-**Chromium-family** (Chrome, Edge, Brave, Opera, Safari):
+**Chromium-family** (Chrome, Edge, Brave, Opera):
 - Uses `service_worker: "background.bootstrap.js"` for background script
 - Supports all MV3 features
+
+**Safari**:
+- Uses `scripts: ["background.bootstrap.js"]` for background script
+- Uses a classic background script context for worker compatibility
+- Applies default `content_security_policy.extension_pages` with `wasm-unsafe-eval` for WebAssembly-based worker compatibility
 
 **Firefox**:
 - Uses `scripts: ["background.bootstrap.js"]` (not service_worker)
@@ -171,6 +176,10 @@ During build, Hexa merges this with compiled content entries so both appear in t
 ```
 
 Firefox supports `browser_specific_settings` for specifying the Add-on ID. Chromium browsers ignore this field.
+
+### Safari
+
+If you customize Safari CSP, keep `wasm-unsafe-eval` in `content_security_policy.extension_pages` when your extension uses WebAssembly (for example OCR with Tesseract). Removing it can break runtime worker initialization in Safari.
 
 ## Icon Generation
 

@@ -7,6 +7,7 @@ export type DocIconKey =
   | 'database'
   | 'globe'
   | 'paintbrush'
+  | 'compass'
   | 'shuffle'
   | 'cog'
   | 'wrench'
@@ -28,6 +29,7 @@ export const DOC_ICONS: Record<DocIconKey, LucideIcon> = {
   database: Database,
   globe: Globe,
   paintbrush: Paintbrush2,
+  compass: Compass,
   shuffle: Shuffle,
   cog: Cog,
   wrench: Wrench,

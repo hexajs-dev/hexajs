@@ -38,7 +38,8 @@ export class RuntimePort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.runtime?.onMessage) {
-                    throwUnsupportedApi('RuntimePort.onMessage', this.platform, 'runtime.onMessage');
+                    console.warn('[RuntimePort.onMessage] runtime.onMessage is not available on this platform.');
+                    return () => {};
                 }
                 const wrapper = (message: any, sender: webExt.runtime.MessageSender, sendResponse: (response?: any) => void) => callback(message, sender, sendResponse);
                 browserApi.runtime.onMessage.addListener(wrapper);
@@ -66,7 +67,8 @@ export class RuntimePort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.runtime?.onMessageExternal) {
-                    throwUnsupportedApi('RuntimePort.onMessageExternal', this.platform, 'runtime.onMessageExternal');
+                    console.warn('[RuntimePort.onMessageExternal] runtime.onMessageExternal is not available on this platform.');
+                    return () => {};
                 }
                 const wrapper = (message: any, sender: webExt.runtime.MessageSender, sendResponse: (response?: any) => void) => callback(message, sender, sendResponse);
                 browserApi.runtime.onMessageExternal.addListener(wrapper);
@@ -94,7 +96,10 @@ export class RuntimePort {
             case PlatformType.Safari: {
                 const browserApi = (globalThis as any).browser;
                 if (!browserApi?.runtime?.onSuspend) {
-                    throwUnsupportedApi('RuntimePort.onSuspend', this.platform, 'runtime.onSuspend');
+                    // Safari MV3 service workers do not expose runtime.onSuspend.
+                    // Silently no-op — destroy callbacks will simply not fire on suspend.
+                    console.warn('[RuntimePort.onSuspend] runtime.onSuspend is not available on this platform. onDestroy lifecycle will not be called on suspend.');
+                    return;
                 }
                 browserApi.runtime.onSuspend.addListener(callback);
                 return;
@@ -117,10 +122,25 @@ export class RuntimePort {
     async sendMessage(message: any): Promise<any> {
         return new Promise((resolve, reject) => {
             switch (typeof __HEXA_PLATFORM__ !== 'undefined' ? __HEXA_PLATFORM__ : this.platform) {
-                case PlatformType.Firefox:
+                case PlatformType.Firefox: {
+                    const browserApi = (globalThis as any).browser;
+                    if (!browserApi?.runtime?.sendMessage) {
+                        rejectUnsupportedApi(reject, 'RuntimePort.sendMessage', this.platform, 'runtime.sendMessage');
+                        return;
+                    }
+                    Promise.resolve(browserApi.runtime.sendMessage(message)).then(resolve).catch(reject);
+                    return;
+                }
                 case PlatformType.Safari: {
                     const browserApi = (globalThis as any).browser;
                     if (!browserApi?.runtime?.sendMessage) {
+                        // Safari devtools panel pages may not have browser.runtime.sendMessage.
+                        // The devtools bridge (devtools_page) injects __hexaRuntimeRelay via onShown.
+                        const relay = (globalThis as any).__hexaRuntimeRelay;
+                        if (typeof relay === 'function') {
+                            Promise.resolve(relay(message)).then(resolve).catch(reject);
+                            return;
+                        }
                         rejectUnsupportedApi(reject, 'RuntimePort.sendMessage', this.platform, 'runtime.sendMessage');
                         return;
                     }

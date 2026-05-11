@@ -1,0 +1,167 @@
+.quickStartTerminal {
+  margin-top: 1.85rem;
+  width: min(100%, 600px);
+  margin-inline: auto;
+}
+
+.quickStartTerminalHeader {
+  text-align: center;
+  padding-block: 1.72rem;
+  font-family: 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.quickStartTerminalTitle {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.5vw, 1.95rem);
+  font-weight: 700;
+  color: var(--quick-start-title-color);
+  letter-spacing: -0.016em;
+  line-height: 1.14;
+  text-shadow: var(--quick-start-title-shadow);
+}
+
+.quickStartTerminalSubtitle {
+  margin: 0.25rem 0 0;
+  font-size: clamp(0.87rem, 1.45vw, 1.04rem);
+  color: var(--quick-start-subtitle-color);
+  letter-spacing: 0.006em;
+  font-weight: 450;
+}
+
+.quickStartWindow {
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--quick-start-window-border-color);
+  background: var(--quick-start-window-bg);
+  box-shadow: var(--quick-start-window-shadow);
+  backdrop-filter: blur(3px);
+}
+
+.quickStartWindowTopBar {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.66rem 0.9rem;
+  background: var(--quick-start-top-bar-bg);
+  border-bottom: 1px solid var(--quick-start-top-bar-border);
+}
+
+.quickStartWindowLights {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.quickStartWindowLight {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+}
+
+.quickStartWindowLightRed {
+  background: var(--quick-start-light-red);
+}
+
+.quickStartWindowLightYellow {
+  background: var(--quick-start-light-yellow);
+}
+
+.quickStartWindowLightGreen {
+  background: var(--quick-start-light-green);
+}
+
+.quickStartWindowLabel {
+  margin-left: 0.45rem;
+  color: var(--quick-start-window-label-color);
+  font-size: 0.82rem;
+  font-weight: 520;
+  letter-spacing: 0.006em;
+  font-family: 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.quickStartWindowBody {
+  height: clamp(170px, 22vw, 240px);
+  max-height: 250px;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  padding: 0.92rem 0.84rem 1rem;
+  font-size: clamp(0.76rem, 1vw, 0.88rem);
+  line-height: 1.4;
+  font-family: 'SFMono-Regular', Menlo, Monaco, 'Cascadia Mono', Consolas, monospace;
+  background: var(--quick-start-window-body-bg);
+}
+
+.quickStartLine {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.42rem;
+  min-height: 1.28em;
+}
+
+.quickStartPrompt {
+  color: var(--quick-start-prompt-color);
+  user-select: none;
+  font-weight: 680;
+}
+
+.quickStartCommandText {
+  color: var(--quick-start-command-color);
+}
+
+.quickStartOutputText {
+  padding-left: 1.05rem;
+  color: var(--quick-start-output-color);
+}
+
+.quickStartOutputTextActive {
+  color: var(--quick-start-output-active-color);
+}
+
+.quickStartCursor {
+  display: inline-block;
+  vertical-align: baseline;
+  margin-left: 0.18rem;
+  width: 0.42rem;
+  height: 0.9em;
+  background: var(--quick-start-cursor-color);
+  animation: quickStartCursorBlink 0.88s step-end infinite;
+}
+
+@keyframes quickStartCursorBlink {
+  0%,
+  44% {
+    opacity: 1;
+  }
+
+  45%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .quickStartTerminal {
+    margin-top: 0.92rem;
+    width: min(100%, 700px);
+  }
+
+  .quickStartTerminalHeader {
+    margin-bottom: 0.58rem;
+  }
+
+  .quickStartWindowTopBar {
+    padding: 0.58rem 0.74rem;
+  }
+
+  .quickStartWindowBody {
+    min-height: 156px;
+    max-height: 220px;
+    padding: 0.75rem 0.7rem 0.86rem;
+    font-size: 0.73rem;
+  }
+
+  .quickStartOutputText {
+    padding-left: 0.92rem;
+  }
+}

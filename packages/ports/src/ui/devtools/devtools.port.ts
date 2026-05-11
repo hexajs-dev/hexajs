@@ -16,7 +16,22 @@ export class DevtoolsPort {
                             reject(new Error('devtools.panels API not available in this context'));
                             return;
                         }
-                        Promise.resolve(browserApi.devtools.panels.create(title, icon, page)).then((panel: HexaWebExtensionPanel) => resolve(panel)).catch(reject);
+                        // Firefox resolves panel paths against devtools_page. Use root-relative
+                        // extension paths so ui/devtools/* does not get duplicated.
+                        const toRootRelativePath = (value: string): string => {
+                            const resolved = browserApi.runtime?.getURL?.(value);
+                            if (!resolved) {
+                                return value;
+                            }
+                            try {
+                                return new URL(resolved).pathname || value;
+                            } catch {
+                                return value;
+                            }
+                        };
+                        const rootRelativePage = toRootRelativePath(page);
+                        const rootRelativeIcon = icon ? toRootRelativePath(icon) : icon;
+                        Promise.resolve(browserApi.devtools.panels.create(title, rootRelativeIcon, rootRelativePage)).then((panel: HexaWebExtensionPanel) => resolve(panel)).catch(reject);
                         return;
                     }
                     case PlatformType.Chrome:
@@ -29,7 +44,11 @@ export class DevtoolsPort {
                             reject(new Error('devtools.panels API not available in this context'));
                             return;
                         }
-                        chromeApi.devtools.panels.create(title, icon, page, (panel: HexaWebExtensionPanel) => {
+                        // Resolve to absolute extension URL — Chrome resolves relative paths
+                        // against the devtools_page URL, not the extension root.
+                        const absolutePage = chromeApi.runtime?.getURL?.(page) ?? page;
+                        const absoluteIcon = icon ? (chromeApi.runtime?.getURL?.(icon) ?? icon) : icon;
+                        chromeApi.devtools.panels.create(title, absoluteIcon, absolutePage, (panel: HexaWebExtensionPanel) => {
                             const lastError = chromeApi.runtime?.lastError;
                             if (lastError) { reject(lastError); return; }
                             resolve(panel);

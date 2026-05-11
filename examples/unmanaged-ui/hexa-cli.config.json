@@ -26,7 +26,9 @@
       "icons": "src/assets/hexa-logo.svg"
     },
     "devtools": {
-      "mode": "none"
+      "mode": "external",
+      "distDir": "ui/devtools/dist",
+      "indexFile": "index.html"
     }
   },
   "environments": {

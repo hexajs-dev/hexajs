@@ -5,6 +5,8 @@ import { createRequire } from 'module';
 import { loadConfigFromFile } from 'vite';
 import { HexaUiCompilerOptions } from './types';
 
+const MANAGED_ROLLUP_EXTERNALS = ['react', 'react-dom', 'react-dom/client', /^react\//, /^react-dom\//];
+
 function resolveForComparison(filePath: string): string {
     try {
         return fs.realpathSync(filePath);
@@ -105,6 +107,10 @@ export const getDefaultViteConfig = (sourceDir: string, targetBase: string, comp
     define,
     resolve: {
         alias: loadTsConfigAliases(sourceDir),
+        // Force React to resolve from the project root (walking up from sourceDir)
+        // so Rollup finds the extension's react/react-dom installation rather than
+        // trying to resolve from packages/ui/dist/** (where React is not installed).
+        dedupe: ['react', 'react-dom'],
     },
     build: {
         outDir: targetBase,
@@ -115,13 +121,6 @@ export const getDefaultViteConfig = (sourceDir: string, targetBase: string, comp
         ...(compilerOptions.minify === 'terser' ? { terserOptions: compilerOptions.terserOptions } : {}),
         rollupOptions: {
             input: inputs,
-            external: [
-                'react',
-                'react-dom',
-                'react-dom/client',
-                /^react\//,
-                /^react-dom\//,
-            ],
         },
     },
 });
@@ -202,23 +201,36 @@ export const mergeViteConfigs = (defaultConfig: ReturnType<typeof getDefaultVite
             ...toAliasRecord(defaultConfig.resolve?.alias),
             ...toAliasRecord(userConfig.resolve?.alias),
         },
+        dedupe: [
+            ...((defaultConfig.resolve as any)?.dedupe ?? []),
+            ...((userConfig.resolve as any)?.dedupe ?? []),
+        ].filter((v, i, a) => a.indexOf(v) === i),
     };
 
-    // Merge rollupOptions while preserving default externals
+    // Merge rollupOptions while preserving default inputs and output layout
     const defaultRollupOptions = defaultConfig.build?.rollupOptions || {};
     const userRollupOptions = userConfig.build?.rollupOptions || {};
-    const mergedRollupOptions = {
+    const defaultExternal = (defaultRollupOptions as any).external;
+    const userExternal = (userRollupOptions as any).external;
+    const userRollupRest: Record<string, unknown> = { ...(userRollupOptions as Record<string, unknown>) };
+    delete userRollupRest.input;
+    delete userRollupRest.output;
+    delete userRollupRest.external;
+    const mergedRollupOptions: Record<string, unknown> = {
         ...defaultRollupOptions,
-        ...userRollupOptions,
+        ...userRollupRest,
         // Managed UI controls entry points and output layout.
         input: defaultRollupOptions.input,
-        output: defaultRollupOptions.output,
-        // Merge external arrays to preserve default externals when user adds more
-        external: [
-            ...toExternalList(defaultRollupOptions.external),
-            ...toExternalList(userRollupOptions.external),
-        ],
+        ...(('output' in defaultRollupOptions) ? { output: (defaultRollupOptions as any).output } : {}),
     };
+    // Always keep managed externals, then merge user additions.
+    if (defaultExternal !== undefined || userExternal !== undefined || MANAGED_ROLLUP_EXTERNALS.length > 0) {
+        mergedRollupOptions.external = [
+            ...toExternalList(defaultExternal),
+            ...MANAGED_ROLLUP_EXTERNALS,
+            ...toExternalList(userExternal),
+        ].filter((v, i, a) => a.indexOf(v) === i);
+    }
 
     return {
         ...defaultConfig,

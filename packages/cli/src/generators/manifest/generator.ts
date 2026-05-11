@@ -1,11 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { HexaConfig } from '../../bin/config/config';
 import { ResolvedBuildConfig } from '../../bin/config/resolve';
 import { ContentScriptOutput } from '../content/generator';
 import { ManifestV3 } from './types';
 import { getTemplateForPlatform } from './templates';
 import { normalizeLoopbackWebSocketOrigin } from '../../shared/network-security';
+import { PortPermissionAnalyzer } from './permissions/port-permission.analyzer';
 
 export interface ManifestUiEntries {
     popup?: string;
@@ -16,9 +16,12 @@ export interface ManifestGenerationOptions {
     watch?: boolean;
     hmrAddress?: string;
     hasOffscreenPage?: boolean;
+    usedPorts?: string[];
 }
 
 export class ManifestGenerator {
+    private readonly permissionAnalyzer = new PortPermissionAnalyzer();
+
     constructor(private contentBootstraps: ContentScriptOutput[], private resolved: ResolvedBuildConfig, private uiEntries: ManifestUiEntries = {}, private options: ManifestGenerationOptions = {}) {}
 
     generate(): string {
@@ -60,6 +63,7 @@ export class ManifestGenerator {
 
         this.applyUiEntries(manifest);
         this.applyWorkerMutations(manifest);
+        this.applyPortPermissionMutations(manifest);
         this.applyWatchModeMutations(manifest);
 
         // 6. Always write a readable manifest in dist, regardless of bundle minification settings.
@@ -87,6 +91,15 @@ export class ManifestGenerator {
             if (HEXA_OWNED_KEYS.includes(key as keyof ManifestV3)) {
                 continue;
             }
+
+            if (key === 'content_security_policy' && value && typeof value === 'object' && !Array.isArray(value)) {
+                base.content_security_policy = {
+                    ...(base.content_security_policy || {}),
+                    ...(value as ManifestV3['content_security_policy']),
+                };
+                continue;
+            }
+
             (base as Record<string, unknown>)[key] = value;
         }
     }
@@ -160,6 +173,39 @@ export class ManifestGenerator {
         }
         if (!manifest.permissions.includes('offscreen')) {
             manifest.permissions.push('offscreen');
+        }
+    }
+
+    private applyPortPermissionMutations(manifest: ManifestV3): void {
+        const usedPorts = this.options.usedPorts || [];
+        if (usedPorts.length === 0) {
+            return;
+        }
+
+        const inferred = this.permissionAnalyzer.analyze(this.resolved.platform, usedPorts);
+
+        if (inferred.permissions.length > 0) {
+            if (!manifest.permissions) {
+                manifest.permissions = [];
+            }
+
+            for (const permission of inferred.permissions) {
+                if (!manifest.permissions.includes(permission)) {
+                    manifest.permissions.push(permission);
+                }
+            }
+        }
+
+        if (inferred.hostPermissions.length > 0) {
+            if (!manifest.host_permissions) {
+                manifest.host_permissions = [];
+            }
+
+            for (const hostPermission of inferred.hostPermissions) {
+                if (!manifest.host_permissions.includes(hostPermission)) {
+                    manifest.host_permissions.push(hostPermission);
+                }
+            }
         }
     }
 

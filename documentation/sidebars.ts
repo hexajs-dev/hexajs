@@ -3,6 +3,12 @@ import type { SidebarsConfig } from '@docusaurus/plugin-content-docs';
 const sidebars: SidebarsConfig = {
   docsSidebar: [
     {
+      type: 'doc',
+      id: 'roadmap',
+      label: 'Roadmap',
+      customProps: { icon: 'compass' },
+    },
+    {
       type: 'category',
       label: 'Getting Started',
       collapsed: false,
@@ -153,7 +159,9 @@ const sidebars: SidebarsConfig = {
           type: 'category',
           label: 'Content Ports',
           link: { type: 'doc', id: 'api-reference/content/index' },
-          items: [],
+          items: [
+            'api-reference/content/clipboard-port',
+          ],
         },
       ],
     },

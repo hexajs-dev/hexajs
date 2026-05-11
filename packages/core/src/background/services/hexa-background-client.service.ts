@@ -24,7 +24,8 @@ export class HexaBackgroundClient extends HexaClientBase {
      * @param payload Optional payload to send with the message.
      */
     async sendToTab<TPayload, TResponse>(tabId: number, target: `${string}:${string}`, payload?: TPayload): Promise<TResponse> {
-        return this.tabsPort.sendTabMessage(tabId, { action: target, payload });
+        const response = await this.tabsPort.sendTabMessage(tabId, { action: target, payload });
+        return this.normalizeResponseOrThrow<TResponse>(response);
     }
 
     /** Broadcast a fire-and-forget message to all tabs. */

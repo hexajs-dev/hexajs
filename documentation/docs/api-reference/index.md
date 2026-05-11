@@ -50,7 +50,7 @@ This section documents all built-in services exported by `@hexajs-dev/ports`.
 </ApiReferenceAppendix>
 
 <ApiReferenceAppendix title="Content Context Ports">
-- Content context currently exports no built-in ports.
+- [ClipboardPort](./content/clipboard-port.md)
 </ApiReferenceAppendix>
 
 ## Notes

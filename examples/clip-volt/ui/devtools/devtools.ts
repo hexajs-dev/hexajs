@@ -9,4 +9,6 @@ devtools.panels.create('ClipVolt', 'ui/devtools/devtools-icon.png', 'ui/devtools
   panel.onShown.addListener((_panelWindow: Window) => {
     console.log('[HexaJS] DevTools panel shown');
   });
+}).catch((error: unknown) => {
+  console.error('[HexaJS] Failed to create DevTools panel', error);
 });

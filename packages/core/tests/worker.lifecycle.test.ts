@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { WorkerEnvironment } from '../src/background/worker/decorators';
 
 const transportMocks = vi.hoisted(() => ({
@@ -76,5 +76,61 @@ describe('worker lifecycle hardening', () => {
 
     expect(result).toBe('ok');
     expect(transportMocks.executeMethod).toHaveBeenCalledWith('ocr-worker', 'recognize', ['payload'], onEvent);
+  });
+});
+
+describe('worker transport bootstrapping', () => {
+  const originalWorker = (globalThis as any).Worker;
+
+  const resetTransportState = async (): Promise<any> => {
+    const actual = await vi.importActual<typeof import('../src/background/worker/worker-transport')>('../src/background/worker/worker-transport');
+    const transport = actual.WorkerTransportEngine as any;
+    transport.hostReady = null;
+    transport.workerInstance = null;
+    transport.pendingCalls = new Map();
+    transport.callId = 0;
+    return transport;
+  };
+
+  beforeEach(async () => {
+    await resetTransportState();
+  });
+
+  afterEach(() => {
+    (globalThis as any).Worker = originalWorker;
+  });
+
+  it('fails with a clear error when Worker API is unavailable', async () => {
+    const transport = await resetTransportState();
+    (globalThis as any).Worker = undefined;
+
+    await expect(transport.ensureHostIsRunning(WorkerEnvironment.Compute)).rejects.toThrow(
+      'Web Worker API is not available in this background runtime'
+    );
+  });
+
+  it('falls back to classic worker constructor when module workers are unsupported', async () => {
+    const constructorCalls: Array<{ scriptPath: string; options?: { type: 'module' } }> = [];
+
+    class WorkerMock {
+      onmessage: ((event: any) => void) | null = null;
+
+      constructor(scriptPath: string, options?: { type: 'module' }) {
+        constructorCalls.push({ scriptPath, options });
+        if (options?.type === 'module') {
+          throw new Error('module workers are not supported');
+        }
+      }
+
+      postMessage(_payload: any): void {}
+    }
+
+    (globalThis as any).Worker = WorkerMock;
+    const transport = await resetTransportState();
+
+    await expect(transport.ensureHostIsRunning(WorkerEnvironment.Compute)).resolves.toBeUndefined();
+    expect(constructorCalls.length).toBeGreaterThanOrEqual(2);
+    expect(constructorCalls[0]?.options).toEqual({ type: 'module' });
+    expect(constructorCalls[1]?.options).toBeUndefined();
   });
 });
