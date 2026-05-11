@@ -64,11 +64,37 @@ export class ClipperImageCropService {
 	}
 
 	private async dataUrlToBlob(dataUrl: string): Promise<Blob> {
-		const response = await fetch(dataUrl);
-		if (!response.ok) {
+		if (!dataUrl.startsWith('data:')) {
 			throw new Error('Failed to decode captured image data URL.');
 		}
-		return response.blob();
+
+		const commaIndex = dataUrl.indexOf(',');
+		if (commaIndex === -1) {
+			throw new Error('Failed to decode captured image data URL.');
+		}
+
+		const metadata = dataUrl.slice(5, commaIndex);
+		const payload = dataUrl.slice(commaIndex + 1);
+		const mimeType = metadata.split(';')[0] || 'application/octet-stream';
+		const isBase64 = metadata.includes(';base64');
+
+		if (!isBase64) {
+			const decoded = decodeURIComponent(payload);
+			return new Blob([decoded], { type: mimeType });
+		}
+
+		if (typeof atob !== 'function') {
+			throw new Error('Failed to decode captured image data URL.');
+		}
+
+		const normalizedPayload = payload.replace(/\s/g, '');
+		const binary = atob(normalizedPayload);
+		const bytes = new Uint8Array(binary.length);
+		for (let index = 0; index < binary.length; index++) {
+			bytes[index] = binary.charCodeAt(index);
+		}
+
+		return new Blob([bytes], { type: mimeType });
 	}
 
 	private async blobToDataUrl(blob: Blob): Promise<string> {

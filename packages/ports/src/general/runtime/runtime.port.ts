@@ -122,10 +122,25 @@ export class RuntimePort {
     async sendMessage(message: any): Promise<any> {
         return new Promise((resolve, reject) => {
             switch (typeof __HEXA_PLATFORM__ !== 'undefined' ? __HEXA_PLATFORM__ : this.platform) {
-                case PlatformType.Firefox:
+                case PlatformType.Firefox: {
+                    const browserApi = (globalThis as any).browser;
+                    if (!browserApi?.runtime?.sendMessage) {
+                        rejectUnsupportedApi(reject, 'RuntimePort.sendMessage', this.platform, 'runtime.sendMessage');
+                        return;
+                    }
+                    Promise.resolve(browserApi.runtime.sendMessage(message)).then(resolve).catch(reject);
+                    return;
+                }
                 case PlatformType.Safari: {
                     const browserApi = (globalThis as any).browser;
                     if (!browserApi?.runtime?.sendMessage) {
+                        // Safari devtools panel pages may not have browser.runtime.sendMessage.
+                        // The devtools bridge (devtools_page) injects __hexaRuntimeRelay via onShown.
+                        const relay = (globalThis as any).__hexaRuntimeRelay;
+                        if (typeof relay === 'function') {
+                            Promise.resolve(relay(message)).then(resolve).catch(reject);
+                            return;
+                        }
                         rejectUnsupportedApi(reject, 'RuntimePort.sendMessage', this.platform, 'runtime.sendMessage');
                         return;
                     }

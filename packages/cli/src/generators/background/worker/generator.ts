@@ -233,9 +233,13 @@ if (typeof self !== 'undefined' && typeof self.onmessage !== 'undefined') {
   };
 }
 
-// Listen for runtime messages (offscreen/background relay)
-if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
-  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+// Listen for runtime messages (background relay)
+const runtimeApi = (typeof chrome !== 'undefined' && chrome.runtime?.onMessage)
+  ? chrome
+  : (typeof browser !== 'undefined' && browser.runtime?.onMessage ? browser : null);
+
+if (runtimeApi?.runtime?.onMessage) {
+  runtimeApi.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message?.type !== 'HEXA_WORKER_CALL') return false;
 
     handleWorkerCall(message)

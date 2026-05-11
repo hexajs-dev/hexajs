@@ -1,4 +1,5 @@
 import { Handle, Handler, HexaContentClient } from '@hexajs-dev/core';
+import { ClipboardPort } from '@hexajs-dev/ports';
 import { SmartClipperContent } from './content';
 import { backgroundApi, ContentScriptHandlesApi, contentScriptNamespace } from '@contract/api';
 import { ClippingCancelledMessage, ClippingCompleteMessage, OcrCompleteMessage, OcrProgressMessage, PopupStartClippingMessage, StartClippingAckMessage } from '@contract/messages/messages';
@@ -11,7 +12,7 @@ import { ClipperUiService } from './ui/clipper-ui.service';
  */
 @Handler({ namespace: contentScriptNamespace, Contents: [SmartClipperContent] })
 export class SmartClipperHandler {
-	constructor(private readonly clipperUi: ClipperUiService, private readonly client: HexaContentClient) {}
+	constructor(private readonly clipperUi: ClipperUiService, private readonly client: HexaContentClient, private readonly clipboardPort: ClipboardPort) {}
 
 	@Handle(ContentScriptHandlesApi.StartClipping)
 	onStartClipping(payload: PopupStartClippingMessage): StartClippingAckMessage {
@@ -37,12 +38,13 @@ export class SmartClipperHandler {
 	async onOcrComplete(payload: OcrCompleteMessage): Promise<StartClippingAckMessage> {
 		if (payload.status === 'success' && payload.text) {
 			try {
-				await navigator.clipboard.writeText(payload.text);
+				await this.clipboardPort.writeText(payload.text);
 				this.clipperUi.showOcrSuccess(payload.text);
 			} catch {
 				this.clipperUi.showOcrError('Clipboard access denied');
 			}
 		} else {
+			console.error('[smart-clipper] OCR failed:', payload.error);
 			this.clipperUi.showOcrError(payload.error ?? 'OCR failed');
 		}
 		return new StartClippingAckMessage('received');

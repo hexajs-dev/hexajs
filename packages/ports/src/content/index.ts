@@ -1,2 +1,1 @@
-// Reserved for content-specific ports.
-export {};
+export * from './clipboard/clipboard.port';

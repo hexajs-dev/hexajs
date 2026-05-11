@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { RuntimePort } from '../src/general/runtime/runtime.port';
+import { CommandsPort } from '../src/background/commands/commands.port';
 
 const promisePlatforms = ['firefox', 'safari'] as const;
 const chromiumPlatforms = ['chrome', 'edge', 'opera', 'brave'] as const;
@@ -127,5 +128,126 @@ describe('RuntimePort platform matrix contracts', () => {
       disposeExternal();
       expect(chromeRuntime.onMessageExternal.removeListener).toHaveBeenCalledWith(registeredExternal);
     });
+  });
+});
+
+describe('CommandsPort platform matrix contracts', () => {
+  afterEach(() => {
+    delete (globalThis as any).chrome;
+    delete (globalThis as any).browser;
+    vi.restoreAllMocks();
+  });
+
+  it('falls back to chrome.commands APIs on safari when browser namespace is unavailable', async () => {
+    const addListener = vi.fn();
+    const removeListener = vi.fn();
+    const getAll = vi.fn((callback: (commands: any[]) => void) => {
+      callback([{ name: 'start-ocr-clipping', description: 'Start clipping' }]);
+    });
+
+    (globalThis as any).chrome = {
+      commands: {
+        getAll,
+        onCommand: {
+          addListener,
+          removeListener,
+        },
+      },
+    };
+
+    const commandsPort = new CommandsPort('safari');
+    const commands = await commandsPort.getAll();
+    const listener = vi.fn();
+
+    commandsPort.onCommandAddListener(listener);
+    commandsPort.onCommandRemoveListener(listener);
+
+    expect(commands).toEqual([{ name: 'start-ocr-clipping', description: 'Start clipping' }]);
+    expect(getAll).toHaveBeenCalled();
+    expect(addListener).toHaveBeenCalledWith(listener);
+    expect(removeListener).toHaveBeenCalledWith(listener);
+  });
+
+  it('prefers browser.commands APIs on safari when both browser and chrome are present', async () => {
+    const browserGetAll = vi.fn().mockResolvedValue([{ name: 'browser-command' }]);
+    const browserAddListener = vi.fn();
+    const browserRemoveListener = vi.fn();
+    const chromeGetAll = vi.fn();
+    const chromeAddListener = vi.fn();
+
+    (globalThis as any).browser = {
+      commands: {
+        getAll: browserGetAll,
+        onCommand: {
+          addListener: browserAddListener,
+          removeListener: browserRemoveListener,
+        },
+      },
+    };
+    (globalThis as any).chrome = {
+      commands: {
+        getAll: chromeGetAll,
+        onCommand: {
+          addListener: chromeAddListener,
+          removeListener: vi.fn(),
+        },
+      },
+    };
+
+    const commandsPort = new CommandsPort('safari');
+    const commands = await commandsPort.getAll();
+    const listener = vi.fn();
+
+    commandsPort.onCommandAddListener(listener);
+    commandsPort.onCommandRemoveListener(listener);
+
+    expect(commands).toEqual([{ name: 'browser-command' }]);
+    expect(browserGetAll).toHaveBeenCalled();
+    expect(chromeGetAll).not.toHaveBeenCalled();
+    expect(browserAddListener).toHaveBeenCalledWith(listener);
+    expect(chromeAddListener).not.toHaveBeenCalled();
+  });
+
+  it('prefers chrome.commands APIs on chromium platforms when both namespaces are present', async () => {
+    const chromeGetAll = vi.fn((callback: (commands: any[]) => void) => {
+      callback([{ name: 'chrome-command' }]);
+    });
+    const chromeAddListener = vi.fn();
+    const chromeRemoveListener = vi.fn();
+    const browserGetAll = vi.fn().mockResolvedValue([{ name: 'browser-command' }]);
+    const browserAddListener = vi.fn();
+
+    (globalThis as any).chrome = {
+      commands: {
+        getAll: chromeGetAll,
+        onCommand: {
+          addListener: chromeAddListener,
+          removeListener: chromeRemoveListener,
+        },
+      },
+    };
+    (globalThis as any).browser = {
+      commands: {
+        getAll: browserGetAll,
+        onCommand: {
+          addListener: browserAddListener,
+          removeListener: vi.fn(),
+        },
+      },
+    };
+
+    const commandsPort = new CommandsPort('chrome');
+    const commands = await commandsPort.getAll();
+    const listener = vi.fn();
+
+    commandsPort.onCommandAddListener(listener);
+    commandsPort.onCommandRemoveListener(listener);
+
+    expect(commands).toEqual([{ name: 'chrome-command' }]);
+    expect(chromeGetAll).toHaveBeenCalled();
+    expect(browserGetAll).not.toHaveBeenCalled();
+    expect(chromeAddListener).toHaveBeenCalledWith(listener);
+    expect(browserAddListener).not.toHaveBeenCalled();
+    expect(chromeRemoveListener).toHaveBeenCalledWith(listener);
   });
 });

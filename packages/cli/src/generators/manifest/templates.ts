@@ -34,10 +34,9 @@ const ServiceWorkerTemplate: ManifestV3 = {
 };
 
 /**
- * Safari MV3 — service_worker without type:module.
- * Safari cannot resolve relative ES module imports (import statements) from
- * background service workers when the script is split into multiple chunks.
- * Bundling as a classic IIFE (single self-contained file) avoids this.
+ * Safari MV3 — uses background.scripts (classic script context).
+ * This enables Web Worker APIs for DOM worker tasks that are unavailable
+ * in Safari service worker runtimes.
  */
 const SafariTemplate: ManifestV3 = {
     manifest_version: 3,
@@ -59,8 +58,13 @@ const SafariTemplate: ManifestV3 = {
     content_scripts: [],
     permissions: ['storage', 'tabs'],
     host_permissions: ['<all_urls>'],
+    content_security_policy: {
+        // Safari background.scripts + OCR/WebAssembly flows need wasm-unsafe-eval.
+        // Projects can still override this in their platform manifest.
+        extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';",
+    },
     background: {
-        service_worker: 'background/background.bootstrap.js',
+        scripts: ['background/background.bootstrap.js'],
     },
 };
 

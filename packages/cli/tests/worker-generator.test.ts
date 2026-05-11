@@ -65,6 +65,9 @@ describe('WorkerGenerator', () => {
       expect(result.hostRouterContent).toContain("'image-proc': './worker-image-proc.js'");
       expect(result.hostRouterContent).toContain('HEXA_WORKER_CALL');
       expect(result.hostRouterContent).toContain('__HEXA_ACTIVE_WORKER_CALL__');
+      expect(result.hostRouterContent).toContain('const runtimeApi =');
+      expect(result.hostRouterContent).toContain("typeof browser !== 'undefined' && browser.runtime?.onMessage");
+      expect(result.hostRouterContent).toContain('runtimeApi.runtime.onMessage.addListener');
     });
 
     it('generates individual worker scripts with methods map', () => {

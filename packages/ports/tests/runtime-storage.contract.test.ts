@@ -1,11 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { RuntimePort } from '../src/general/runtime/runtime.port';
+import { ClipboardPort } from '../src/content';
 import { StoragePort } from '../src/background/storage/storage.port';
 
 describe('ports runtime and storage contracts', () => {
   afterEach(() => {
     delete (globalThis as any).chrome;
     delete (globalThis as any).browser;
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
 
@@ -153,5 +155,110 @@ describe('ports runtime and storage contracts', () => {
     const storagePort = new StoragePort('chrome');
 
     expect(() => storagePort.onChangedAddListener(vi.fn())).toThrow('storage.onChanged.addListener API not available in this context');
+  });
+
+  it('writes text through navigator.clipboard when available', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', {
+      clipboard: {
+        writeText,
+      },
+    });
+
+    const clipboardPort = new ClipboardPort('chrome');
+    await clipboardPort.writeText('copied text');
+
+    expect(writeText).toHaveBeenCalledWith('copied text');
+  });
+
+  it('falls back to execCommand when navigator.clipboard.writeText is denied', async () => {
+    const writeText = vi.fn().mockRejectedValue(new Error('NotAllowedError'));
+    const execCommand = vi.fn().mockReturnValue(true);
+    const textArea = {
+      value: '',
+      style: {},
+      focus: vi.fn(),
+      select: vi.fn(),
+      parentNode: {
+        removeChild: vi.fn(),
+      },
+    };
+
+    vi.stubGlobal('navigator', {
+      clipboard: {
+        writeText,
+      },
+    });
+    vi.stubGlobal('document', {
+      body: {
+        appendChild: vi.fn(),
+      },
+      createElement: vi.fn(() => textArea),
+      execCommand,
+    });
+
+    const clipboardPort = new ClipboardPort('safari');
+    await expect(clipboardPort.writeText('hello')).resolves.toBeUndefined();
+
+    expect(writeText).toHaveBeenCalledWith('hello');
+    expect(execCommand).toHaveBeenCalledWith('copy');
+  });
+
+  it('falls back to execCommand when navigator.clipboard.writeText throws synchronously', async () => {
+    const writeText = vi.fn(() => {
+      throw new Error('NotAllowedError');
+    });
+    const execCommand = vi.fn().mockReturnValue(true);
+    const textArea = {
+      value: '',
+      style: {},
+      focus: vi.fn(),
+      select: vi.fn(),
+      parentNode: {
+        removeChild: vi.fn(),
+      },
+    };
+
+    vi.stubGlobal('navigator', {
+      clipboard: {
+        writeText,
+      },
+    });
+    vi.stubGlobal('document', {
+      body: {
+        appendChild: vi.fn(),
+      },
+      createElement: vi.fn(() => textArea),
+      execCommand,
+    });
+
+    const clipboardPort = new ClipboardPort('safari');
+    await expect(clipboardPort.writeText('hello')).resolves.toBeUndefined();
+
+    expect(writeText).toHaveBeenCalledWith('hello');
+    expect(execCommand).toHaveBeenCalledWith('copy');
+  });
+
+  it('reads text through navigator.clipboard when available', async () => {
+    const readText = vi.fn().mockResolvedValue('clipboard value');
+    vi.stubGlobal('navigator', {
+      clipboard: {
+        readText,
+      },
+    });
+
+    const clipboardPort = new ClipboardPort('firefox');
+    const value = await clipboardPort.readText();
+
+    expect(value).toBe('clipboard value');
+    expect(readText).toHaveBeenCalled();
+  });
+
+  it('rejects when clipboard API is unavailable', async () => {
+    vi.stubGlobal('navigator', {});
+    vi.stubGlobal('document', {});
+
+    const clipboardPort = new ClipboardPort('safari');
+    await expect(clipboardPort.writeText('hello')).rejects.toThrow('clipboard.writeText API not available in this context');
   });
 });

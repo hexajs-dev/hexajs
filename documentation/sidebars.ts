@@ -153,7 +153,9 @@ const sidebars: SidebarsConfig = {
           type: 'category',
           label: 'Content Ports',
           link: { type: 'doc', id: 'api-reference/content/index' },
-          items: [],
+          items: [
+            'api-reference/content/clipboard-port',
+          ],
         },
       ],
     },

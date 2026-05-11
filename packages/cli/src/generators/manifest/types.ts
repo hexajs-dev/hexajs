@@ -25,12 +25,12 @@ export interface ManifestBackgroundChrome {
     type?: 'module';
 }
 
-export interface ManifestBackgroundFirefox {
+export interface ManifestBackgroundScripts {
     scripts: string[];
     type?: 'module';
 }
 
-export type ManifestBackground = ManifestBackgroundChrome | ManifestBackgroundFirefox;
+export type ManifestBackground = ManifestBackgroundChrome | ManifestBackgroundScripts;
 
 export interface ManifestWebAccessibleResource {
     resources: string[];
