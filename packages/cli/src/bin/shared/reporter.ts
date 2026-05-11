@@ -31,8 +31,10 @@ export function printHeader(version: string, projectName: string, platform: stri
     console.log();
 }
 
+const SPINNER_FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+
 /**
- * Starts a build step. Returns a `done()` function to call when the step finishes.
+ * Starts a build step with an animated spinner. Returns a `done()` function to call when the step finishes.
  * Optionally pass a detail string (shown as └ sub-line).
  *
  * @example
@@ -42,17 +44,46 @@ export function printHeader(version: string, projectName: string, platform: stri
  */
 export function startStep(label: string): (detail?: string) => void {
     const start = Date.now();
-    console.log(`${timestamp()} ${chalk.cyan('▶')} ${chalk.cyan(label + '...')}`);
+    let frameIndex = 0;
 
-    return (detail?: string) => {
-        const ms = Date.now() - start;
-        const duration = chalk.gray(`(${ms}ms)`);
-        const paddedLabel = chalk.green(label).padEnd(70);
-        console.log(`${timestamp()} ${chalk.green('✓')} ${paddedLabel} ${duration}`);
-        if (detail) {
-            console.log(`${timestamp()} ${chalk.gray('└')} ${chalk.gray(detail)}`);
-        }
-    };
+    const isTTY = process.stdout.isTTY;
+
+    if (isTTY) {
+        // Animated spinner — rewrite the line on each tick
+        const render = () => {
+            const frame = chalk.cyan(SPINNER_FRAMES[frameIndex % SPINNER_FRAMES.length]);
+            process.stdout.write(`\r${timestamp()} ${frame} ${chalk.cyan(label + '...')}`);
+            frameIndex++;
+        };
+        render();
+        const timer = setInterval(render, 80);
+
+        return (detail?: string) => {
+            clearInterval(timer);
+            const ms = Date.now() - start;
+            const duration = chalk.gray(`(${ms}ms)`);
+            const paddedLabel = chalk.green(label).padEnd(70);
+            // Clear the spinner line, then print the final status
+            process.stdout.write(`\r\x1b[K`);
+            console.log(`${timestamp()} ${chalk.green('✓')} ${paddedLabel} ${duration}`);
+            if (detail) {
+                console.log(`${timestamp()} ${chalk.gray('└')} ${chalk.gray(detail)}`);
+            }
+        };
+    } else {
+        // Non-TTY (CI, piped output) — fall back to a plain static line
+        console.log(`${timestamp()} ${chalk.cyan('▶')} ${chalk.cyan(label + '...')}`);
+
+        return (detail?: string) => {
+            const ms = Date.now() - start;
+            const duration = chalk.gray(`(${ms}ms)`);
+            const paddedLabel = chalk.green(label).padEnd(70);
+            console.log(`${timestamp()} ${chalk.green('✓')} ${paddedLabel} ${duration}`);
+            if (detail) {
+                console.log(`${timestamp()} ${chalk.gray('└')} ${chalk.gray(detail)}`);
+            }
+        };
+    }
 }
 
 export function printInfo(icon: string, label: string, value: string): void {
