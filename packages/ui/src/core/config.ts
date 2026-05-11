@@ -5,6 +5,8 @@ import { createRequire } from 'module';
 import { loadConfigFromFile } from 'vite';
 import { HexaUiCompilerOptions } from './types';
 
+const MANAGED_ROLLUP_EXTERNALS = ['react', 'react-dom', 'react-dom/client', /^react\//, /^react-dom\//];
+
 function resolveForComparison(filePath: string): string {
     try {
         return fs.realpathSync(filePath);
@@ -210,19 +212,24 @@ export const mergeViteConfigs = (defaultConfig: ReturnType<typeof getDefaultVite
     const userRollupOptions = userConfig.build?.rollupOptions || {};
     const defaultExternal = (defaultRollupOptions as any).external;
     const userExternal = (userRollupOptions as any).external;
+    const userRollupRest: Record<string, unknown> = { ...(userRollupOptions as Record<string, unknown>) };
+    delete userRollupRest.input;
+    delete userRollupRest.output;
+    delete userRollupRest.external;
     const mergedRollupOptions: Record<string, unknown> = {
         ...defaultRollupOptions,
-        ...userRollupOptions,
+        ...userRollupRest,
         // Managed UI controls entry points and output layout.
         input: defaultRollupOptions.input,
         ...(('output' in defaultRollupOptions) ? { output: (defaultRollupOptions as any).output } : {}),
     };
-    // Merge external arrays when either side defines them
-    if (defaultExternal !== undefined || userExternal !== undefined) {
+    // Always keep managed externals, then merge user additions.
+    if (defaultExternal !== undefined || userExternal !== undefined || MANAGED_ROLLUP_EXTERNALS.length > 0) {
         mergedRollupOptions.external = [
             ...toExternalList(defaultExternal),
+            ...MANAGED_ROLLUP_EXTERNALS,
             ...toExternalList(userExternal),
-        ];
+        ].filter((v, i, a) => a.indexOf(v) === i);
     }
 
     return {
