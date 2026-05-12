@@ -21,6 +21,46 @@ interface UiBootstrapBuildOutput {
     uiBootstrapContent?: string;
 }
 
+function createMissingUiDependencyError(cwd: string): Error {
+    const packageManager = detectProjectPM(cwd);
+    return new Error(
+        `'@hexajs-dev/ui' is not installed in your project but popup/devtools is set to managed mode.\n` +
+        `Run: ${getAddDependencyCommand(packageManager, '@hexajs-dev/ui')}\n` +
+        `Or change the popup mode to "external" or "none" in hexa-cli.config.json.`
+    );
+}
+
+function isModuleNotFoundForRequest(error: unknown, request: string): boolean {
+    if (!(error instanceof Error)) {
+        return false;
+    }
+
+    const withSingleQuotes = `Cannot find module '${request}'`;
+    const withDoubleQuotes = `Cannot find module \"${request}\"`;
+    return (error as NodeJS.ErrnoException).code === 'MODULE_NOT_FOUND' && (error.message.includes(withSingleQuotes) || error.message.includes(withDoubleQuotes));
+}
+
+function tryLoadManagedUiHelpersFromDist(packageRoot: string, userRequire: NodeRequire): HexaUiModule | null {
+    const popupManagedPath = path.join(packageRoot, 'dist', 'src', 'popup', 'managed.cjs');
+    const devtoolsManagedPath = path.join(packageRoot, 'dist', 'src', 'devtools', 'managed.cjs');
+
+    if (!fs.existsSync(popupManagedPath) || !fs.existsSync(devtoolsManagedPath)) {
+        return null;
+    }
+
+    const popupManaged = userRequire(popupManagedPath) as Partial<HexaUiModule>;
+    const devtoolsManaged = userRequire(devtoolsManagedPath) as Partial<HexaUiModule>;
+
+    if (typeof popupManaged.buildManagedPopup !== 'function' || typeof devtoolsManaged.buildManagedDevtools !== 'function') {
+        return null;
+    }
+
+    return {
+        buildManagedPopup: popupManaged.buildManagedPopup,
+        buildManagedDevtools: devtoolsManaged.buildManagedDevtools,
+    };
+}
+
 function resolveForComparison(filePath: string): string {
     try {
         return fs.realpathSync(filePath);
@@ -68,14 +108,33 @@ function copyExternalSurface(surface: 'popup' | 'devtools', config: UiSurfaceCon
 
 function loadHexaUi(cwd: string): HexaUiModule {
     const userRequire = createRequire(path.join(cwd, 'package.json'));
+
+    let packageRoot: string | null = null;
+    try {
+        const packageJsonPath = userRequire.resolve('@hexajs-dev/ui/package.json');
+        packageRoot = path.dirname(packageJsonPath);
+    } catch {
+        packageRoot = null;
+    }
+
+    if (packageRoot) {
+        const distHelpers = tryLoadManagedUiHelpersFromDist(packageRoot, userRequire);
+        if (distHelpers) {
+            return distHelpers;
+        }
+    }
+
     try {
         return userRequire('@hexajs-dev/ui') as HexaUiModule;
-    } catch {
-        const packageManager = detectProjectPM(cwd);
+    } catch (error) {
+        if (isModuleNotFoundForRequest(error, '@hexajs-dev/ui')) {
+            throw createMissingUiDependencyError(cwd);
+        }
+
+        const details = error instanceof Error ? error.message : String(error);
         throw new Error(
-            `'@hexajs-dev/ui' is not installed in your project but popup/devtools is set to managed mode.\n` +
-            `Run: ${getAddDependencyCommand(packageManager, '@hexajs-dev/ui')}\n` +
-            `Or change the popup mode to "external" or "none" in hexa-cli.config.json.`
+            `Failed to load managed UI build helpers from '@hexajs-dev/ui'.\n` +
+            `${details}`
         );
     }
 }

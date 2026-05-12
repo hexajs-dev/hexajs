@@ -1,16 +1,16 @@
 {
   "mode": "pre",
-  "tag": "alpha",
+  "tag": "beta",
   "initialVersions": {
     "clip-volt": "0.0.1",
     "hexa-grayscale": "0.0.1",
     "smart-clipper": "0.0.1",
-    "@hexajs-dev/cli": "0.9.2",
-    "@hexajs-dev/common": "0.9.2",
-    "@hexajs-dev/core": "0.9.2",
-    "@hexajs-dev/ports": "0.9.2",
-    "@hexajs-dev/ui": "0.9.2",
-    "unmanaged-ui": "0.0.1"
+    "unmanaged-ui": "0.0.1",
+    "@hexajs-dev/cli": "0.9.3-alpha.7",
+    "@hexajs-dev/common": "0.9.3-alpha.7",
+    "@hexajs-dev/core": "0.9.3-alpha.7",
+    "@hexajs-dev/ports": "0.9.3-alpha.7",
+    "@hexajs-dev/ui": "0.9.3-alpha.7"
   },
   "changesets": [
     "beta-release",

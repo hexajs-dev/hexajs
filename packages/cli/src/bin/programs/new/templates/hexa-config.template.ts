@@ -3,6 +3,11 @@ import type { ScaffoldContext } from '../models/scaffold.types';
 export const hexaConfigTemplate = (ctx: ScaffoldContext): string => {
   // Build per-environment platform entries
   const envPlatforms: Record<string, { outDir: string; manifest: string; tokens: never[] }> = {};
+  const defaultPlatform = ctx.platforms.includes('chrome')
+    ? 'chrome'
+    : ctx.platforms.includes('firefox')
+      ? 'firefox'
+      : ctx.platforms[0];
 
   for (const platform of ctx.platforms) {
     envPlatforms[platform] = {
@@ -12,8 +17,8 @@ export const hexaConfigTemplate = (ctx: ScaffoldContext): string => {
     };
   }
 
-  // For blank projects without a popup, mode is 'none'; otherwise always managed.
-  const popupMode = ctx.blank && !ctx.reactPopup ? 'none' : 'managed';
+  // Managed popup is only scaffolded when the user opts into the React popup template.
+  const popupMode = ctx.reactPopup ? 'managed' : 'none';
   const popupSection =
     popupMode === 'managed'
       ? { mode: 'managed', sourceDir: 'ui/popup', indexFile: 'index.html', icons: 'src/assets/hexa-logo.svg' }
@@ -59,7 +64,7 @@ export const hexaConfigTemplate = (ctx: ScaffoldContext): string => {
         },
       },
       defaultMode: 'production',
-      defaultPlatform: ctx.platforms[0],
+      defaultPlatform,
     },
     null,
     2

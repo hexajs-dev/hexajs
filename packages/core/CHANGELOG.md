@@ -1,6 +1,6 @@
 # @hexajs-dev/core
 
-## 0.9.3-alpha.8
+## 0.9.3-beta.8
 
 ### Patch Changes
 
@@ -30,8 +30,8 @@
   ```
 
 - Updated dependencies [9fe2660]
-  - @hexajs-dev/common@0.9.3-alpha.8
-  - @hexajs-dev/ports@0.9.3-alpha.8
+  - @hexajs-dev/common@0.9.3-beta.8
+  - @hexajs-dev/ports@0.9.3-beta.8
 
 ## 0.9.3-alpha.7
 

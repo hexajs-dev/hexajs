@@ -45,6 +45,7 @@ function createResolvedConfig(parallelBuild: boolean): ResolvedBuildConfig {
 function writeFakeHexaUiModule(projectDir: string, delayMs: number = 80): void {
   const moduleDir = path.join(projectDir, 'node_modules', '@hexajs-dev', 'ui');
   fs.mkdirSync(moduleDir, { recursive: true });
+  fs.writeFileSync(path.join(moduleDir, 'package.json'), JSON.stringify({ name: '@hexajs-dev/ui', version: '0.0.0-test', main: 'index.js' }, null, 2), 'utf-8');
   fs.writeFileSync(path.join(moduleDir, 'index.js'), [
     'const state = { popupStart: 0, popupEnd: 0, devtoolsStart: 0, devtoolsEnd: 0 };',
     'function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }',
@@ -65,6 +66,28 @@ function writeFakeHexaUiModule(projectDir: string, delayMs: number = 80): void {
     '};',
     '',
   ].join('\n'), 'utf-8');
+}
+
+function writeBrokenHexaUiModule(projectDir: string): void {
+  const moduleDir = path.join(projectDir, 'node_modules', '@hexajs-dev', 'ui');
+  fs.mkdirSync(moduleDir, { recursive: true });
+  fs.writeFileSync(path.join(moduleDir, 'package.json'), JSON.stringify({ name: '@hexajs-dev/ui', version: '0.0.0-test', main: 'index.js' }, null, 2), 'utf-8');
+  fs.writeFileSync(path.join(moduleDir, 'index.js'), "module.exports = require('./broken');\n", 'utf-8');
+  fs.writeFileSync(path.join(moduleDir, 'broken.js'), "require('definitely-missing-ui-loader-module');\n", 'utf-8');
+}
+
+function writeDistManagedHelpersWithBrokenRoot(projectDir: string): void {
+  const moduleDir = path.join(projectDir, 'node_modules', '@hexajs-dev', 'ui');
+  const popupDistDir = path.join(moduleDir, 'dist', 'src', 'popup');
+  const devtoolsDistDir = path.join(moduleDir, 'dist', 'src', 'devtools');
+
+  fs.mkdirSync(popupDistDir, { recursive: true });
+  fs.mkdirSync(devtoolsDistDir, { recursive: true });
+  fs.writeFileSync(path.join(moduleDir, 'package.json'), JSON.stringify({ name: '@hexajs-dev/ui', version: '0.0.0-test', main: 'index.js' }, null, 2), 'utf-8');
+  fs.writeFileSync(path.join(moduleDir, 'index.js'), "module.exports = require('./broken-root');\n", 'utf-8');
+  fs.writeFileSync(path.join(moduleDir, 'broken-root.js'), "require('definitely-missing-root-module');\n", 'utf-8');
+  fs.writeFileSync(path.join(popupDistDir, 'managed.cjs'), "module.exports = { buildManagedPopup: async () => 'ui/popup/index.html' };\n", 'utf-8');
+  fs.writeFileSync(path.join(devtoolsDistDir, 'managed.cjs'), "module.exports = { buildManagedDevtools: async () => 'ui/devtools/devtools.html' };\n", 'utf-8');
 }
 
 function createProject(tempRoot: string): string {
@@ -155,5 +178,39 @@ describe('buildUiEntries managed ui parallelization', () => {
 
     const state = getFakeUiState(projectDir);
     expectSequentialPopupThenDevtools(state);
+  });
+
+  it('surfaces nested @hexajs-dev/ui load failures instead of reporting missing package', async () => {
+    const projectDir = createProject(tempRoot);
+    writeBrokenHexaUiModule(projectDir);
+
+    vi.spyOn(process, 'cwd').mockReturnValue(projectDir);
+
+    const resolved = createResolvedConfig(true);
+    const outputDir = path.join(projectDir, resolved.outDir);
+    fs.mkdirSync(outputDir, { recursive: true });
+
+    const buildPromise = buildUiEntries(resolved, outputDir, path.join(outputDir, 'ui', 'ui.bootstrap.js'), false);
+
+    await expect(buildPromise).rejects.toThrow("Failed to load managed UI build helpers from '@hexajs-dev/ui'.");
+    await expect(buildPromise).rejects.toThrow('definitely-missing-ui-loader-module');
+  });
+
+  it('uses dist managed helpers for popup and devtools even when @hexajs-dev/ui root export is broken', async () => {
+    const projectDir = createProject(tempRoot);
+    writeDistManagedHelpersWithBrokenRoot(projectDir);
+
+    vi.spyOn(process, 'cwd').mockReturnValue(projectDir);
+
+    const resolved = createResolvedConfig(true);
+    const outputDir = path.join(projectDir, resolved.outDir);
+    fs.mkdirSync(outputDir, { recursive: true });
+
+    const entries = await buildUiEntries(resolved, outputDir, path.join(outputDir, 'ui', 'ui.bootstrap.js'), false);
+
+    expect(entries).toEqual({
+      popup: 'ui/popup/index.html',
+      devtools: 'ui/devtools/devtools.html',
+    });
   });
 });

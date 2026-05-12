@@ -1,6 +1,6 @@
 # @hexajs-dev/common
 
-## 0.9.3-alpha.8
+## 0.9.3-beta.8
 
 ### Patch Changes
 
