@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-	<img src="./documentation/static/img/city_q90~3.jpg" alt="HexaJS architecture city" />
+	<img src="./documentation/static/img/city-background.jpg" alt="HexaJS architecture city" />
 </p>
 
 HexaJS is a TypeScript-first framework for browser extension backends with a structured architecture for background, content, and state.
