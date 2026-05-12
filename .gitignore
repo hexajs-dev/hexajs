@@ -5,8 +5,3 @@ hexa_js_architecture_decisions_summary.md
 cli/dist/
 dist/
 .hexa/
-.kiro
-.windsurf
-.flow
-/internal-docs/
-examples/unmanaged-ui/
