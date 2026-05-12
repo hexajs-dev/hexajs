@@ -94,6 +94,12 @@ function parsePlatforms(raw: string): Platform[] {
   return parts;
 }
 
+function resolveDefaultPlatform(platforms: readonly Platform[]): Platform {
+  if (platforms.includes('chrome')) return 'chrome';
+  if (platforms.includes('firefox')) return 'firefox';
+  return platforms[0];
+}
+
 export const newCommand = (program: Command): void => {
   program
     .command('new [name]')
@@ -214,6 +220,7 @@ export const newCommand = (program: Command): void => {
 
         const packageManager = packageManagerAnswer.packageManager;
         const packageManagerVersion = getPackageManagerVersion(packageManager);
+        const defaultPlatform = resolveDefaultPlatform(platforms);
 
         // ── 7. Scaffold ──────────────────────────────────────────────────────
         console.log('');
@@ -237,7 +244,7 @@ export const newCommand = (program: Command): void => {
         console.log('');
         console.log('  Next steps:');
         console.log(chalk.cyan(`    cd ${name}`));
-        console.log(chalk.cyan(`    ${getRunScriptCommand(packageManager, 'build')}`));
+        console.log(chalk.cyan(`    ${getRunScriptCommand(packageManager, `build:${defaultPlatform}`)}`));
         console.log('');
       } catch (error) {
         // Enquirer throws '' when the user cancels with Ctrl-C

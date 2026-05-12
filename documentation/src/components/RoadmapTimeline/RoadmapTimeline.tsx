@@ -1,4 +1,4 @@
-import { PanelsTopLeft, Paintbrush2, Rocket, type LucideIcon } from 'lucide-react';
+import { PanelsTopLeft, Paintbrush2, Rocket, Activity, type LucideIcon } from 'lucide-react';
 import './RoadmapTimeline.scss';
 
 type RoadmapItem = {
@@ -22,6 +22,13 @@ const ITEMS: RoadmapItem[] = [
         title: 'Vue.js Support',
         description: 'Bring Vue.js into the managed UI pipeline so teams can build extension surfaces with the same DI, messaging, and build ergonomics already used by popup and devtools.',
         Icon: Paintbrush2,
+        done: false,
+    },
+    {
+        kicker: 'Store',
+        title: 'Sync Store Context',
+        description: 'Add a new @State context: HexaContext.Sync. Enables state to be synchronized between background and content scripts for seamless cross-context data sharing.',
+        Icon: Activity,
         done: false,
     },
     {

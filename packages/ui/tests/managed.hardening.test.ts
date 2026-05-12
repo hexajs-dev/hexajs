@@ -108,9 +108,7 @@ describe('vite config hardening', () => {
     expect(merged.build.emptyOutDir).toBe(true);
     expect(merged.build.rollupOptions.input).toEqual({ popup: 'ui/popup/index.html' });
     expect(merged.build.rollupOptions.output).toBeUndefined();
-    expect(merged.build.rollupOptions.external).toEqual(
-      expect.arrayContaining(['react', 'react-dom', 'react-dom/client', 'custom-lib'])
-    );
+    expect(merged.build.rollupOptions.external).toEqual(['custom-lib']);
   });
 
   it('skips loading user vite config outside project root', async () => {

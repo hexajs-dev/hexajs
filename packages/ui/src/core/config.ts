@@ -5,8 +5,6 @@ import { createRequire } from 'module';
 import { loadConfigFromFile } from 'vite';
 import { HexaUiCompilerOptions } from './types';
 
-const MANAGED_ROLLUP_EXTERNALS = ['react', 'react-dom', 'react-dom/client', /^react\//, /^react-dom\//];
-
 function resolveForComparison(filePath: string): string {
     try {
         return fs.realpathSync(filePath);
@@ -223,11 +221,10 @@ export const mergeViteConfigs = (defaultConfig: ReturnType<typeof getDefaultVite
         input: defaultRollupOptions.input,
         ...(('output' in defaultRollupOptions) ? { output: (defaultRollupOptions as any).output } : {}),
     };
-    // Always keep managed externals, then merge user additions.
-    if (defaultExternal !== undefined || userExternal !== undefined || MANAGED_ROLLUP_EXTERNALS.length > 0) {
+    // Preserve explicit externals from default and user config.
+    if (defaultExternal !== undefined || userExternal !== undefined) {
         mergedRollupOptions.external = [
             ...toExternalList(defaultExternal),
-            ...MANAGED_ROLLUP_EXTERNALS,
             ...toExternalList(userExternal),
         ].filter((v, i, a) => a.indexOf(v) === i);
     }

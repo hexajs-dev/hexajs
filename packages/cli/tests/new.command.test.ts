@@ -102,6 +102,7 @@ describe('new command', () => {
     });
     expect(spawnMock).toHaveBeenCalledTimes(1);
     expect(spawnMock.mock.calls[0]?.[2]).toMatchObject({ shell: false });
+    expect(getRunScriptCommandMock).toHaveBeenCalledWith('npm', 'build:chrome');
     expect(printSuccessMock).toHaveBeenCalledTimes(1);
   });
 
@@ -128,6 +129,22 @@ describe('new command', () => {
       packageManager: 'npm',
       packageManagerVersion: '10.9.0',
     });
+    expect(getRunScriptCommandMock).toHaveBeenCalledWith('npm', 'build:chrome');
+  });
+
+  it('uses firefox as default build platform when chrome is not selected', async () => {
+    promptMock
+      .mockResolvedValueOnce({ template: 'full' })
+      .mockResolvedValueOnce({ reactPopup: false })
+      .mockResolvedValueOnce({ managedDevtools: false })
+      .mockResolvedValueOnce({ packageManager: 'npm' });
+
+    const program = new Command();
+    newCommand(program);
+
+    await runCli(program, ['new', 'my-extension', '--platform', 'safari,firefox']);
+
+    expect(getRunScriptCommandMock).toHaveBeenCalledWith('npm', 'build:firefox');
   });
 
   it('retries npm install with --legacy-peer-deps when npm returns ERESOLVE', async () => {
