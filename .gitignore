@@ -6,3 +6,7 @@ cli/dist/
 dist/
 .hexa/
 .kiro
+.windsurf
+.flow
+/internal-docs/
+examples/unmanaged-ui/
