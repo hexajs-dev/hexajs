@@ -4,6 +4,12 @@ const sidebars: SidebarsConfig = {
   docsSidebar: [
     {
       type: 'doc',
+      id: 'philosophy',
+      label: 'Philosophy',
+      customProps: { icon: 'workflow' },
+    },
+    {
+      type: 'doc',
       id: 'roadmap',
       label: 'Roadmap',
       customProps: { icon: 'compass' },

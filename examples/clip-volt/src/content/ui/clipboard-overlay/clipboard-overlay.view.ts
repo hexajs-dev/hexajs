@@ -20,7 +20,34 @@ export interface ClipboardOverlayState {
   anchorSelector: 'body',
 })
 export class ClipboardOverlayView extends HexaView implements OnDestroy {
-  private keydownHandler: ((event: KeyboardEvent) => void) | null = null;
+  private started = false;
+  private readonly documentKeydownHandler = (event: KeyboardEvent): void => {
+    if (this.isToggleShortcut(event)) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.toggle();
+      return;
+    }
+
+    if (!this.isMounted) {
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      event.stopPropagation();
+      this.close();
+    }
+  };
+
+  start(): void {
+    if (this.started) {
+      return;
+    }
+
+    document.addEventListener('keydown', this.documentKeydownHandler);
+    this.started = true;
+  }
 
   onDestroy(): void {
     this.dispose();
@@ -35,10 +62,12 @@ export class ClipboardOverlayView extends HexaView implements OnDestroy {
   }
 
   dispose(): void {
-    this.close();
-    if (this.isMounted) {
-      this.unmount();
+    if (this.started) {
+      document.removeEventListener('keydown', this.documentKeydownHandler);
+      this.started = false;
     }
+
+    this.close();
   }
 
   closeOverlay(): void {
@@ -49,26 +78,17 @@ export class ClipboardOverlayView extends HexaView implements OnDestroy {
     if (!this.isMounted) {
       this.mount();
     }
-    this.keydownHandler = this.handleOverlayKeydown.bind(this);
-    document.addEventListener('keydown', this.keydownHandler, true);
   }
 
   private close(): void {
-    this.unmount();
-    if (this.keydownHandler) {
-      document.removeEventListener('keydown', this.keydownHandler, true);
-      this.keydownHandler = null;
+    if (this.isMounted) {
+      this.unmount();
     }
   }
 
-  private handleOverlayKeydown(event: KeyboardEvent): void {
-    if (!this.isMounted) {
-      return;
-    }
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      event.stopPropagation();
-      this.close();
-    }
+  private isToggleShortcut(event: KeyboardEvent): boolean {
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const modifier = isMac ? event.metaKey : event.ctrlKey;
+    return modifier && event.shiftKey && event.key.toLowerCase() === 'l';
   }
 }

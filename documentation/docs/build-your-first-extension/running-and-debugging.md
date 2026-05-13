@@ -95,14 +95,14 @@ hexa build --platform opera
 ### Build succeeds but no eye icon appears
 
 - Confirm content class uses `@Content({ matches: ['<all_urls>'] })`.
-- Confirm `onInit()` mounts the view and wires the toggle callback.
+- Confirm `onInit()` mounts the view.
 
 ### Eye icon appears but no grayscale effect
 
-- Check `document.documentElement` class toggle logic.
-- Check that the page-level style element is inserted.
+- Check `GrayscaleToggleView.setEnabled()` toggles `document.documentElement`.
+- Check `GrayscaleToggleView.ensurePageStyle()` inserts the page-level style element.
 
 ### UI duplicates
 
-- Confirm `onDestroy()` unmounts the view.
-- Confirm style element and class are removed in `onDestroy()`.
+- Confirm `onDestroy()` calls `reset()` and then unmounts the view.
+- Confirm the controller removes the page style and class during cleanup.

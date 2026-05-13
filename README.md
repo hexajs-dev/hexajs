@@ -90,13 +90,7 @@ hexa build --platform chrome --mode development --watch
 - External React popup config: [External popup reference model](https://hexajs.dev/docs/reference-models/ui/popup/external)
 - Full example projects: [Build your first extension](https://hexajs.dev/docs/build-your-first-extension)
 
-## Contributing Policy
-
-HexaJS is under active development and currently maintained with a closed-PR contribution model.
-
-- External pull requests are not accepted at this time.
-- Bugs are welcome through the bug template.
-- Feature suggestions are welcome through the feature template.
+## Report Policy
 
 Please use the structured templates so reports are reproducible, actionable, and easy to triage.
 

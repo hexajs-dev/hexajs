@@ -1,4 +1,4 @@
-import React, { useSyncExternalStore } from 'react';
+import React, { useState } from 'react';
 import { GrayscaleToggleView } from './grayscale-toggle-view';
 
 interface GrayscaleToggleComponentProps {
@@ -22,23 +22,24 @@ function EyeClosedIcon(): JSX.Element {
 }
 
 export function GrayscaleToggleComponent({ controller }: GrayscaleToggleComponentProps): JSX.Element {
-	const state = useSyncExternalStore(
-		(onStoreChange) => controller.subscribe(onStoreChange),
-		() => controller.getSnapshot()
-	);
+	const [enabled, setEnabled] = useState(() => controller.isEnabled());
 
-	const iconLabel = state.enabled ? 'Disable grayscale' : 'Enable grayscale';
+	const handleClick = (): void => {
+		setEnabled(controller.toggle());
+	};
+
+	const iconLabel = enabled ? 'Disable grayscale' : 'Enable grayscale';
 
 	return (
 		<button
 			type='button'
 			className='hexa-grayscale-toggle'
-			onClick={controller.toggle}
+			onClick={handleClick}
 			aria-label={iconLabel}
 			title={iconLabel}
 		>
-			<span className='hexa-grayscale-toggle__icon'>{state.enabled ? <EyeClosedIcon /> : <EyeOpenIcon />}</span>
-			<span className='hexa-grayscale-toggle__label'>{state.enabled ? 'On' : 'Off'}</span>
+			<span className='hexa-grayscale-toggle__icon'>{enabled ? <EyeClosedIcon /> : <EyeOpenIcon />}</span>
+			<span className='hexa-grayscale-toggle__label'>{enabled ? 'On' : 'Off'}</span>
 		</button>
 	);
 }

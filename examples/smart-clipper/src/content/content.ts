@@ -1,18 +1,16 @@
-import { Content, ContentRunAt } from '@hexajs-dev/core';
-import { OnInit, OnDestroy } from '@hexajs-dev/common';
-import { ClipperUiService } from './ui/clipper-ui.service';
+import { Content, ContentRunAt, InjectView } from '@hexajs-dev/core';
+import { OnDestroy } from '@hexajs-dev/common';
+import { ClipperOverlayView } from './ui/clipper-overlay/clipper-overlay.view';
+import { OcrStatusTooltipView } from './ui/ocr-status/ocr-status-tooltip.view';
 
 @Content({ matches: ['<all_urls>'], runAt: ContentRunAt.DocumentIdle })
-export class SmartClipperContent implements OnInit, OnDestroy {
-	constructor(private readonly clipperUi: ClipperUiService) {}
-
-	
-	onInit(): void {
-		
-	}
+export class SmartClipperContent implements OnDestroy {
+	@InjectView() clipperOverlayView!: ClipperOverlayView;
+	@InjectView() ocrStatusView!: OcrStatusTooltipView;
 
 	onDestroy(): void {
-		this.clipperUi.dispose();
+		this.ocrStatusView.dispose();
+		this.clipperOverlayView.dispose();
 		console.log('[smart-clipper] Content script destroyed');
 	}
 } 

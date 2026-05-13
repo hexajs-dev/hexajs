@@ -11,7 +11,8 @@
       "src/assets/**/*",
       "src/libs/tesseract/**/*"
     ],
-    "minify": false
+    "minify": false,
+    "sourceMap": true
   },
   "tokens": [],
   "ui": {

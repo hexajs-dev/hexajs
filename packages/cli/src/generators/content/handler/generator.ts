@@ -19,6 +19,10 @@ export class ContentHandlerGenerator {
       const instanceName = toLowerFirst(handler.className);
       registrations.push(`  const ${instanceName} = new ${handler.className}(${deps});`);
 
+      handler.viewPropertyDependencies.forEach(viewDependency => {
+        registrations.push(`  ${instanceName}.${viewDependency.propertyName} = container.resolve(${viewDependency.viewClassName});`);
+      });
+
       handler.methods
         .filter(method => method.handleName)
         .forEach(method => {

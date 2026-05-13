@@ -181,12 +181,6 @@ export function ClipboardOverlayComponent({ controller }: { controller: Clipboar
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement | HTMLInputElement>) => {
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      controller.closeOverlay();
-      return;
-    }
-
     if (displayClips.length === 0) {
       return;
     }
