@@ -1,5 +1,14 @@
 # @hexajs-dev/core
 
+## 0.9.3-beta.9
+
+### Patch Changes
+
+- 9501729: documentation changes. simplify first application logic, minor bug fixes
+- Updated dependencies [9501729]
+  - @hexajs-dev/common@0.9.3-beta.9
+  - @hexajs-dev/ports@0.9.3-beta.9
+
 ## 0.9.3-beta.8
 
 ### Patch Changes
