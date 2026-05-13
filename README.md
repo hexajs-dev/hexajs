@@ -92,12 +92,6 @@ hexa build --platform chrome --mode development --watch
 
 ## Contributing Policy
 
-HexaJS is under active development and currently maintained with a closed-PR contribution model.
-
-- External pull requests are not accepted at this time.
-- Bugs are welcome through the bug template.
-- Feature suggestions are welcome through the feature template.
-
 Please use the structured templates so reports are reproducible, actionable, and easy to triage.
 
 - Bug report: [New bug report](https://github.com/hexajs-dev/hexajs/issues/new?template=bug_report.yml)
