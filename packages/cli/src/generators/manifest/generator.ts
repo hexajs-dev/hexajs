@@ -61,6 +61,7 @@ export class ManifestGenerator {
         }));
         manifest.content_scripts = this.mergeContentScripts(generatedContentScripts, userContentScripts);
 
+        this.applyContentSourceMapMutations(manifest);
         this.applyUiEntries(manifest);
         this.applyWorkerMutations(manifest);
         this.applyPortPermissionMutations(manifest);
@@ -142,6 +143,45 @@ export class ManifestGenerator {
         }
 
         return merged;
+    }
+
+    private applyContentSourceMapMutations(manifest: ManifestV3): void {
+        if (!this.shouldExposeContentSourceMaps()) {
+            return;
+        }
+
+        const generatedResources: ManifestV3['web_accessible_resources'] = this.contentBootstraps.map(cs => ({
+            resources: [`content/${cs.name}.js.map`],
+            matches: cs.matches,
+        }));
+
+        if (!generatedResources || generatedResources.length === 0) {
+            return;
+        }
+
+        manifest.web_accessible_resources = this.mergeWebAccessibleResources(manifest.web_accessible_resources, generatedResources);
+    }
+
+    private shouldExposeContentSourceMaps(): boolean {
+        return ['chrome', 'edge', 'brave', 'opera'].includes(this.resolved.platform)
+            && this.resolved.compilerOptions.sourceMap === true;
+    }
+
+    private mergeWebAccessibleResources(existing: ManifestV3['web_accessible_resources'], generated: ManifestV3['web_accessible_resources']): ManifestV3['web_accessible_resources'] {
+        const merged = [...(existing ?? [])];
+        const seen = new Set(merged.map(entry => JSON.stringify({ resources: entry.resources, matches: entry.matches })));
+
+        for (const entry of generated ?? []) {
+            const key = JSON.stringify({ resources: entry.resources, matches: entry.matches });
+            if (seen.has(key)) {
+                continue;
+            }
+
+            seen.add(key);
+            merged.push(entry);
+        }
+
+        return merged.length > 0 ? merged : undefined;
     }
 
     private applyUiEntries(manifest: ManifestV3): void {

@@ -85,4 +85,40 @@ describe('manifest merge', () => {
     ]));
     expect(manifest.permissions).toEqual(expect.arrayContaining(['storage', 'tabs', 'activeTab']));
   });
+
+  it('adds generated content source maps to chromium web accessible resources', () => {
+    const projectDir = path.join(tempRoot, 'project');
+    fs.mkdirSync(projectDir, { recursive: true });
+    fs.writeFileSync(path.join(projectDir, 'manifest.chrome.json'), JSON.stringify({
+      web_accessible_resources: [
+        {
+          resources: ['assets/*'],
+          matches: ['<all_urls>'],
+        },
+      ],
+    }), 'utf-8');
+
+    vi.spyOn(process, 'cwd').mockReturnValue(projectDir);
+
+    const contentBootstraps: ContentScriptOutput[] = [{
+      name: 'main',
+      matches: ['https://example.com/*'],
+      runAt: ContentRunAt.DocumentIdle,
+      allFrames: false,
+      content: '',
+      contentEntries: [],
+    }];
+    const manifest = JSON.parse(new ManifestGenerator(contentBootstraps, createResolved('chrome', 'manifest.chrome.json')).generate()) as any;
+
+    expect(manifest.web_accessible_resources).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        resources: ['assets/*'],
+        matches: ['<all_urls>'],
+      }),
+      expect.objectContaining({
+        resources: ['content/main.js.map'],
+        matches: ['https://example.com/*'],
+      }),
+    ]));
+  });
 });

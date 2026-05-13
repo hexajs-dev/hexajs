@@ -205,40 +205,6 @@ importers:
         specifier: ^7.3.1
         version: 7.3.2(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.2)(tsx@4.21.0)
 
-  examples/unmanaged-ui:
-    dependencies:
-      '@hexajs-dev/common':
-        specifier: file:../../packages/common
-        version: link:../../packages/common
-      '@hexajs-dev/core':
-        specifier: file:../../packages/core
-        version: file:packages/core(typescript@5.5.4)
-      '@hexajs-dev/ports':
-        specifier: file:../../packages/ports
-        version: file:packages/ports(typescript@5.5.4)
-      rxjs:
-        specifier: ^7.8.2
-        version: 7.8.2
-    devDependencies:
-      '@hexajs-dev/cli':
-        specifier: file:../../packages/cli
-        version: file:packages/cli(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.2)(tsx@4.21.0)(typescript@5.5.4)
-      '@vitejs/plugin-react':
-        specifier: ^4.3.4
-        version: 4.7.0(vite@5.4.21(@types/node@25.6.0)(sass@1.99.0)(terser@5.46.2))
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
-      typescript:
-        specifier: ^5.0.0
-        version: 5.5.4
-      vite:
-        specifier: ^5.4.10
-        version: 5.4.21(@types/node@25.6.0)(sass@1.99.0)(terser@5.46.2)
-
   packages/cli:
     dependencies:
       '@hexajs-dev/common':
@@ -1974,22 +1940,6 @@ packages:
 
   '@hapi/topo@5.1.0':
     resolution: {integrity: sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==}
-
-  '@hexajs-dev/cli@file:packages/cli':
-    resolution: {directory: packages/cli, type: directory}
-    hasBin: true
-    peerDependencies:
-      typescript: ^5.0.0
-
-  '@hexajs-dev/core@file:packages/core':
-    resolution: {directory: packages/core, type: directory}
-    peerDependencies:
-      typescript: ^5.0.0
-
-  '@hexajs-dev/ports@file:packages/ports':
-    resolution: {directory: packages/ports, type: directory}
-    peerDependencies:
-      typescript: ^5.0.0
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -9696,47 +9646,6 @@ snapshots:
     dependencies:
       '@hapi/hoek': 9.3.0
 
-  '@hexajs-dev/cli@file:packages/cli(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.2)(tsx@4.21.0)(typescript@5.5.4)':
-    dependencies:
-      '@hexajs-dev/common': link:packages/common
-      boxen: 8.0.1
-      chalk: 5.6.2
-      commander: 14.0.3
-      enquirer: 2.4.1
-      fast-glob: 3.3.3
-      fs-extra: 11.3.4
-      ora: 9.4.0
-      sharp: 0.34.5
-      typescript: 5.5.4
-      vite: 7.3.2(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.2)(tsx@4.21.0)
-      ws: 8.20.0
-    transitivePeerDependencies:
-      - '@types/node'
-      - bufferutil
-      - jiti
-      - less
-      - lightningcss
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - terser
-      - tsx
-      - utf-8-validate
-      - yaml
-
-  '@hexajs-dev/core@file:packages/core(typescript@5.5.4)':
-    dependencies:
-      '@hexajs-dev/common': link:packages/common
-      '@hexajs-dev/ports': link:packages/ports
-      rxjs: 7.8.2
-      typescript: 5.5.4
-
-  '@hexajs-dev/ports@file:packages/ports(typescript@5.5.4)':
-    dependencies:
-      '@hexajs-dev/common': link:packages/common
-      typescript: 5.5.4
-
   '@img/colour@1.1.0': {}
 
   '@img/sharp-darwin-arm64@0.34.5':
@@ -10841,18 +10750,6 @@ snapshots:
       '@types/yargs-parser': 21.0.3
 
   '@ungap/structured-clone@1.3.0': {}
-
-  '@vitejs/plugin-react@4.7.0(vite@5.4.21(@types/node@25.6.0)(sass@1.99.0)(terser@5.46.2))':
-    dependencies:
-      '@babel/core': 7.29.0
-      '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.29.0)
-      '@babel/plugin-transform-react-jsx-source': 7.27.1(@babel/core@7.29.0)
-      '@rolldown/pluginutils': 1.0.0-beta.27
-      '@types/babel__core': 7.20.5
-      react-refresh: 0.17.0
-      vite: 5.4.21(@types/node@25.6.0)(sass@1.99.0)(terser@5.46.2)
-    transitivePeerDependencies:
-      - supports-color
 
   '@vitejs/plugin-react@4.7.0(vite@7.3.2(@types/node@25.6.0)(jiti@1.21.7)(sass@1.99.0)(terser@5.46.2)(tsx@4.21.0))':
     dependencies:

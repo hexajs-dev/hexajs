@@ -24,9 +24,11 @@ HexaJS targets **Manifest V3 (MV3)** browser extensions.
 
 ## Philosophy
 
-In recent years, browser extensions have become increasingly complex applications in their own right. However, the standard WebExtensions API, while powerful, does not provide a framework for building well-architected, scalable, and easily maintainable projects. Developers are often left to create their own structure, which can lead to tightly coupled code that is difficult to test and evolve.
+HexaJS exists because browser extensions stop feeling like simple scripts the moment they span multiple runtime contexts, messaging boundaries, background orchestration, storage, and UI surfaces.
 
-HexaJS provides an out-of-the-box application architecture that allows developers and teams to create highly testable, scalable, loosely coupled, and easily maintainable browser extensions. The architecture is heavily inspired by modern backend frameworks and brings concepts like Dependency Injection, controllers, and services to the extension development workflow.
+Instead of leaving that complexity to ad-hoc conventions, HexaJS treats extensions as structured applications with explicit runtime boundaries, compile-time analysis, and generated wiring.
+
+Read [Philosophy](../philosophy.md) for the full framework thesis and the trade-offs HexaJS makes.
 
 ## What you'll learn in this section
 

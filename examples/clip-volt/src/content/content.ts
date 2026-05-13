@@ -25,14 +25,13 @@ export class ClipVaultContent implements OnInit, OnDestroy {
 
   async onInit(): Promise<void> {
     document.addEventListener('copy', this.onCopy);
-    document.addEventListener('keydown', this.onKeyDown);
+    this.overlay.start();
     await this.loadInitialState();
     this.logger.log('Content initialized');
   }
 
   onDestroy(): void {
     document.removeEventListener('copy', this.onCopy);
-    document.removeEventListener('keydown', this.onKeyDown);
     this.overlay.dispose();
   }
 
@@ -97,14 +96,4 @@ export class ClipVaultContent implements OnInit, OnDestroy {
 
     return false;
   }
-
-  private readonly onKeyDown = (event: KeyboardEvent): void => {   
-    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-    const modifier = isMac ? event.metaKey : event.ctrlKey;
-    if (modifier && event.shiftKey && event.key.toLowerCase() === 'l') {
-      event.preventDefault();
-      event.stopPropagation();
-      this.overlay.toggle();
-    }
-  };
 }

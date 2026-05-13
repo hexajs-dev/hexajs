@@ -1,7 +1,7 @@
 ---
 title: Build Your First Extension
 sidebar_position: 1
-description: Build a minimal grayscale extension with a content-side eye toggle and a simple managed popup.
+description: Build a minimal grayscale extension with a view-owned eye toggle and a simple managed popup.
 ---
 
 # Build Your First Extension
@@ -10,17 +10,16 @@ This section walks you through a complete, minimal HexaJS extension that you can
 
 The extension does exactly two things:
 
-- It injects a small eye button on every page using a content-side Shadow DOM view.
+- It injects a small eye button on every page using a Shadow DOM view.
 - It toggles grayscale on and off for that specific page when you click the eye button.
 
 The popup is intentionally simple and visual-only. It mirrors the style of the feature and helps you verify UI wiring without adding extra messaging complexity.
 
 ## What you will build
 
-- A `@Content` entry that initializes and disposes page UI correctly.
-- A `@View` + `HexaView` pair that renders a React eye toggle in Shadow DOM.
+- A minimal `@Content` entry that mounts and disposes page UI correctly.
+- A `@View` + `HexaView` pair that owns grayscale behavior and renders a React eye toggle in Shadow DOM.
 - A minimal managed popup built with React.
-- An optional content logger service to understand `@Injectable` basics.
 
 ## Why this tutorial matters
 
@@ -29,7 +28,7 @@ It covers the most important HexaJS concepts for first-time extension authors:
 - Context boundaries (content vs popup vs background)
 - Proper lifecycle cleanup
 - Shadow DOM UI that does not clash with host-page CSS
-- Small, testable responsibilities in each class
+- A short button-click path that is easy to inspect and extend
 
 ## Recommended flow
 

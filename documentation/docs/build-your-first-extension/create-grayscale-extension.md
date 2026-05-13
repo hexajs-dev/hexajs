@@ -1,7 +1,7 @@
 ---
 title: Create a Grayscale Extension
 sidebar_position: 2
-description: Step-by-step guide for building a content-side grayscale toggle using HexaJS views.
+description: Step-by-step guide for building a view-owned grayscale toggle using HexaJS views.
 ---
 
 # Create a Grayscale Extension
@@ -88,131 +88,41 @@ You now have:
 - `src/content/` for page logic and content scripts
 - `ui/popup/` for React popup managed by HexaJS
 
-## Step 2: Wire content lifecycle directly
+## Step 2: Keep content lifecycle minimal
 
-In `src/content/content.ts`, keep lifecycle and page-toggle logic in the content class.
+In `src/content/content.ts`, let content only mount and clean up the view. The view controller will own the grayscale behavior.
 
 ```ts
 import { OnInit, OnDestroy } from '@hexajs-dev/common';
 import { Content, ContentRunAt, InjectView } from '@hexajs-dev/core';
 import { GrayscaleToggleView } from './ui/grayscale-toggle/grayscale-toggle-view';
 
-const HEXA_GRAYSCALE_CLASS = 'hexa-grayscale-enabled';
-const HEXA_GRAYSCALE_STYLE_ID = 'hexa-grayscale-page-style';
-
 @Content({ matches: ['<all_urls>'], runAt: ContentRunAt.DocumentIdle })
 export class HexaGrayscaleContent implements OnInit, OnDestroy {
   @InjectView() grayscaleToggleView!: GrayscaleToggleView;
 
-  private enabled = false;
-
   onInit(): void {
-    this.ensurePageStyle();
     if (!this.grayscaleToggleView.isMounted) {
       this.grayscaleToggleView.mount();
     }
-    this.grayscaleToggleView.setEnabled(this.enabled);
-    this.grayscaleToggleView.setOnToggle((nextEnabled: boolean) => {
-      this.setEnabled(nextEnabled);
-    });
   }
 
   onDestroy(): void {
-    this.grayscaleToggleView.setOnToggle(undefined);
+    this.grayscaleToggleView.reset();
     if (this.grayscaleToggleView.isMounted) {
       this.grayscaleToggleView.unmount();
     }
-    this.removePageStyle();
-    document.documentElement.classList.remove(HEXA_GRAYSCALE_CLASS);
-    this.enabled = false;
-  }
-
-  private setEnabled(enabled: boolean): void {
-    this.enabled = enabled;
-    document.documentElement.classList.toggle(HEXA_GRAYSCALE_CLASS, enabled);
-    this.grayscaleToggleView.setEnabled(enabled);
-  }
-
-  private ensurePageStyle(): void {
-    if (document.getElementById(HEXA_GRAYSCALE_STYLE_ID)) {
-      return;
-    }
-    const styleElement = document.createElement('style');
-    styleElement.id = HEXA_GRAYSCALE_STYLE_ID;
-    styleElement.textContent = `html.${HEXA_GRAYSCALE_CLASS} { filter: grayscale(100%); }`;
-    document.head.appendChild(styleElement);
-  }
-
-  private removePageStyle(): void {
-    document.getElementById(HEXA_GRAYSCALE_STYLE_ID)?.remove();
   }
 }
 ```
 
 Why this is important:
 
-- `onInit` mounts the view and wires the toggle callback.
-- `onDestroy` guarantees cleanup when content unloads.
-- Keeping this first version local makes the beginner flow easier to follow.
+- Content stays easy to read: mount on init, cleanup on destroy.
+- The click path becomes direct: React component -> view controller -> page DOM.
+- Beginners only need one class to inspect when grayscale behavior changes.
 
-## Step 3 (Optional): Add a logger service to learn DI
-
-This step is optional. Your extension already works without it.
-
-Create `src/content/services/logger.service.ts`:
-
-```ts
-import { Injectable, HexaContext } from '@hexajs-dev/common';
-
-const LOGGER_PREFIX = '[hexa-grayscale]';
-
-@Injectable({ context: HexaContext.Content })
-export class LoggerService {
-  log(message: string, data?: unknown): void {
-    if (typeof data === 'undefined') {
-      console.log(`${LOGGER_PREFIX} ${message}`);
-      return;
-    }
-    console.log(`${LOGGER_PREFIX} ${message}`, data);
-  }
-
-  logState(enabled: boolean): void {
-    this.log('Current grayscale state', { enabled });
-  }
-}
-```
-
-Then inject it in `src/content/content.ts`:
-
-```ts
-import { LoggerService } from './services/logger.service';
-
-@Content({ matches: ['<all_urls>'], runAt: ContentRunAt.DocumentIdle })
-export class HexaGrayscaleContent implements OnInit, OnDestroy {
-  constructor(private readonly logger: LoggerService) {}
-
-  onInit(): void {
-    // existing setup logic
-    this.logger.log('Content script initialized on', window.location.href);
-    this.logger.logState(this.enabled);
-  }
-
-  onDestroy(): void {
-    // existing cleanup logic
-    this.logger.logState(this.enabled);
-    this.logger.log('Content script destroyed');
-  }
-
-  private setEnabled(enabled: boolean): void {
-    // existing toggle logic
-    this.logger.logState(enabled);
-  }
-}
-```
-
-If you skip this optional step, remove the logger import, constructor dependency, and logger calls.
-
-## Step 4: Build the view controller with `@View`
+## Step 3: Build the view controller with `@View`
 
 Create `src/content/ui/grayscale-toggle/grayscale-toggle-view.ts`.
 
@@ -277,12 +187,8 @@ import { HexaView, View } from '@hexajs-dev/core';
 import { GrayscaleToggleComponent } from './grayscale-toggle.component';
 import styles from './grayscale-toggle.css?inline';
 
-interface GrayscaleToggleState {
-  enabled: boolean;
-}
-
-type ToggleListener = () => void;
-type ToggleHandler = (enabled: boolean) => void;
+const HEXA_GRAYSCALE_CLASS = 'hexa-grayscale-enabled';
+const HEXA_GRAYSCALE_STYLE_ID = 'hexa-grayscale-page-style';
 
 @View({
   id: 'hexa-grayscale-toggle',
@@ -291,34 +197,44 @@ type ToggleHandler = (enabled: boolean) => void;
   anchorSelector: 'body'
 })
 export class GrayscaleToggleView extends HexaView {
-  private listeners = new Set<ToggleListener>();
-  private onToggle?: ToggleHandler;
-  private state: GrayscaleToggleState = { enabled: false };
+  private enabled = false;
 
-  subscribe(listener: ToggleListener): () => void {
-    this.listeners.add(listener);
-    return () => this.listeners.delete(listener);
-  }
-
-  getSnapshot(): GrayscaleToggleState {
-    return this.state;
+  isEnabled(): boolean {
+    return this.enabled;
   }
 
   setEnabled(enabled: boolean): void {
-    this.setState({ enabled });
+    this.enabled = enabled;
+    if (enabled) {
+      this.ensurePageStyle();
+    }
+    document.documentElement.classList.toggle(HEXA_GRAYSCALE_CLASS, enabled);
   }
 
-  setOnToggle(onToggle?: ToggleHandler): void {
-    this.onToggle = onToggle;
-  }
-
-  toggle = (): void => {
-    this.onToggle?.(!this.state.enabled);
+  toggle = (): boolean => {
+    const nextEnabled = !this.enabled;
+    this.setEnabled(nextEnabled);
+    return nextEnabled;
   };
 
-  private setState(nextState: GrayscaleToggleState): void {
-    this.state = nextState;
-    this.listeners.forEach((listener) => listener());
+  reset(): void {
+    this.enabled = false;
+    document.documentElement.classList.remove(HEXA_GRAYSCALE_CLASS);
+    this.removePageStyle();
+  }
+
+  private ensurePageStyle(): void {
+    if (document.getElementById(HEXA_GRAYSCALE_STYLE_ID)) {
+      return;
+    }
+    const styleElement = document.createElement('style');
+    styleElement.id = HEXA_GRAYSCALE_STYLE_ID;
+    styleElement.textContent = `html.${HEXA_GRAYSCALE_CLASS} { filter: grayscale(100%); }`;
+    document.head.appendChild(styleElement);
+  }
+
+  private removePageStyle(): void {
+    document.getElementById(HEXA_GRAYSCALE_STYLE_ID)?.remove();
   }
 }
 ```
@@ -327,16 +243,17 @@ Key points:
 
 - Import CSS via `import styles from './file.css?inline'` (Vite syntax).
 - The `styles` variable is passed to `@View` decorator.
-- Styles are scoped to shadow DOM by HexaView.
+- `HexaView` still handles Shadow DOM mounting.
+- The view controller owns the page class and style cleanup.
 
-## Step 5: Build the React view component
+## Step 4: Build the React view component
 
 Create `src/content/ui/grayscale-toggle/grayscale-toggle.component.tsx`.
 
-The component subscribes to `HexaView` state via `useSyncExternalStore` and displays eye icons:
+The component keeps only the button's local on/off state and calls the controller for page effects:
 
 ```tsx
-import React, { useSyncExternalStore } from 'react';
+import React, { useState } from 'react';
 import { GrayscaleToggleView } from './grayscale-toggle-view';
 
 interface GrayscaleToggleComponentProps {
@@ -360,25 +277,26 @@ function EyeClosedIcon(): JSX.Element {
 }
 
 export function GrayscaleToggleComponent({ controller }: GrayscaleToggleComponentProps): JSX.Element {
-  const state = useSyncExternalStore(
-    (onStoreChange) => controller.subscribe(onStoreChange),
-    () => controller.getSnapshot()
-  );
+  const [enabled, setEnabled] = useState(() => controller.isEnabled());
 
-  const iconLabel = state.enabled ? 'Disable grayscale' : 'Enable grayscale';
+  const handleClick = (): void => {
+    setEnabled(controller.toggle());
+  };
+
+  const iconLabel = enabled ? 'Disable grayscale' : 'Enable grayscale';
 
   return (
     <button
       type='button'
       className='hexa-grayscale-toggle'
-      onClick={controller.toggle}
+      onClick={handleClick}
       aria-label={iconLabel}
       title={iconLabel}
     >
       <span className='hexa-grayscale-toggle__icon'>
-        {state.enabled ? <EyeClosedIcon /> : <EyeOpenIcon />}
+        {enabled ? <EyeClosedIcon /> : <EyeOpenIcon />}
       </span>
-      <span className='hexa-grayscale-toggle__label'>{state.enabled ? 'On' : 'Off'}</span>
+      <span className='hexa-grayscale-toggle__label'>{enabled ? 'On' : 'Off'}</span>
     </button>
   );
 }
@@ -386,20 +304,21 @@ export function GrayscaleToggleComponent({ controller }: GrayscaleToggleComponen
 
 Key points:
 
-- `useSyncExternalStore` keeps component in sync with `HexaView` state.
-- Eye icons change based on `state.enabled`.
+- React owns the button label and icon state.
+- The controller owns the DOM side effects and cleanup.
+- Eye icons change based on `enabled`.
 - Button includes accessible labels via `aria-label` and `title`.
 
-## Step 6: Keep handler and background minimal
+## Step 5: Keep handler and background minimal
 
-For this minimal extension, all feature behavior stays in content.
+For this minimal extension, all feature behavior stays inside the content view controller.
 
 - `src/content/handler.ts` can remain empty for now.
 - `src/background/controller.ts` can remain a stub until you need cross-context messaging.
 
 This is intentional. Avoid complexity until a real requirement appears.
 
-## Step 7: Validate the behavior manually
+## Step 6: Validate the behavior manually
 
 Use two different tabs.
 
@@ -414,12 +333,12 @@ Checklist:
 
 ### Toggle appears but page does not turn grayscale
 
-- Verify class is applied to `document.documentElement`.
-- Verify the style element is present in `document.head`.
+- Verify `GrayscaleToggleView.setEnabled()` applies the class to `document.documentElement`.
+- Verify `GrayscaleToggleView.ensurePageStyle()` inserts the style element into `document.head`.
 
 ### Toggle duplicates after navigation
 
-- Ensure `onDestroy()` calls `unmount()` and removes page style.
+- Ensure `onDestroy()` calls `reset()` before `unmount()`.
 - Ensure `onInit()` checks `isMounted` before calling `mount()`.
 
 ### Styling collides with website CSS
