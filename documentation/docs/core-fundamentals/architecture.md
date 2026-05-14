@@ -34,13 +34,13 @@ HexaJS uses multiple decorator groups, each with a specific responsibility:
 
 ## AOT Context Awareness
 
-HexaJS build is context-aware at compile time:
+The HexaJS CLI (`@hexajs-dev/cli`) powers the Ahead-of-Time compilation pipeline. It analyzes the TypeScript Abstract Syntax Tree (AST) to understand your architecture before any bundling happens. The CLI pipeline is broken into three major phases:
 
-1. Scan phase reads decorators and token declarations (`@Injectable`, `@Background`, `@Content`, `@Controller`, `@Handler`, `@State`, `createToken`).
-2. Validate phase enforces context boundaries (for example, content handlers cannot inject background-only services).
-3. Generate phase emits per-context bootstrap files that register services, handlers/controllers, ports, and tokens.
+1. **Scan Phase (`cli/src/compiler`)**: The scanner walks the codebase to discover and catalog decorators (`@Injectable`, `@Background`, `@Content`, `@Controller`, `@Handler`, `@State`) and token declarations. It registers them into an internal semantic registry, grouping them by their target context.
+2. **Analysis Phase (`cli/src/analyzer`)**: The analyzer acts as a boundary enforcement engine. It verifies correct usage and identifies cross-context violations (e.g., preventing a content script handler from injecting a service that requires background-only browser APIs). It analyzes the DI graph, stores/effects, and manifest configurations.
+3. **Generate Phase (`cli/src/generators`)**: Based on the validated registry, the generator emits tightly scoped, context-specific bootstrap files. These files efficiently wire up DI containers, ports, controllers, handlers, and stores for the Background and Content scripts.
 
-This is why runtime code stays clean: you write decorators and constructor dependencies, while the AOT pipeline wires context-safe bootstrap code.
+Finally, the CLI drives the underlying bundler (Vite/Esbuild via `bundler.ts`) and sets up specialized HMR (`hmr/`) for extension environments. This is why runtime code stays clean: you write declarative decorators, while the AOT pipeline wires context-safe bootstrap code.
 
 ## Layered packages
 
