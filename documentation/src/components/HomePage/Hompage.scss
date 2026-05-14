@@ -63,7 +63,6 @@ $dark-base: #0d1117;
 .hexaTitle {
   font-size: clamp(1.95rem, 5vw, 3.4rem);
   font-weight: 800;
-  -webkit-text-stroke: 1px rgba(0, 0, 0, 0.665);
   letter-spacing: -0.03em;
   background: linear-gradient(90deg, $cyan 0%, $cyan-mid 100%);
   -webkit-background-clip: text;

@@ -45,6 +45,8 @@ const sidebars: SidebarsConfig = {
       link: { type: 'doc', id: 'core-fundamentals/index' },
       items: [
         'core-fundamentals/architecture',
+        'core-fundamentals/background',
+        'core-fundamentals/content',
         'core-fundamentals/dependency-injection',
         'core-fundamentals/controllers',
         'core-fundamentals/handlers',
