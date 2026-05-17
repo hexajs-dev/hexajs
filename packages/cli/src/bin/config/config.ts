@@ -29,6 +29,7 @@ export interface UiConfig {
     parallelBuild?: boolean;
     popup?: UiSurfaceConfig;
     devtools?: UiSurfaceConfig;
+    newtab?: UiSurfaceConfig;
 }
 
 // ─── Environment Types ────────────────────────────────────────────────────────

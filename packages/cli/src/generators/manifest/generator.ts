@@ -10,6 +10,7 @@ import { PortPermissionAnalyzer } from './permissions/port-permission.analyzer';
 export interface ManifestUiEntries {
     popup?: string;
     devtools?: string;
+    newtab?: string;
 }
 
 export interface ManifestGenerationOptions {
@@ -86,7 +87,7 @@ export class ManifestGenerator {
 
     private mergeUserManifest(base: ManifestV3, user: Partial<ManifestV3>): void {
         // HexaJS always controls these — skip them from user manifest
-        const HEXA_OWNED_KEYS: (keyof ManifestV3)[] = ['background', 'content_scripts', 'manifest_version', 'action', 'devtools_page'];
+        const HEXA_OWNED_KEYS: (keyof ManifestV3)[] = ['background', 'content_scripts', 'manifest_version', 'action', 'devtools_page', 'chrome_url_overrides'];
 
         for (const [key, value] of Object.entries(user)) {
             if (HEXA_OWNED_KEYS.includes(key as keyof ManifestV3)) {
@@ -196,10 +197,18 @@ export class ManifestGenerator {
 
         if (this.uiEntries.devtools) {
             manifest.devtools_page = this.uiEntries.devtools;
-            return;
+        } else {
+            delete manifest.devtools_page;
         }
 
-        delete manifest.devtools_page;
+        if (this.uiEntries.newtab) {
+            manifest.chrome_url_overrides = {
+                ...(manifest.chrome_url_overrides ?? {}),
+                newtab: this.uiEntries.newtab,
+            };
+        } else {
+            delete manifest.chrome_url_overrides;
+        }
     }
 
     private applyWorkerMutations(manifest: ManifestV3): void {

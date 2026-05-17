@@ -181,22 +181,42 @@ function getNonBrandedChromiumCandidates(env: NodeJS.ProcessEnv): string[] {
 }
 
 function getPlatformChromeCandidates(env: NodeJS.ProcessEnv): string[] {
-    const nonBrandedCandidates = getNonBrandedChromiumCandidates(env);
-
     if (process.platform === 'win32') {
+        const nonBrandedCandidates = getNonBrandedChromiumCandidates(env);
         const roots = [env.ProgramFiles, env['ProgramFiles(x86)'], env.LocalAppData].filter(Boolean) as string[];
         return [...nonBrandedCandidates, ...roots.map(root => path.join(root, 'Google', 'Chrome', 'Application', 'chrome.exe'))];
     }
 
     if (process.platform === 'darwin') {
         const homeDir = env.HOME || os.homedir();
+        // Scan for embedded Chromium builds installed by puppeteer / playwright
+        const scannedCandidate = findNewestMatchingExecutable(
+            [
+                path.join(homeDir, '.cache', 'puppeteer'),
+                path.join(homeDir, 'Library', 'Caches', 'ms-playwright'),
+            ],
+            filePath => {
+                const normalized = filePath.replace(/\\/g, '/').toLowerCase();
+                return (normalized.endsWith('/chromium') || normalized.endsWith('/google chrome for testing'))
+                    && (normalized.includes('/chromium.app/') || normalized.includes('/chrome for testing.app/'));
+            },
+            6,
+        );
+        // User-level ~/Applications take priority over system-wide /Applications so that
+        // isolated test environments (and developer machines) don't pick up a system-wide
+        // Chrome for Testing that was installed by CI tooling before user-installed builds.
         return [
-            ...nonBrandedCandidates,
-            '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+            path.join(homeDir, 'Applications', 'Google Chrome for Testing.app', 'Contents', 'MacOS', 'Google Chrome for Testing'),
+            path.join(homeDir, 'Applications', 'Chromium.app', 'Contents', 'MacOS', 'Chromium'),
             path.join(homeDir, 'Applications', 'Google Chrome.app', 'Contents', 'MacOS', 'Google Chrome'),
+            ...(scannedCandidate ? [scannedCandidate] : []),
+            '/Applications/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing',
+            '/Applications/Chromium.app/Contents/MacOS/Chromium',
+            '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
         ];
     }
 
+    const nonBrandedCandidates = getNonBrandedChromiumCandidates(env);
     return [
         ...nonBrandedCandidates,
         '/usr/bin/google-chrome',
@@ -259,7 +279,11 @@ export function resolveChromeExecutablePath(options: ResolveChromeExecutableOpti
 }
 
 export function computeChromiumExtensionId(extensionDir: string): string {
-    const resolvedPath = path.resolve(extensionDir);
+    // Use platform-specific resolution so that win32 paths get backslashes even
+    // when this function is called on macOS/Linux (e.g. in tests that mock process.platform).
+    const resolvedPath = process.platform === 'win32'
+        ? path.win32.resolve(extensionDir)
+        : path.resolve(extensionDir);
     const normalizedPath = process.platform === 'win32' && /^[a-z]:/i.test(resolvedPath)
         ? `${resolvedPath.charAt(0).toUpperCase()}${resolvedPath.slice(1)}`
         : resolvedPath;

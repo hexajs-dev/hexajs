@@ -202,7 +202,17 @@ export const newCommand = (program: Command): void => {
         const managedDevtools = devtoolsAnswer.managedDevtools;
         const reactDevtools = managedDevtools;
 
-        // ── 6. Package manager ───────────────────────────────────────────────
+        // ── 6. New Tab ────────────────────────────────────────────────────
+        const newtabAnswer = await Enquirer.prompt<{ managedNewtab: boolean }>({
+          type: 'confirm',
+          name: 'managedNewtab',
+          message: 'Add a React New Tab page? (managed by Hexa)',
+          initial: false,
+        } as any);
+
+        const managedNewtab = newtabAnswer.managedNewtab;
+
+        // ── 7. Package manager ───────────────────────────────────────────────
         const availablePMs = detectAvailablePMs();
         const packageManagerChoices = (availablePMs.length ? availablePMs : ALL_PACKAGE_MANAGERS).map((pm) => ({
           name: pm,
@@ -227,7 +237,7 @@ export const newCommand = (program: Command): void => {
         console.log(chalk.cyan(`  Creating project ${chalk.bold(name)}…`));
         console.log('');
 
-        const projectDir = await scaffold({ name, platforms, reactPopup, managedDevtools, reactDevtools, blank, packageManager, packageManagerVersion });
+        const projectDir = await scaffold({ name, platforms, reactPopup, managedDevtools, reactDevtools, managedNewtab, blank, packageManager, packageManagerVersion });
 
         console.log(chalk.dim(`  Platforms : ${platforms.join(', ')}`));
         console.log(chalk.dim(`  Location  : ${projectDir}`));

@@ -30,6 +30,9 @@ export const hexaConfigTemplate = (ctx: ScaffoldContext): string => {
       devtools: ctx.managedDevtools
         ? { mode: 'managed', sourceDir: 'ui/devtools', indexFile: 'index.html' }
         : { mode: 'none' },
+      newtab: ctx.managedNewtab
+        ? { mode: 'managed', sourceDir: 'ui/newtab', indexFile: 'index.html' }
+        : { mode: 'none' },
     },
   };
 

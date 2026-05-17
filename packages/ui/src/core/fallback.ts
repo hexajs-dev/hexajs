@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import type { HexaUiSurface } from './types';
 import { writeDevtoolsBridge } from '../devtools/bridge';
+import { normalizeManifestPath } from './normalize';
 
 /**
  * Generate a minimal fallback HTML page for a surface when no source is found.
@@ -28,6 +29,26 @@ export function createFallbackSurface(surface: HexaUiSurface, outputDir: string)
     fs.writeFileSync(path.join(targetDir, 'index.html'), panelHtml, 'utf-8');
     console.log(`✓ Generated fallback devtools panel: ${path.join(targetDir, 'index.html')}`);
     return writeDevtoolsBridge(targetDir, 'ui/devtools/index.html');
+  }
+
+  if (surface === 'newtab') {
+    const targetDir = path.join(outputDir, 'ui', 'newtab');
+    fs.mkdirSync(targetDir, { recursive: true });
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>New Tab</title>
+</head>
+<body>
+  <h1>Hello from HexaJS New Tab</h1>
+</body>
+</html>
+`;
+    const targetPath = path.join(targetDir, 'index.html');
+    fs.writeFileSync(targetPath, html, 'utf-8');
+    console.log(`✓ Generated fallback new tab page: ${targetPath}`);
+    return normalizeManifestPath(path.posix.join('ui', 'newtab', 'index.html'));
   }
 
   const fileName = 'popup.html';

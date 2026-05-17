@@ -14,6 +14,7 @@ import { detectProjectPM, getAddDependencyCommand } from '../shared/package-mana
 interface HexaUiModule {
     buildManagedPopup: (config: UiSurfaceConfig | undefined, outputDir: string, compilerOptions: ResolvedBuildConfig['compilerOptions'], bootstrapPath: string, platform: string, watch?: boolean, hmrAddress?: string, hmrSessionToken?: string) => Promise<string>;
     buildManagedDevtools: (config: UiSurfaceConfig | undefined, outputDir: string, compilerOptions: ResolvedBuildConfig['compilerOptions'], bootstrapPath: string, platform: string, watch?: boolean, hmrAddress?: string, hmrSessionToken?: string) => Promise<string>;
+    buildManagedNewtab: (config: UiSurfaceConfig | undefined, outputDir: string, compilerOptions: ResolvedBuildConfig['compilerOptions'], bootstrapPath: string, platform: string, watch?: boolean, hmrAddress?: string, hmrSessionToken?: string) => Promise<string>;
 }
 
 interface UiBootstrapBuildOutput {
@@ -24,7 +25,7 @@ interface UiBootstrapBuildOutput {
 function createMissingUiDependencyError(cwd: string): Error {
     const packageManager = detectProjectPM(cwd);
     return new Error(
-        `'@hexajs-dev/ui' is not installed in your project but popup/devtools is set to managed mode.\n` +
+        `'@hexajs-dev/ui' is not installed in your project but a UI surface is set to managed mode.\n` +
         `Run: ${getAddDependencyCommand(packageManager, '@hexajs-dev/ui')}\n` +
         `Or change the popup mode to "external" or "none" in hexa-cli.config.json.`
     );
@@ -43,21 +44,28 @@ function isModuleNotFoundForRequest(error: unknown, request: string): boolean {
 function tryLoadManagedUiHelpersFromDist(packageRoot: string, userRequire: NodeRequire): HexaUiModule | null {
     const popupManagedPath = path.join(packageRoot, 'dist', 'src', 'popup', 'managed.cjs');
     const devtoolsManagedPath = path.join(packageRoot, 'dist', 'src', 'devtools', 'managed.cjs');
+    const newtabManagedPath = path.join(packageRoot, 'dist', 'src', 'newtab', 'managed.cjs');
 
-    if (!fs.existsSync(popupManagedPath) || !fs.existsSync(devtoolsManagedPath)) {
+    if (!fs.existsSync(popupManagedPath) || !fs.existsSync(devtoolsManagedPath) || !fs.existsSync(newtabManagedPath)) {
         return null;
     }
 
     const popupManaged = userRequire(popupManagedPath) as Partial<HexaUiModule>;
     const devtoolsManaged = userRequire(devtoolsManagedPath) as Partial<HexaUiModule>;
+    const newtabManaged = userRequire(newtabManagedPath) as Partial<HexaUiModule>;
 
-    if (typeof popupManaged.buildManagedPopup !== 'function' || typeof devtoolsManaged.buildManagedDevtools !== 'function') {
+    if (
+        typeof popupManaged.buildManagedPopup !== 'function' ||
+        typeof devtoolsManaged.buildManagedDevtools !== 'function' ||
+        typeof newtabManaged.buildManagedNewtab !== 'function'
+    ) {
         return null;
     }
 
     return {
         buildManagedPopup: popupManaged.buildManagedPopup,
         buildManagedDevtools: devtoolsManaged.buildManagedDevtools,
+        buildManagedNewtab: newtabManaged.buildManagedNewtab,
     };
 }
 
@@ -74,7 +82,7 @@ function isPathWithinRoot(rootPath: string, candidatePath: string): boolean {
     return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
 }
 
-function copyExternalSurface(surface: 'popup' | 'devtools', config: UiSurfaceConfig, outputDir: string): string {
+function copyExternalSurface(surface: 'popup' | 'devtools' | 'newtab', config: UiSurfaceConfig, outputDir: string): string {
     if (!config.distDir) throw new Error(`UI ${surface}: "distDir" is required for external mode.`);
     if (!config.indexFile) throw new Error(`UI ${surface}: "indexFile" is required for external mode.`);
 
@@ -140,7 +148,7 @@ function loadHexaUi(cwd: string): HexaUiModule {
 }
 
 export function buildUiBootstrap(registry: MetadataRegistry, storeOutputs: StoreScriptOutput[], tokens: ConfigToken[], outputDir: string, resolved: ResolvedBuildConfig): UiBootstrapBuildOutput {
-    const hasManagedUi = (resolved.ui?.popup?.mode === 'managed') || (resolved.ui?.devtools?.mode === 'managed');
+    const hasManagedUi = (resolved.ui?.popup?.mode === 'managed') || (resolved.ui?.devtools?.mode === 'managed') || (resolved.ui?.newtab?.mode === 'managed');
     if (!hasManagedUi) {
         return { hasManagedUi: false };
     }
@@ -159,22 +167,43 @@ export async function buildUiEntries(resolved: ResolvedBuildConfig, outputDir: s
     const popupMode = popupConfig?.mode ?? 'none';
     const devtoolsConfig = resolved.ui?.devtools;
     const devtoolsMode = devtoolsConfig?.mode ?? 'none';
+    const newtabConfig = resolved.ui?.newtab;
+    const newtabMode = newtabConfig?.mode ?? 'none';
 
-    const hexaUi = (popupMode === 'managed' || devtoolsMode === 'managed')
+    const hexaUi = (popupMode === 'managed' || devtoolsMode === 'managed' || newtabMode === 'managed')
         ? loadHexaUi(process.cwd())
         : undefined;
 
     const shouldParallelizeManagedUi = resolved.ui?.parallelBuild !== false && !isWatchBuild;
-    const canRunManagedUiInParallel = shouldParallelizeManagedUi && popupMode === 'managed' && devtoolsMode === 'managed';
 
-    if (canRunManagedUiInParallel) {
-        const { buildManagedPopup, buildManagedDevtools } = hexaUi!;
-        const [popupEntry, devtoolsEntry] = await Promise.all([
-            buildManagedPopup(popupConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken),
-            buildManagedDevtools(devtoolsConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken),
-        ]);
-        entries.popup = popupEntry;
-        entries.devtools = devtoolsEntry;
+    if (shouldParallelizeManagedUi) {
+        const tasks: Promise<void>[] = [];
+
+        if (popupMode === 'managed') {
+            tasks.push(
+                hexaUi!.buildManagedPopup(popupConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken)
+                    .then(entry => { entries.popup = entry; })
+            );
+        }
+        if (devtoolsMode === 'managed') {
+            tasks.push(
+                hexaUi!.buildManagedDevtools(devtoolsConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken)
+                    .then(entry => { entries.devtools = entry; })
+            );
+        }
+        if (newtabMode === 'managed') {
+            tasks.push(
+                hexaUi!.buildManagedNewtab(newtabConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken)
+                    .then(entry => { entries.newtab = entry; })
+            );
+        }
+
+        await Promise.all(tasks);
+
+        if (popupMode === 'external') entries.popup = copyExternalSurface('popup', popupConfig!, outputDir);
+        if (devtoolsMode === 'external') entries.devtools = copyExternalSurface('devtools', devtoolsConfig!, outputDir);
+        if (newtabMode === 'external') entries.newtab = copyExternalSurface('newtab', newtabConfig!, outputDir);
+
         return entries;
     }
 
@@ -190,6 +219,13 @@ export async function buildUiEntries(resolved: ResolvedBuildConfig, outputDir: s
         entries.devtools = await buildManagedDevtools(devtoolsConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken);
     } else if (devtoolsMode === 'external') {
         entries.devtools = copyExternalSurface('devtools', devtoolsConfig!, outputDir);
+    }
+
+    if (newtabMode === 'managed') {
+        const { buildManagedNewtab } = hexaUi!;
+        entries.newtab = await buildManagedNewtab(newtabConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken);
+    } else if (newtabMode === 'external') {
+        entries.newtab = copyExternalSurface('newtab', newtabConfig!, outputDir);
     }
 
     return entries;

@@ -1,4 +1,4 @@
-export type ManagedUISurface = 'popup' | 'devtools';
+export type ManagedUISurface = 'popup' | 'devtools' | 'newtab';
 
 export interface UIUpdateEvent {
     type: 'ui:update';

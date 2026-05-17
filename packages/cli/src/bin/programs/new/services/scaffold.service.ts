@@ -37,6 +37,12 @@ import { devtoolsEntryTemplate } from '../templates/devtools-entry.template';
 import { devtoolsBridgeHtmlTemplate } from '../templates/devtools-bridge-html.template';
 import { popupViteConfigTemplate } from '../templates/popup-vite-config.template';
 import { devtoolsViteConfigTemplate } from '../templates/devtools-vite-config.template';
+import { newtabIndexHtmlTemplate } from '../templates/newtab-index-html.template';
+import { newtabViteConfigTemplate } from '../templates/newtab-vite-config.template';
+import { newtabTsConfigTemplate } from '../templates/newtab-tsconfig.template';
+import { newtabMainTemplate } from '../templates/newtab-main.template';
+import { newtabAppTemplate } from '../templates/newtab-app.template';
+import { newtabStyleTemplate } from '../templates/newtab-style.template';
 import type { PackageManager } from '../../../../shared/package-manager';
 
 /** Convert a kebab-case / snake_case name to PascalCase */
@@ -78,6 +84,7 @@ export async function scaffold(options: ScaffoldOptions): Promise<string> {
     reactPopup: options.reactPopup ?? false,
     managedDevtools: options.managedDevtools ?? false,
     reactDevtools: options.reactDevtools ?? false,
+    managedNewtab: options.managedNewtab ?? false,
     blank: options.blank ?? false,
     packageManager,
     packageManagerVersion,
@@ -154,6 +161,18 @@ export async function scaffold(options: ScaffoldOptions): Promise<string> {
     } else {
       files.push({ rel: 'ui/devtools/index.html', content: devtoolsFallbackHtmlTemplate() });
     }
+  }
+
+  // Managed new tab page
+  if (ctx.managedNewtab) {
+    files.push(
+      { rel: 'ui/newtab/index.html', content: newtabIndexHtmlTemplate() },
+      { rel: 'ui/newtab/vite.config.ts', content: newtabViteConfigTemplate() },
+      { rel: 'ui/newtab/tsconfig.json', content: newtabTsConfigTemplate() },
+      { rel: 'ui/newtab/src/main.tsx', content: newtabMainTemplate() },
+      { rel: 'ui/newtab/src/App.tsx', content: newtabAppTemplate() },
+      { rel: 'ui/newtab/src/style.css', content: newtabStyleTemplate() }
+    );
   }
 
   for (const { rel, content } of files) {
