@@ -8,6 +8,8 @@ import { loadHexaConfig } from "../config/config";
 import { resolveConfig } from "../config/resolve";
 import { printHeader, printSuccess, printError, startStep } from "../shared/reporter";
 import { runWatchMode } from '../../hmr/watch-runner';
+import { launchChromeWithExtension } from '../../shared/chrome-launcher';
+import { printInfoLine, printWarningLine } from '../../shared/logging';
 import cliPackage from '../../../package.json';
 
 const CLI_VERSION = `v${cliPackage.version}`;
@@ -55,6 +57,7 @@ program
     .option('--target <type>', 'Build target (all, ui, content, background)', 'all')
     .option('--verbose', 'Print additional generated file details', false)
     .option('--watch', 'Watch for changes', false)
+    .option('--no-auto-open-browser', 'Disable automatic Chrome launch in watch mode')
     .action(async (options) => {
         const buildStart = Date.now();
 
@@ -73,6 +76,8 @@ program
             const resolved = resolveConfig(fileConfig, platformName, mode);
             const target = normalizeTarget(options.target);
             const watchMode = !!options.watch;
+            const shouldAutoOpenChrome = watchMode && resolved.platform === 'chrome' && options.autoOpenBrowser !== false;
+            let hasAttemptedChromeAutoOpen = false;
 
             function buildDoneMessage(target: BuildTarget, resolvedConfig: any): string {
                 const managedUiParts: string[] = [];
@@ -126,6 +131,23 @@ program
                             hmrSessionToken,
                         });
                         buildDone(buildDoneMessage(target, resolved));
+
+                        if (shouldAutoOpenChrome && !hasAttemptedChromeAutoOpen) {
+                            hasAttemptedChromeAutoOpen = true;
+                            try {
+                                const launch = launchChromeWithExtension({ extensionDir: path.join(process.cwd(), resolved.outDir) });
+                                printInfoLine(`Chrome launched with unpacked extension: ${launch.extensionDir}`);
+                                printInfoLine(`Using browser executable: ${launch.executablePath}`);
+                                printInfoLine(`Chromium debug endpoint: http://127.0.0.1:${launch.debugPort}`);
+                                printInfoLine(`Pinned extension action for this dev profile: ${launch.extensionId}`);
+                                printInfoLine('If the extension is not visible, enable Developer mode on chrome://extensions and reload the page once.');
+                            } catch (error) {
+                                const message = error instanceof Error ? error.message : String(error);
+                                printWarningLine(`Chrome auto-launch skipped: ${message}`);
+                                printInfoLine('Continue development without auto-launch by passing --no-auto-open-browser.');
+                            }
+                        }
+
                         return result.contentBootstraps;
                     },
                     onUiRebuild: async (hmrAddress: string, hmrSessionToken: string) => {

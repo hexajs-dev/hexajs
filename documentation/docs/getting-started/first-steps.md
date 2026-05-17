@@ -36,9 +36,27 @@ If you selected more platforms during scaffolding, matching scripts are generate
 
 This will watch for changes in your source files and automatically reload the extension's background script, content scripts, and UI.
 
+For Chrome projects, watch mode also launches a Chromium-compatible browser automatically with your extension loaded from `dist/chrome/development`.
+
+Hexa opens `chrome://extensions` in the generated dev profile so you can immediately confirm extension loading state.
+
+When a compatible Chromium or Chrome for Testing binary is available, Hexa prefers that over branded Google Chrome because current Google Chrome builds block command-line unpacked extension loading.
+
+Hexa also pre-seeds the extension action as pinned in the generated dev profile.
+
+If the extension is not visible, enable **Developer mode** there and refresh once.
+
+If you want to disable that behavior, run watch mode with:
+
+```bash
+hexa build --platform chrome --watch --no-auto-open-browser
+```
+
 For full watch-mode behavior by browser and runtime context, see the [HMR guide](/docs/cli-tooling/hmr).
 
 ## Load in Chrome
+
+If auto-launch succeeds, your extension is already loaded and this section is optional. Use these steps when auto-launch is disabled or unavailable.
 
 1.  Open your Chrome browser and navigate to `chrome://extensions`.
 2.  Ensure that **Developer mode** is enabled using the toggle switch in the top-right corner.

@@ -86,6 +86,10 @@ Primary path:
 Requirement:
 - Browser launched with remote debugging enabled.
 
+When you run Chrome watch mode, Hexa launches Chrome automatically and applies `--remote-debugging-port=9222` by default. If `HEXA_CHROMIUM_DEBUG_ENDPOINT` is set with a custom port, Hexa uses that port for launch.
+
+To run watch mode without automatic browser launch, use `--no-auto-open-browser`.
+
 Example launch flag:
 
 ```bash

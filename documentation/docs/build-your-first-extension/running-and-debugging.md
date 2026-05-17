@@ -28,7 +28,25 @@ hexa build --platform chrome --watch
 
 This command watches for changes and rebuilds automatically. The output appears in `dist/chrome/development`.
 
-## Load unpacked extension
+When watch mode runs for Chrome, HexaJS now launches a Chromium-compatible browser automatically with the unpacked extension loaded from `dist/chrome/development`.
+
+Hexa opens `chrome://extensions` in the dedicated dev profile so you can immediately confirm extension loading state.
+
+When a compatible Chromium or Chrome for Testing binary is available, Hexa prefers that over branded Google Chrome because current Google Chrome builds block command-line unpacked extension loading.
+
+Hexa also pre-seeds the extension action as pinned in the dedicated dev profile.
+
+If the extension is not visible, enable **Developer mode** in that page and refresh once.
+
+If you prefer to keep watch mode running without opening Chrome automatically, use:
+
+```bash
+hexa build --platform chrome --watch --no-auto-open-browser
+```
+
+## Manual load unpacked extension (fallback)
+
+You only need these steps if Chrome auto-launch is disabled or unavailable in your environment.
 
 1. Open `chrome://extensions`
 2. Enable **Developer mode**
