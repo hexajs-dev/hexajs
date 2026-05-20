@@ -2,6 +2,12 @@
 	"host_permissions": [
 		"https://cdn.jsdelivr.net/*"
 	],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "smart-clipper@hexajs.dev",
+      "strict_min_version": "109.0"
+    }
+  },
   "permissions": [
     "activeTab",
     "storage",

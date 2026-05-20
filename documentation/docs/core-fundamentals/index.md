@@ -39,6 +39,8 @@ This section covers the foundational building blocks of a HexaJS application:
 ## Core Docs in This Section
 
 - [Architecture](./architecture)
+- [Background](./background)
+- [Content](./content)
 - [Dependency Injection](./dependency-injection)
 - [Controllers & Actions](./controllers)
 - [Handlers & Handle](./handlers)

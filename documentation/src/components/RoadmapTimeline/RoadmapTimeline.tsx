@@ -15,7 +15,7 @@ const ITEMS: RoadmapItem[] = [
         title: 'Managed New Tab',
         description: 'Extend the managed UI model beyond popup and devtools into a new tab surface, while keeping the same DI, messaging, and build conventions.',
         Icon: PanelsTopLeft,
-        done: false,
+        done: true,
     },
     {
         kicker: 'Managed UI',

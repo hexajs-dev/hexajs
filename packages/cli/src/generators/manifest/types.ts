@@ -45,6 +45,11 @@ export interface ManifestV3 {
     icons?: ManifestIcons;
     action?: ManifestAction;
     devtools_page?: string;
+    chrome_url_overrides?: {
+        newtab?: string;
+        bookmarks?: string;
+        history?: string;
+    };
     background: ManifestBackground;
     content_scripts: ManifestContentScript[];
     permissions?: string[];
