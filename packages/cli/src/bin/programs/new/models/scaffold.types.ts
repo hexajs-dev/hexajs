@@ -13,6 +13,8 @@ export interface ScaffoldContext {
   managedDevtools: boolean;
   /** Whether to scaffold the devtools panel with React (requires managedDevtools) */
   reactDevtools: boolean;
+  /** Whether to scaffold and configure a managed new tab page */
+  managedNewtab: boolean;
   /** Whether to scaffold a minimal blank project (no store, no services, no contract demo) */
   blank: boolean;
   /** Selected package manager, used to set packageManager metadata in package.json */

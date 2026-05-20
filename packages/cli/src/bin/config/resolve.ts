@@ -59,6 +59,13 @@ function mergeUiConfig(...layers: (UiConfig | undefined)[]): UiConfig {
                 ...layer.devtools,
             };
         }
+
+        if (layer.newtab) {
+            merged.newtab = {
+                ...(merged.newtab || {}),
+                ...layer.newtab,
+            };
+        }
     }
 
     return merged;

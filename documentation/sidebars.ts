@@ -79,6 +79,7 @@ const sidebars: SidebarsConfig = {
       items: [
         'managed-ui/popup',
         'managed-ui/devtools',
+        'managed-ui/newtab',
         'managed-ui/react-integration',
         'managed-ui/shadow-views',
       ],

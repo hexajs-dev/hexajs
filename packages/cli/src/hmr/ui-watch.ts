@@ -29,6 +29,14 @@ export function resolveManagedUiWatchTargets(resolved: ResolvedBuildConfig, cwd:
         });
     }
 
+    const newtab = resolved.ui?.newtab;
+    if ((newtab?.mode ?? 'none') === 'managed') {
+        targets.push({
+            surface: 'newtab',
+            sourceDir: path.resolve(cwd, newtab?.sourceDir ?? path.join('ui', 'newtab')),
+        });
+    }
+
     return targets;
 }
 

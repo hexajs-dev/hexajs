@@ -5,3 +5,5 @@ hexa_js_architecture_decisions_summary.md
 cli/dist/
 dist/
 .hexa/
+ignore
+.kiro

@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { ManifestGenerator } from '../src/generators/manifest/generator';
 import { ResolvedBuildConfig } from '../src/bin/config/resolve';
 import { ContentRunAt } from '../src/compiler/content/types';
@@ -171,5 +171,24 @@ describe('manifest watch mode mutations', () => {
 
     expect(manifest.permissions).toContain('clipboardRead');
     expect(manifest.permissions).toContain('clipboardWrite');
+  });
+
+  it('emits safari opt-in warning when newtab is configured', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const generator = new ManifestGenerator([], createResolved('safari'), { newtab: 'ui/newtab/index.html' });
+    const manifest = JSON.parse(generator.generate()) as any;
+
+    expect(manifest.chrome_url_overrides?.newtab).toBe('ui/newtab/index.html');
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Safari requires user opt-in'));
+    warnSpy.mockRestore();
+  });
+
+  it('does not emit safari opt-in warning for chrome newtab', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const generator = new ManifestGenerator([], createResolved('chrome'), { newtab: 'ui/newtab/index.html' });
+    generator.generate();
+
+    expect(warnSpy).not.toHaveBeenCalled();
+    warnSpy.mockRestore();
   });
 });

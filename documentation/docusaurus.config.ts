@@ -30,6 +30,8 @@ const config: Config = {
   organizationName: 'hexajs-dev',
   projectName: 'hexajs',
 
+  trailingSlash: false,
+
   onBrokenLinks: 'throw',
   markdown: {
     hooks: {
@@ -55,6 +57,7 @@ const config: Config = {
           changefreq: 'weekly',
           priority: 0.5,
           filename: 'sitemap.xml',
+          ignorePatterns: ['/DocsPage/**', '/HomePage/**'],
         },
         theme: {
           customCss: './src/theme/css/custom.css',
