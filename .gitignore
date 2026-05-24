@@ -8,5 +8,5 @@ dist/
 ignore
 .kiro
 examples/hexa-vue-starter
+examples/vue-test/
 examples/hexa-grayscale-vue
-examples/vue-test
