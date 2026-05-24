@@ -1,4 +1,4 @@
-export type HexaUiSurface = 'popup' | 'devtools';
+export type HexaUiSurface = 'popup' | 'devtools' | 'newtab';
 
 export type HexaUiMode = 'managed' | 'external' | 'none';
 
@@ -24,10 +24,12 @@ export interface HexaUiCompilerOptions {
 export interface HexaUiConfig {
   popup?: HexaUiSurfaceConfig;
   devtools?: HexaUiSurfaceConfig;
+  newtab?: HexaUiSurfaceConfig;
 }
 
 /** Resolved output paths for each UI surface, written into the extension manifest */
 export interface ManifestUiEntries {
   popup?: string;
   devtools?: string;
+  newtab?: string;
 }

@@ -41,10 +41,17 @@ hexa build [--platform chrome] [--mode production] [--target all] [--watch]
 | `--target` | all, ui, content, background | all |
 | `--verbose` | flag | false |
 | `--watch` | flag | false |
+| `--no-auto-open-browser` | flag | auto-launch enabled |
 
 Notes:
 - Watch mode is driven by `hexa build --watch`.
 - There is no separate `hexa dev` command.
+- In Chrome watch mode, Hexa launches a Chromium-compatible browser automatically with the unpacked extension from `dist/chrome/development`.
+- Hexa prefers Chromium or Chrome for Testing when available because current branded Google Chrome builds block `--load-extension` for unpacked extensions.
+- Auto-launch opens `chrome://extensions` in the dedicated Hexa dev profile.
+- Hexa pre-seeds the extension action as pinned in that dev profile.
+- If the extension is not visible, enable Developer mode there and refresh once.
+- Use `--no-auto-open-browser` to disable automatic Chrome launch.
 
 ### Compiler options (hexa-cli.config.json)
 

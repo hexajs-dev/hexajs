@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { Command } from 'commander';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { runCli } from './helpers/command.utils';
@@ -40,6 +41,8 @@ vi.mock('child_process', () => ({
 import { newCommand } from '../src/bin/programs/new/new';
 
 describe('new command', () => {
+  const scaffoldedProjectDir = path.resolve('tmp', 'my-extension');
+
   const createSpawnResult = (code: number, stderrOutput = '') => {
     return {
       stdout: {
@@ -69,7 +72,7 @@ describe('new command', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.spyOn(console, 'log').mockImplementation(() => undefined);
-    scaffoldMock.mockResolvedValue('D:/tmp/my-extension');
+    scaffoldMock.mockResolvedValue(scaffoldedProjectDir);
     detectAvailablePMsMock.mockReturnValue(['npm', 'pnpm']);
     getInstallCommandMock.mockReturnValue({ command: 'npm', args: ['install'], display: 'npm install' });
     getPackageManagerVersionMock.mockReturnValue('10.9.0');
@@ -82,6 +85,7 @@ describe('new command', () => {
       .mockResolvedValueOnce({ template: 'full' })
       .mockResolvedValueOnce({ reactPopup: false })
       .mockResolvedValueOnce({ managedDevtools: false })
+      .mockResolvedValueOnce({ managedNewtab: false })
       .mockResolvedValueOnce({ packageManager: 'npm' });
 
     const program = new Command();
@@ -96,6 +100,7 @@ describe('new command', () => {
       reactPopup: false,
       managedDevtools: false,
       reactDevtools: false,
+      managedNewtab: false,
       blank: false,
       packageManager: 'npm',
       packageManagerVersion: '10.9.0',
@@ -112,6 +117,7 @@ describe('new command', () => {
       .mockResolvedValueOnce({ platforms: ['chrome', 'edge'] })
       .mockResolvedValueOnce({ reactPopup: true })
       .mockResolvedValueOnce({ managedDevtools: true })
+      .mockResolvedValueOnce({ managedNewtab: false })
       .mockResolvedValueOnce({ packageManager: 'npm' });
 
     const program = new Command();
@@ -125,6 +131,7 @@ describe('new command', () => {
       reactPopup: true,
       managedDevtools: true,
       reactDevtools: true,
+      managedNewtab: false,
       blank: false,
       packageManager: 'npm',
       packageManagerVersion: '10.9.0',
@@ -137,6 +144,7 @@ describe('new command', () => {
       .mockResolvedValueOnce({ template: 'full' })
       .mockResolvedValueOnce({ reactPopup: false })
       .mockResolvedValueOnce({ managedDevtools: false })
+      .mockResolvedValueOnce({ managedNewtab: false })
       .mockResolvedValueOnce({ packageManager: 'npm' });
 
     const program = new Command();
@@ -152,6 +160,7 @@ describe('new command', () => {
       .mockResolvedValueOnce({ template: 'full' })
       .mockResolvedValueOnce({ reactPopup: false })
       .mockResolvedValueOnce({ managedDevtools: false })
+      .mockResolvedValueOnce({ managedNewtab: false })
       .mockResolvedValueOnce({ packageManager: 'npm' });
 
     spawnMock

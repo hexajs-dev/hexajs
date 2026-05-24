@@ -123,7 +123,8 @@
           "description": "Build managed popup and devtools in parallel during standard builds. Set false to force sequential UI builds."
         },
         "popup": { "$ref": "#/definitions/uiSurfaceConfig" },
-        "devtools": { "$ref": "#/definitions/uiSurfaceConfig" }
+        "devtools": { "$ref": "#/definitions/uiSurfaceConfig" },
+        "newtab": { "$ref": "#/definitions/uiSurfaceConfig" }
       }
     },
     "platformSettings": {

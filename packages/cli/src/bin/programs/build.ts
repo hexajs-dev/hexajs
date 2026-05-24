@@ -8,6 +8,8 @@ import { loadHexaConfig } from "../config/config";
 import { resolveConfig } from "../config/resolve";
 import { printHeader, printSuccess, printError, startStep } from "../shared/reporter";
 import { runWatchMode } from '../../hmr/watch-runner';
+import { isAutoLaunchSupportedPlatform, installFirefoxAddonOverRDP, launchBrowserWithExtension } from '../../shared/chrome-launcher';
+import { printInfoLine, printWarningLine } from '../../shared/logging';
 import cliPackage from '../../../package.json';
 
 const CLI_VERSION = `v${cliPackage.version}`;
@@ -46,6 +48,15 @@ function normalizeTarget(input: string | undefined): BuildTarget {
     throw new Error(`Invalid build target "${input}". Allowed values: ${BUILD_TARGETS.join(', ')}.`);
 }
 
+function getPlatformLabel(platform: string): string {
+    if (platform === 'chrome') return 'Chrome';
+    if (platform === 'edge') return 'Edge';
+    if (platform === 'firefox') return 'Firefox';
+    if (platform === 'opera') return 'Opera';
+    if (platform === 'brave') return 'Brave';
+    return platform;
+}
+
 export const build = (program: Command) => {
 program
     .command('build')
@@ -55,6 +66,7 @@ program
     .option('--target <type>', 'Build target (all, ui, content, background)', 'all')
     .option('--verbose', 'Print additional generated file details', false)
     .option('--watch', 'Watch for changes', false)
+    .option('--no-auto-open-browser', 'Disable automatic Chrome launch in watch mode')
     .action(async (options) => {
         const buildStart = Date.now();
 
@@ -73,6 +85,9 @@ program
             const resolved = resolveConfig(fileConfig, platformName, mode);
             const target = normalizeTarget(options.target);
             const watchMode = !!options.watch;
+            const autoLaunchPlatform = isAutoLaunchSupportedPlatform(resolved.platform) ? resolved.platform : null;
+            const shouldAutoOpenBrowser = watchMode && !!autoLaunchPlatform && options.autoOpenBrowser !== false;
+            let hasAttemptedBrowserAutoOpen = false;
 
             function buildDoneMessage(target: BuildTarget, resolvedConfig: any): string {
                 const managedUiParts: string[] = [];
@@ -126,6 +141,50 @@ program
                             hmrSessionToken,
                         });
                         buildDone(buildDoneMessage(target, resolved));
+
+                        if (shouldAutoOpenBrowser && autoLaunchPlatform && !hasAttemptedBrowserAutoOpen) {
+                            hasAttemptedBrowserAutoOpen = true;
+                            try {
+                                const launch = launchBrowserWithExtension({
+                                    platform: autoLaunchPlatform,
+                                    extensionDir: path.join(process.cwd(), resolved.outDir),
+                                });
+                                const browserLabel = getPlatformLabel(autoLaunchPlatform);
+                                printInfoLine(`${browserLabel} launched for watch mode: ${launch.executablePath}`);
+                                printInfoLine(`Using extension output: ${launch.extensionDir}`);
+                                if (launch.debugPort) {
+                                    printInfoLine(`Chromium debug endpoint: http://127.0.0.1:${launch.debugPort}`);
+                                }
+                                if (launch.extensionId) {
+                                    printInfoLine(`Pinned extension action for this dev profile: ${launch.extensionId}`);
+                                }
+                                if (autoLaunchPlatform === 'firefox') {
+                                    printInfoLine(`Firefox opened with an isolated profile at: ${launch.userDataDir}`);
+                                    if (launch.debugPort) {
+                                        printInfoLine(`Firefox remote debugger: 127.0.0.1:${launch.debugPort}`);
+                                    }
+                                    if (launch.debugPort) {
+                                        installFirefoxAddonOverRDP({
+                                            extensionDir: launch.extensionDir,
+                                            port: launch.debugPort,
+                                        }).then(result => {
+                                            printInfoLine(`Firefox extension installed as temporary add-on: ${result.addonId}`);
+                                        }).catch((installError: unknown) => {
+                                            const installMessage = installError instanceof Error ? installError.message : String(installError);
+                                            printWarningLine(`Firefox extension auto-install failed: ${installMessage}`);
+                                            printInfoLine(`Open about:debugging in Firefox and load the manifest manually from: ${launch.extensionDir}`);
+                                        });
+                                    }
+                                } else {
+                                    printInfoLine('If the extension is not visible, enable Developer mode on the extensions page and reload once.');
+                                }
+                            } catch (error) {
+                                const message = error instanceof Error ? error.message : String(error);
+                                printWarningLine(`Browser auto-launch skipped: ${message}`);
+                                printInfoLine('Continue development without auto-launch by passing --no-auto-open-browser.');
+                            }
+                        }
+
                         return result.contentBootstraps;
                     },
                     onUiRebuild: async (hmrAddress: string, hmrSessionToken: string) => {

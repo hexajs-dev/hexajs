@@ -38,6 +38,7 @@ function readExistingUiEntries(outputDir: string): ManifestUiEntries {
         const manifest = JSON.parse(raw) as {
             action?: { default_popup?: string };
             devtools_page?: string;
+            chrome_url_overrides?: { newtab?: string };
         };
 
         const entries: ManifestUiEntries = {};
@@ -46,6 +47,9 @@ function readExistingUiEntries(outputDir: string): ManifestUiEntries {
         }
         if (manifest.devtools_page) {
             entries.devtools = manifest.devtools_page;
+        }
+        if (manifest.chrome_url_overrides?.newtab) {
+            entries.newtab = manifest.chrome_url_overrides.newtab;
         }
         return entries;
     } catch {

@@ -9,7 +9,7 @@ description: Build popup and devtools surfaces with DI, tokens, and HexaUIClient
 > **Target Audience:** Intermediate
 > **Goal:** Build extension UI surfaces with DI + messaging while keeping state ownership in background/content stores.
 
-Managed UI configures popup/devtools build + bootstrap for you. The CLI wires a UI DI container, registers tokens, and exposes `HexaUIClient` for typed messaging to background.
+Managed UI configures popup/devtools/newtab build + bootstrap for you. The CLI wires a UI DI container, registers tokens, and exposes `HexaUIClient` for typed messaging to background.
 
 For advanced injected rendering patterns, this section also covers Shadow Views, where a HexaJS view extends `HexaView`, gets injected with `@InjectView()`, and mounts React into an isolated Shadow DOM root.
 
