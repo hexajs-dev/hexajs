@@ -48,18 +48,20 @@ export class ContentGenerator {
   private tokens: ConfigToken[];
   private outputDir: string;
   private watch: boolean;
+  private framework: 'react' | 'vue';
   private handlerGenerator: ContentHandlerGenerator;
   private viewGenerator: ContentViewGenerator;
   private lifecycleGenerator: ContentLifecycleGenerator;
 
-  constructor(registry: MetadataRegistry, storeOutputs: StoreScriptOutput[] = [], tokens: ConfigToken[] = [], outputDir: string = '', watch: boolean = false) {
+  constructor(registry: MetadataRegistry, storeOutputs: StoreScriptOutput[] = [], tokens: ConfigToken[] = [], outputDir: string = '', watch: boolean = false, framework: 'react' | 'vue' = 'react') {
     this.registry = registry;
     this.storeOutputs = storeOutputs;
     this.tokens = tokens;
     this.outputDir = outputDir;
     this.watch = watch;
+    this.framework = framework;
     this.handlerGenerator = new ContentHandlerGenerator();
-    this.viewGenerator = new ContentViewGenerator();
+    this.viewGenerator = new ContentViewGenerator(framework);
     this.lifecycleGenerator = new ContentLifecycleGenerator();
   }
 

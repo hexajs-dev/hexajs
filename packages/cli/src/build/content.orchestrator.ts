@@ -6,8 +6,9 @@ import { BuildFoundationOutput, ContentOrchestratorOutput } from './types';
 import { ContentScriptOutput } from '../generators/content/generator';
 
 export function runContentOrchestrator(foundation: BuildFoundationOutput): ContentOrchestratorOutput {
-    const { registry, storeOutputs, mergedTokens, outputDir, watch } = foundation;
-    const { contentBootstraps } = buildContentArtifacts(registry, storeOutputs, mergedTokens, outputDir, watch ?? false);
+    const { registry, storeOutputs, mergedTokens, outputDir, watch, resolved } = foundation;
+    const framework = resolved.ui?.framework ?? 'react';
+    const { contentBootstraps } = buildContentArtifacts(registry, storeOutputs, mergedTokens, outputDir, watch ?? false, framework);
 
     const validators = foundation.validators ?? new ValidatorGenerator(registry).generate();
 

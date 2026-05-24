@@ -297,7 +297,7 @@ export async function runWatchMode(options: WatchRunnerOptions): Promise<void> {
 
             const absolutePath = path.resolve(srcDir, filename);
             const ext = path.extname(filename).toLowerCase();
-            const watchableExts = new Set(['.ts', '.tsx', '.js', '.jsx']);
+            const watchableExts = new Set(['.ts', '.tsx', '.js', '.jsx', '.vue']);
             
             if (!watchableExts.has(ext)) {
                 return;
@@ -318,6 +318,13 @@ export async function runWatchMode(options: WatchRunnerOptions): Promise<void> {
                     // If file not in map, check decorator-based fallback
                     if (affectedContexts.length === 0) {
                         affectedContexts = await getDecoratorFallbackContexts(changedPath);
+                    }
+
+                    // .vue files under src/ are always @View components (content context).
+                    // They are never in the TS context map because the TypeScript compiler
+                    // does not parse SFCs, so we must default them to content.
+                    if (affectedContexts.length === 0 && changedPath.endsWith('.vue')) {
+                        affectedContexts = ['content'];
                     }
 
                     // Invoke rebuild callbacks for affected contexts

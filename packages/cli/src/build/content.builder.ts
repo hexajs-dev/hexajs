@@ -5,8 +5,8 @@ import { ContentGenerator } from '../generators/content/generator';
 import { StoreScriptOutput } from '../generators/store/generator';
 import { ContentBuildOutput } from './types';
 
-export function buildContentArtifacts(registry: MetadataRegistry, storeOutputs: StoreScriptOutput[], tokens: ConfigToken[], outputDir: string, watch: boolean = false): ContentBuildOutput {
+export function buildContentArtifacts(registry: MetadataRegistry, storeOutputs: StoreScriptOutput[], tokens: ConfigToken[], outputDir: string, watch: boolean = false, framework: 'react' | 'vue' = 'react'): ContentBuildOutput {
     const contentOutputDir = path.join(outputDir, 'content');
-    const contentGenerator = new ContentGenerator(registry, storeOutputs, tokens, contentOutputDir, watch);
+    const contentGenerator = new ContentGenerator(registry, storeOutputs, tokens, contentOutputDir, watch, framework);
     return { contentBootstraps: contentGenerator.generate() };
 }

@@ -13,6 +13,7 @@ const shared = vi.hoisted(() => ({
   getHandlerDir: vi.fn(),
   insertImport: vi.fn(),
   loadProject: vi.fn(),
+  mergeUiFrameworkIntoConfig: vi.fn(),
   parseUrlList: vi.fn(),
   printSchematicSuccess: vi.fn(),
   relativeImport: vi.fn(),
@@ -29,6 +30,7 @@ const popupFallbackHtmlTemplateMock = vi.hoisted(() => vi.fn(() => '<popup-fallb
 const devtoolsFallbackHtmlTemplateMock = vi.hoisted(() => vi.fn(() => '<devtools-fallback/>'));
 const backgroundTemplateMock = vi.hoisted(() => vi.fn(() => '// background template'));
 const contentTemplateMock = vi.hoisted(() => vi.fn(() => '// content template'));
+const buildUiSurfaceFilesMock = vi.hoisted(() => vi.fn());
 
 vi.mock('../src/bin/programs/new/templates/popup-fallback-html.template', () => ({
   popupFallbackHtmlTemplate: popupFallbackHtmlTemplateMock,
@@ -43,6 +45,10 @@ vi.mock('../src/bin/programs/schematics/templates', () => ({
   contentTemplate: contentTemplateMock,
 }));
 
+vi.mock('../src/bin/programs/schematics/ui-surface-files', () => ({
+  buildUiSurfaceFiles: buildUiSurfaceFilesMock,
+}));
+
 vi.mock('../src/bin/programs/schematics/shared', () => ({
   addSharedOptions: (command: Command) => command,
   collectDecoratedClasses: shared.collectDecoratedClasses,
@@ -54,6 +60,7 @@ vi.mock('../src/bin/programs/schematics/shared', () => ({
   getHandlerDir: shared.getHandlerDir,
   insertImport: shared.insertImport,
   loadProject: shared.loadProject,
+  mergeUiFrameworkIntoConfig: shared.mergeUiFrameworkIntoConfig,
   parseUrlList: shared.parseUrlList,
   printSchematicSuccess: shared.printSchematicSuccess,
   relativeImport: shared.relativeImport,
@@ -75,7 +82,7 @@ describe('add command', () => {
     shared.loadProject.mockResolvedValue({
       cwd: 'D:/repo',
       configPath: 'D:/repo/hexa-cli.config.json',
-      config: { project: { sourceRoot: 'src' } },
+      config: { project: { sourceRoot: 'src', name: 'sample-project' } },
     });
     shared.getContentDir.mockReturnValue(path.join('src', 'content'));
     shared.getBackgroundDir.mockReturnValue(path.join('src', 'background'));
@@ -89,6 +96,11 @@ describe('add command', () => {
     shared.insertImport.mockImplementation((content: string) => content);
     shared.updateFileWithTransform.mockResolvedValue(undefined);
     shared.relativeImport.mockReturnValue('../content/user.content');
+    buildUiSurfaceFilesMock.mockImplementation((cwd: string, surface: string) => [
+      { absolutePath: path.join(cwd, 'ui', surface, 'index.html'), content: `<${surface}-html/>` },
+      { absolutePath: path.join(cwd, 'ui', surface, 'src', 'main.ts'), content: '// main' },
+      { absolutePath: path.join(cwd, 'ui', surface, 'src', 'App.vue'), content: '<template/>' },
+    ]);
   });
 
   it('routes add content and writes the content schematic file', async () => {
@@ -149,7 +161,7 @@ describe('add command', () => {
     );
   });
 
-  it('routes add ui popup and updates project ui config', async () => {
+  it('routes add ui popup and updates project ui config (default react)', async () => {
     shared.ensureUiSurface.mockReturnValue('popup');
 
     const program = new Command();
@@ -157,12 +169,10 @@ describe('add command', () => {
 
     await runCli(program, ['add', 'ui', 'popup']);
 
-    expect(popupFallbackHtmlTemplateMock).toHaveBeenCalledTimes(1);
-    expect(shared.writeFileWithGuard).toHaveBeenCalledWith(
-      expect.stringContaining(path.join('ui', 'popup', 'index.html')),
-      '<popup-fallback/>',
-      expect.any(Object)
-    );
+    expect(buildUiSurfaceFilesMock).toHaveBeenCalledWith('D:/repo', 'popup', 'react', 'sample-project');
+    expect(shared.writeFileWithGuard).toHaveBeenCalled();
+    const writtenPaths = shared.writeFileWithGuard.mock.calls.map((call: any[]) => call[0] as string);
+    expect(writtenPaths.some(p => p.endsWith(path.join('ui', 'popup', 'index.html')))).toBe(true);
     expect(shared.updateUiSurfaceConfig).toHaveBeenCalledWith(
       'D:/repo/hexa-cli.config.json',
       'popup',
@@ -173,9 +183,14 @@ describe('add command', () => {
         indexFile: 'index.html',
       }
     );
+    expect(shared.mergeUiFrameworkIntoConfig).toHaveBeenCalledWith(
+      'D:/repo/hexa-cli.config.json',
+      'react',
+      expect.any(Object)
+    );
   });
 
-  it('routes add ui devtools and updates project ui config', async () => {
+  it('routes add ui devtools and updates project ui config (default react)', async () => {
     shared.ensureUiSurface.mockReturnValue('devtools');
 
     const program = new Command();
@@ -183,12 +198,7 @@ describe('add command', () => {
 
     await runCli(program, ['add', 'ui', 'devtools']);
 
-    expect(devtoolsFallbackHtmlTemplateMock).toHaveBeenCalledTimes(1);
-    expect(shared.writeFileWithGuard).toHaveBeenCalledWith(
-      expect.stringContaining(path.join('ui', 'devtools', 'index.html')),
-      '<devtools-fallback/>',
-      expect.any(Object)
-    );
+    expect(buildUiSurfaceFilesMock).toHaveBeenCalledWith('D:/repo', 'devtools', 'react', 'sample-project');
     expect(shared.updateUiSurfaceConfig).toHaveBeenCalledWith(
       'D:/repo/hexa-cli.config.json',
       'devtools',
@@ -199,6 +209,48 @@ describe('add command', () => {
         indexFile: 'index.html',
       }
     );
+    expect(shared.mergeUiFrameworkIntoConfig).toHaveBeenCalledWith(
+      'D:/repo/hexa-cli.config.json',
+      'react',
+      expect.any(Object)
+    );
+  });
+
+  it('honors ui.framework: "vue" from project config when adding a managed surface', async () => {
+    shared.ensureUiSurface.mockReturnValue('devtools');
+    shared.loadProject.mockResolvedValueOnce({
+      cwd: 'D:/repo',
+      configPath: 'D:/repo/hexa-cli.config.json',
+      config: { project: { sourceRoot: 'src', name: 'vue-project' }, ui: { framework: 'vue' } },
+    });
+
+    const program = new Command();
+    addCommand(program);
+
+    await runCli(program, ['add', 'ui', 'devtools']);
+
+    expect(buildUiSurfaceFilesMock).toHaveBeenCalledWith('D:/repo', 'devtools', 'vue', 'vue-project');
+    expect(shared.mergeUiFrameworkIntoConfig).toHaveBeenCalledWith(
+      'D:/repo/hexa-cli.config.json',
+      'vue',
+      expect.any(Object)
+    );
+  });
+
+  it('overrides project framework with --framework option', async () => {
+    shared.ensureUiSurface.mockReturnValue('popup');
+    shared.loadProject.mockResolvedValueOnce({
+      cwd: 'D:/repo',
+      configPath: 'D:/repo/hexa-cli.config.json',
+      config: { project: { sourceRoot: 'src', name: 'mixed-project' }, ui: { framework: 'react' } },
+    });
+
+    const program = new Command();
+    addCommand(program);
+
+    await runCli(program, ['add', 'ui', 'popup', '--framework', 'vue']);
+
+    expect(buildUiSurfaceFilesMock).toHaveBeenCalledWith('D:/repo', 'popup', 'vue', 'mixed-project');
   });
 
   it('routes add handler and appends content class to handler decorator Contents', async () => {

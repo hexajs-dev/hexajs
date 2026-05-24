@@ -1,20 +1,20 @@
 ---
 title: Shadow Views
-sidebar_position: 5
-description: Advanced patterns for Shadow DOM-backed views, lifecycle control, and React-driven injected UI.
+sidebar_position: 6
+description: Advanced patterns for Shadow DOM-backed views, lifecycle control, and React- or Vue-driven injected UI.
 ---
 
 # Shadow Views
 
 > **Target Audience:** Advanced
-> **Goal:** Build injected UI surfaces that render in Shadow DOM with explicit lifecycle control and clear separation between View logic and React rendering.
+> **Goal:** Build injected UI surfaces that render in Shadow DOM with explicit lifecycle control and clear separation between View logic and component rendering.
 
 Shadow Views are the HexaJS pattern for mounting isolated UI into the page through Shadow DOM. They are ideal when you need extension-owned UI that must avoid page CSS collisions and be mounted only when a workflow starts.
 
 This pattern combines three parts:
 
 1. a view class declared with `@View({ ... })`,
-2. a React component rendered inside the Shadow Root,
+2. a framework component rendered inside the Shadow Root (React or Vue, selected by the project-wide `ui.framework` setting — see [React Integration](./react-integration) and [Vue Integration](./vue-integration)),
 3. property injection with `@InjectView()` where consumers receive the view controller directly.
 
 ## Why use Shadow Views

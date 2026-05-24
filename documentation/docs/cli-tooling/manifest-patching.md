@@ -217,6 +217,63 @@ If no icon is configured, the framework fallback is used.
 - Test at 16×16 for toolbar readability
 - Verify appearance in light and dark contexts
 
+## Content Security Policy (CSP)
+
+Browser extensions enforce CSP at the **manifest level**, not via HTML `<meta>` tags. The `content_security_policy.extension_pages` field in `manifest.json` governs what scripts, styles, and connections are allowed on all extension pages (popup, devtools, newtab, options).
+
+> HTML `<meta http-equiv="Content-Security-Policy">` tags are **ignored** by the browser in extension contexts. This is by design in Manifest V3 — the manifest is the single source of truth for extension CSP.
+
+### Default Behavior by Platform
+
+| Platform | Default CSP | Notes |
+|----------|-------------|-------|
+| Chrome, Edge, Brave, Opera | Browser-implicit `script-src 'self'` | No explicit field in manifest; browser applies its built-in default |
+| Safari | `script-src 'self' 'wasm-unsafe-eval'; object-src 'self';` | Explicit in manifest — required for WebAssembly/worker compatibility |
+| Firefox | Browser-implicit `script-src 'self'` | Same as Chromium family |
+
+### Watch Mode CSP Patches
+
+During `hexa build --watch`, the CLI automatically patches CSP for development:
+
+- **Safari**: Adds `connect-src ws://127.0.0.1:<port>` for HMR WebSocket connections
+- **Firefox**: Adds `http://localhost:5173` and `http://127.0.0.1:5173` to `script-src` for Vite dev server module loading
+- **Chromium**: No CSP patch needed — Chrome allows localhost connections from extensions in development without explicit CSP
+
+These patches are **only applied in watch mode** and never appear in production builds.
+
+### Customizing CSP
+
+To set a custom CSP, add `content_security_policy` to your platform manifest file:
+
+```json title="manifest.chrome.json"
+{
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+  }
+}
+```
+
+The CLI deep-merges your CSP with the platform template. If you provide `extension_pages`, your value replaces the default for that platform.
+
+### Common CSP Directives for Extensions
+
+| Directive | Purpose | Example |
+|-----------|---------|---------|
+| `script-src 'self'` | Allow only bundled scripts | Default for all platforms |
+| `'wasm-unsafe-eval'` | Allow WebAssembly execution | Required for Tesseract OCR, SQLite, etc. |
+| `object-src 'self'` | Restrict plugin/embed sources | Recommended baseline |
+| `connect-src` | Control fetch/XHR/WebSocket targets | Add API domains if needed |
+
+### Why No CSP Meta Tags in HTML?
+
+You may notice that the built HTML files (popup, devtools, newtab) do not contain `<meta http-equiv="Content-Security-Policy">` tags. This is intentional:
+
+1. **MV3 ignores them** — Chromium, Firefox, and Safari all enforce CSP from the manifest for extension pages, not from HTML meta tags.
+2. **Single source of truth** — Having CSP in both the manifest and HTML would create confusion about which policy actually applies.
+3. **Manifest CSP is stricter** — The browser's manifest-level enforcement cannot be relaxed by HTML meta tags, making them redundant.
+
+If you need to verify what CSP is active on your extension pages, open DevTools on the page and check the **Application > Frames** panel or look for CSP headers in the **Network** tab.
+
 ## Practical Recommendations
 
 - **Don't edit `manifest.json` in dist folders** — it's a generated artifact

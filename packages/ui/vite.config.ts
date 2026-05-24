@@ -29,15 +29,24 @@ const BROWSER_EXTERNALS = [
   'react-dom/client',
   /^react\//,
   /^react-dom\//,
+  'vue',
+  /^@vue\//,
 ];
 
 export default defineConfig({
   build: {
     lib: {
-      // Two entries: browser runtime (services) and Node.js build tools (popup/devtools builders)
+      // Entries:
+      //  - index    : full package surface (Node-side build helpers + browser
+      //               services). Re-exports remain for backwards compat.
+      //  - browser  : aggregated browser-side services (pre-existing).
+      //  - react    : React-only browser entry (./react subpath).
+      //  - vue      : Vue-only browser entry (./vue subpath).
       entry: {
         index: resolve(__dirname, 'index.ts'),
         browser: resolve(__dirname, 'src/services/index.ts'),
+        react: resolve(__dirname, 'src/services/react.ts'),
+        vue: resolve(__dirname, 'src/services/vue.ts'),
       },
       formats: ['es', 'cjs'],
       fileName: (format, entryName) =>

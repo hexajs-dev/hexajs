@@ -2,7 +2,7 @@
 - AOT build, Enterprice ready scale.
 - DI for background content and Managed UI (popup and devtools) context wise
 - Browser agnostics build with managed layer ports package
-- Managed UI for popup and devtools with hexa cli
+- Managed UI for popup, devtools, and newtab with hexa cli — choose **React** or **Vue 3** project-wide via `ui.framework`
 - Store management context wise for background and content
 - Controller for background communication support and Handlers for Content support with validation pipes
 - Cross-Browser HMR - Get true Hot Module Replacement across Chrome, Firefox, and Safari without constantly restarting the browser or losing background state
@@ -23,8 +23,10 @@ Scaffold a new HexaJS extension project.
 **Interactive prompts** (triggered when args are omitted):
 1. Project name
 2. Target platforms _(multiselect, default: `chrome`)_
-3. Add React popup?
-4. Add managed React DevTools panel?
+3. Add managed popup?
+4. Add managed DevTools panel?
+5. Add managed New Tab page?
+6. Which UI framework? _(react / vue, only when ≥ 1 managed surface is selected)_
 
 **Permutations:**
 ```
@@ -98,15 +100,17 @@ hexa add background another-bg --allow-multiple --force
 ```
 
 #### `hexa add ui <type>`
-Add a managed UI surface.
+Add a managed UI surface. Reads `ui.framework` from `hexa-cli.config.json` (defaulting to `react` when missing) and emits framework-specific source files (popup or devtools) plus updates the project config.
 
-| Argument | Values |
-|---|---|
-| `<type>` | `popup`, `devtools` |
+| Argument / Option | Values | Notes |
+|---|---|---|
+| `<type>` | `popup`, `devtools` | Surface to add |
+| `--framework <name>` | `react`, `vue` | Override the project-wide framework for this surface |
 
 ```
 hexa add ui popup
 hexa add ui devtools
+hexa add ui popup --framework vue
 hexa add ui popup --dry-run
 ```
 

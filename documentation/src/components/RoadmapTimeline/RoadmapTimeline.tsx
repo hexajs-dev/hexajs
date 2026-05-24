@@ -22,7 +22,7 @@ const ITEMS: RoadmapItem[] = [
         title: 'Vue.js Support (Optional Angular)',
         description: 'Bring Vue.js into the managed UI pipeline so teams can build extension surfaces with the same DI, messaging, and build ergonomics already used by popup and devtools.',
         Icon: Paintbrush2,
-        done: false,
+        done: true,
     },
     {
         kicker: 'Store',

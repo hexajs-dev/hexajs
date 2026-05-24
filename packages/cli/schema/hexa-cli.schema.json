@@ -122,6 +122,12 @@
           "default": true,
           "description": "Build managed popup and devtools in parallel during standard builds. Set false to force sequential UI builds."
         },
+        "framework": {
+          "type": "string",
+          "enum": ["react", "vue"],
+          "default": "react",
+          "description": "UI framework used by all managed surfaces (popup/devtools/newtab) and the content @View shadow DOM. Project-wide setting; mixed frameworks per surface are not supported."
+        },
         "popup": { "$ref": "#/definitions/uiSurfaceConfig" },
         "devtools": { "$ref": "#/definitions/uiSurfaceConfig" },
         "newtab": { "$ref": "#/definitions/uiSurfaceConfig" }

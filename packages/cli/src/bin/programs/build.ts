@@ -158,6 +158,8 @@ program
                                 if (launch.extensionId) {
                                     printInfoLine(`Pinned extension action for this dev profile: ${launch.extensionId}`);
                                 }
+                                // Debug logging for launch arguments
+                                printInfoLine(`Launch arguments: ${launch.args.join(' ')}`);
                                 if (autoLaunchPlatform === 'firefox') {
                                     printInfoLine(`Firefox opened with an isolated profile at: ${launch.userDataDir}`);
                                     if (launch.debugPort) {

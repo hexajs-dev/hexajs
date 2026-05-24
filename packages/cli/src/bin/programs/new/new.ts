@@ -181,11 +181,11 @@ export const newCommand = (program: Command): void => {
           platforms = answer.platforms as Platform[];
         }
 
-        // ── 4. React popup ─────────────────────────────────────────────────
+        // ── 4. Managed popup ─────────────────────────────────────────────────
         const popupAnswer = await Enquirer.prompt<{ reactPopup: boolean }>({
           type: 'confirm',
           name: 'reactPopup',
-          message: 'Add a React popup? (managed by Hexa)',
+          message: 'Add a managed popup? (built by Hexa)',
           initial: false,
         } as any);
 
@@ -195,7 +195,7 @@ export const newCommand = (program: Command): void => {
         const devtoolsAnswer = await Enquirer.prompt<{ managedDevtools: boolean }>({
           type: 'confirm',
           name: 'managedDevtools',
-          message: 'Add a React DevTools panel? (managed by Hexa)',
+          message: 'Add a managed DevTools panel? (built by Hexa)',
           initial: false,
         } as any);
 
@@ -206,11 +206,28 @@ export const newCommand = (program: Command): void => {
         const newtabAnswer = await Enquirer.prompt<{ managedNewtab: boolean }>({
           type: 'confirm',
           name: 'managedNewtab',
-          message: 'Add a React New Tab page? (managed by Hexa)',
+          message: 'Add a managed New Tab page? (built by Hexa)',
           initial: false,
         } as any);
 
         const managedNewtab = newtabAnswer.managedNewtab;
+
+        // ── 6b. UI framework — only when ≥1 managed surface selected ─────────
+        const hasManagedSurface = reactPopup || managedDevtools || managedNewtab;
+        let framework: 'react' | 'vue' = 'react';
+        if (hasManagedSurface) {
+          const frameworkAnswer = await Enquirer.prompt<{ framework: 'react' | 'vue' }>({
+            type: 'select',
+            name: 'framework',
+            message: 'Which UI framework?',
+            choices: [
+              { name: 'react', message: 'React 18  (default)' },
+              { name: 'vue', message: 'Vue 3     (with @vitejs/plugin-vue)' },
+            ],
+            initial: 0,
+          } as any);
+          framework = frameworkAnswer.framework;
+        }
 
         // ── 7. Package manager ───────────────────────────────────────────────
         const availablePMs = detectAvailablePMs();
@@ -237,7 +254,7 @@ export const newCommand = (program: Command): void => {
         console.log(chalk.cyan(`  Creating project ${chalk.bold(name)}…`));
         console.log('');
 
-        const projectDir = await scaffold({ name, platforms, reactPopup, managedDevtools, reactDevtools, managedNewtab, blank, packageManager, packageManagerVersion });
+        const projectDir = await scaffold({ name, platforms, reactPopup, managedDevtools, reactDevtools, managedNewtab, framework, blank, packageManager, packageManagerVersion });
 
         console.log(chalk.dim(`  Platforms : ${platforms.join(', ')}`));
         console.log(chalk.dim(`  Location  : ${projectDir}`));

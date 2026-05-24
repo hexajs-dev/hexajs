@@ -1,9 +1,8 @@
 import { Command } from 'commander';
 import * as path from 'path';
-import { devtoolsFallbackHtmlTemplate } from './new/templates/devtools-fallback-html.template';
-import { popupFallbackHtmlTemplate } from './new/templates/popup-fallback-html.template';
 import { backgroundTemplate, contentTemplate } from './schematics/templates';
-import { addSharedOptions, collectDecoratedClasses, ensureUiSurface, ensureUiSurfaceMissing, findClassByName, getBackgroundDir, getContentDir, getHandlerDir, insertImport, loadProject, parseUrlList, printSchematicSuccess, relativeImport, resolveContentRunAt, resolveGeneratedClassName, toKebabCase, updateFileWithTransform, updateUiSurfaceConfig, validateName, writeFileWithGuard, type SchematicCommandOptions } from './schematics/shared';
+import { buildUiSurfaceFiles } from './schematics/ui-surface-files';
+import { addSharedOptions, collectDecoratedClasses, ensureUiSurface, ensureUiSurfaceMissing, findClassByName, getBackgroundDir, getContentDir, getHandlerDir, insertImport, loadProject, mergeUiFrameworkIntoConfig, parseUrlList, printSchematicSuccess, relativeImport, resolveContentRunAt, resolveGeneratedClassName, toKebabCase, updateFileWithTransform, updateUiSurfaceConfig, validateName, writeFileWithGuard, type SchematicCommandOptions } from './schematics/shared';
 
 interface AddBackgroundOptions extends SchematicCommandOptions {
   allowMultiple?: boolean;
@@ -55,27 +54,50 @@ export const addCommand = (program: Command): void => {
     printSchematicSuccess(`Added background ${className}`, [filePath], options);
   });
 
+interface AddUiOptions extends SchematicCommandOptions {
+  /**
+   * Override the project's UI framework for this surface. Defaults to the
+   * framework declared in hexa-cli.config.json (or 'react' when missing).
+   */
+  framework?: 'react' | 'vue';
+}
+
   addSharedOptions(
     add
       .command('ui <type>')
       .description('Add a managed UI surface')
-  ).action(async (type: string, options: SchematicCommandOptions) => {
+      .option('--framework <name>', 'UI framework to scaffold ("react" or "vue")')
+  ).action(async (type: string, options: AddUiOptions) => {
     const surface = ensureUiSurface(type);
     const project = await loadProject(options);
     ensureUiSurfaceMissing(project.config, surface);
 
-    const sourceDir = path.join(project.cwd, 'ui', surface);
-    const indexFile = path.join(sourceDir, 'index.html');
-    const content = surface === 'popup' ? popupFallbackHtmlTemplate() : devtoolsFallbackHtmlTemplate();
+    const requestedFramework = options.framework;
+    if (requestedFramework && requestedFramework !== 'react' && requestedFramework !== 'vue') {
+      throw new Error(`Unknown --framework "${requestedFramework}". Allowed values: react, vue.`);
+    }
+    const projectFramework = (project.config.ui as { framework?: 'react' | 'vue' } | undefined)?.framework;
+    const framework: 'react' | 'vue' = requestedFramework ?? projectFramework ?? 'react';
 
-    await writeFileWithGuard(indexFile, content, options);
+    const files = buildUiSurfaceFiles(project.cwd, surface, framework, project.config.project.name);
+    const writtenPaths: string[] = [];
+
+    for (const file of files) {
+      await writeFileWithGuard(file.absolutePath, file.content, options);
+      writtenPaths.push(file.absolutePath);
+    }
+
     await updateUiSurfaceConfig(project.configPath, surface, options, {
       mode: 'managed',
       sourceDir: `ui/${surface}`,
       indexFile: 'index.html',
     });
 
-    printSchematicSuccess(`Added ${surface} UI`, [indexFile, project.configPath], options);
+    // Persist the framework on hexa-cli.config.json when missing so subsequent
+    // builds and `hexa add ui` invocations stay consistent.
+    await mergeUiFrameworkIntoConfig(project.configPath, framework, options);
+
+    printSchematicSuccess(`Added ${surface} UI (${framework})`, [...writtenPaths, project.configPath], options);
   });
 
   addSharedOptions(

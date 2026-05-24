@@ -7,11 +7,20 @@ export interface ScaffoldContext {
   className: string;
   /** Selected target platforms, e.g. ["chrome", "firefox"] */
   platforms: string[];
-  /** Whether to scaffold and configure a managed React popup */
+  /**
+   * UI framework used by all managed surfaces. Only meaningful when at least
+   * one managed surface is selected. Defaults to 'react'.
+   */
+  framework: 'react' | 'vue';
+  /** Whether to scaffold and configure a managed popup (now framework-aware) */
   reactPopup: boolean;
   /** Whether to scaffold and configure a managed devtools panel */
   managedDevtools: boolean;
-  /** Whether to scaffold the devtools panel with React (requires managedDevtools) */
+  /**
+   * Whether to scaffold the devtools panel with the chosen framework
+   * (requires managedDevtools). Mirrors the legacy `reactDevtools` flag for
+   * backwards compatibility with existing call sites.
+   */
   reactDevtools: boolean;
   /** Whether to scaffold and configure a managed new tab page */
   managedNewtab: boolean;

@@ -51,6 +51,7 @@ describe('scaffold service', () => {
     expect(hexaConfig.ui?.popup?.mode).toBe('none');
     expect(hexaConfig.ui?.devtools?.mode).toBe('none');
     expect(packageJson.dependencies?.['@hexajs-dev/ui']).toBeUndefined();
+    expect((hexaConfig.ui as any)?.framework).toBeUndefined();
     expect(writeFileMock.mock.calls.every(call => call[2] === 'utf8')).toBe(true);
     expect(vi.mocked(fs.ensureDir)).toHaveBeenCalledTimes(17);
   });
@@ -191,5 +192,78 @@ describe('scaffold service', () => {
     };
 
     expect(hexaConfig.defaultPlatform).toBe('chrome');
+  });
+
+  it('scaffolds Vue 3 popup files when framework is "vue"', async () => {
+    const projectDir = path.resolve('D:/tmp/vue-popup');
+
+    await scaffold({
+      name: 'vue-popup',
+      platforms: ['chrome'],
+      reactPopup: true,
+      framework: 'vue',
+      destRoot: projectDir,
+    });
+
+    const writeFileMock = vi.mocked(fs.writeFile);
+    const writtenFiles = writeFileMock.mock.calls.map(call => call[0] as string);
+    const packageJsonCall = writeFileMock.mock.calls.find(call => call[0] === path.join(projectDir, 'package.json'));
+    const hexaConfigCall = writeFileMock.mock.calls.find(call => call[0] === path.join(projectDir, 'hexa-cli.config.json'));
+    const popupAppCall = writeFileMock.mock.calls.find(call => call[0] === path.join(projectDir, 'ui/popup/src/App.vue'));
+    const packageJson = JSON.parse(packageJsonCall?.[1] as string) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+    const hexaConfig = JSON.parse(hexaConfigCall?.[1] as string) as {
+      ui?: { framework?: string; popup?: { mode?: string } };
+    };
+
+    // Vue files emitted, no React .tsx files
+    expect(writtenFiles).toContain(path.join(projectDir, 'ui/popup/src/main.ts'));
+    expect(writtenFiles).toContain(path.join(projectDir, 'ui/popup/src/App.vue'));
+    expect(writtenFiles).not.toContain(path.join(projectDir, 'ui/popup/src/main.tsx'));
+    expect(writtenFiles).not.toContain(path.join(projectDir, 'ui/popup/src/App.tsx'));
+    expect(popupAppCall?.[1] as string).toContain('<script setup lang="ts">');
+
+    // hexa-cli.config.json declares the framework
+    expect(hexaConfig.ui?.framework).toBe('vue');
+    expect(hexaConfig.ui?.popup?.mode).toBe('managed');
+
+    // package.json: Vue deps, no React deps
+    expect(packageJson.dependencies?.vue).toBe('^3.5.13');
+    expect(packageJson.dependencies?.react).toBeUndefined();
+    expect(packageJson.devDependencies?.['@vitejs/plugin-vue']).toBeDefined();
+    expect(packageJson.devDependencies?.['@vitejs/plugin-react']).toBeUndefined();
+    expect(packageJson.devDependencies?.['vue-tsc']).toBeDefined();
+  });
+
+  it('scaffolds Vue 3 devtools + newtab when framework is "vue" and surfaces are enabled', async () => {
+    const projectDir = path.resolve('D:/tmp/vue-full-managed');
+
+    await scaffold({
+      name: 'vue-full-managed',
+      platforms: ['chrome'],
+      reactPopup: true,
+      managedDevtools: true,
+      reactDevtools: true,
+      managedNewtab: true,
+      framework: 'vue',
+      destRoot: projectDir,
+    });
+
+    const writeFileMock = vi.mocked(fs.writeFile);
+    const writtenFiles = writeFileMock.mock.calls.map(call => call[0] as string);
+    const hexaConfigCall = writeFileMock.mock.calls.find(call => call[0] === path.join(projectDir, 'hexa-cli.config.json'));
+    const hexaConfig = JSON.parse(hexaConfigCall?.[1] as string) as {
+      ui?: { framework?: string };
+    };
+
+    expect(hexaConfig.ui?.framework).toBe('vue');
+    expect(writtenFiles).toContain(path.join(projectDir, 'ui/devtools/src/App.vue'));
+    expect(writtenFiles).toContain(path.join(projectDir, 'ui/devtools/src/main.ts'));
+    expect(writtenFiles).toContain(path.join(projectDir, 'ui/newtab/src/App.vue'));
+    expect(writtenFiles).toContain(path.join(projectDir, 'ui/newtab/src/main.ts'));
+    expect(writtenFiles).not.toContain(path.join(projectDir, 'ui/devtools/src/main.tsx'));
+    expect(writtenFiles).not.toContain(path.join(projectDir, 'ui/newtab/src/main.tsx'));
   });
 });

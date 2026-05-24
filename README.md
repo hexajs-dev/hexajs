@@ -37,9 +37,10 @@ HexaJS is a TypeScript-first framework for browser extension backends with a str
 
 ## UI Modes
 
-- Managed popup (`ui.popup.mode = "managed"`): React-only mode. Hexa builds your popup source (default `ui/popup`) using the internal Vite pipeline.
+- Managed popup (`ui.popup.mode = "managed"`): Hexa builds your popup source (default `ui/popup`) using the internal Vite pipeline. Choose **React** or **Vue 3** project-wide via `ui.framework`.
 - External popup (`ui.popup.mode = "external"`): Use any UI framework with your own build pipeline. Hexa copies built assets into the extension, but UI HMR is not managed by Hexa in this mode.
-- Devtools remains optional (`ui.devtools.mode = "none" | "managed" | "external"`).
+- Devtools and newtab remain optional (`ui.devtools.mode`, `ui.newtab.mode = "none" | "managed" | "external"`).
+- Content `@View` shadow overlays follow the same project-wide `ui.framework` choice.
 
 ## Core Capabilities
 

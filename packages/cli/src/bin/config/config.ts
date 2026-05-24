@@ -16,6 +16,8 @@ export type SourceMapOption = boolean | 'inline' | 'hidden';
 
 export type UiSurfaceMode = 'managed' | 'external' | 'none';
 
+export type UiFrameworkName = 'react' | 'vue';
+
 export interface UiSurfaceConfig {
     mode?: UiSurfaceMode;
     sourceDir?: string;
@@ -27,6 +29,12 @@ export interface UiSurfaceConfig {
 
 export interface UiConfig {
     parallelBuild?: boolean;
+    /**
+     * UI framework used by all managed surfaces (popup/devtools/newtab) and the
+     * content @View shadow DOM. Project-wide; mixed frameworks per surface are
+     * not supported. Defaults to 'react' when omitted (backwards compatible).
+     */
+    framework?: UiFrameworkName;
     popup?: UiSurfaceConfig;
     devtools?: UiSurfaceConfig;
     newtab?: UiSurfaceConfig;

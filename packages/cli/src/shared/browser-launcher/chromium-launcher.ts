@@ -2,7 +2,7 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { spawn } from 'child_process';
+import { spawn, ChildProcess } from 'child_process';
 
 import {
     AutoLaunchBrowserPlatform,
@@ -138,7 +138,8 @@ function getPlatformChromeCandidates(env: NodeJS.ProcessEnv): string[] {
     if (process.platform === 'win32') {
         const roots = [env.ProgramFiles, env['ProgramFiles(x86)'], env.LocalAppData].filter(Boolean) as string[];
         const chromeCandidates = roots.map(root => path.join(root, 'Google', 'Chrome', 'Application', 'chrome.exe'));
-        return [...nonBrandedCandidates, ...chromeCandidates];
+        // Branded Chrome first — non-branded (Playwright/Puppeteer) only as fallback.
+        return [...chromeCandidates, ...nonBrandedCandidates];
     }
 
     if (process.platform === 'darwin') {
@@ -147,6 +148,7 @@ function getPlatformChromeCandidates(env: NodeJS.ProcessEnv): string[] {
             path.join(homeDir, 'Applications', 'Google Chrome.app', 'Contents', 'MacOS', 'Google Chrome'),
             '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
         ];
+        // Branded Chrome first — non-branded (Playwright/Puppeteer) only as fallback.
         return [...chromeBrandedCandidates, ...nonBrandedCandidates];
     }
 
@@ -334,6 +336,10 @@ function seedPinnedExtensionState(userDataDir: string, extensionId: string): voi
     preferences.extensions = preferences.extensions ?? {};
     preferences.toolbar = preferences.toolbar ?? {};
 
+    // Enable Developer Mode so --load-extension works without manual intervention
+    preferences.extensions.ui = preferences.extensions.ui ?? {};
+    preferences.extensions.ui.developer_mode = true;
+
     const pinnedExtensions = new Set(preferences.extensions.pinned_extensions ?? []);
     pinnedExtensions.add(extensionId);
     preferences.extensions.pinned_extensions = Array.from(pinnedExtensions);
@@ -341,6 +347,13 @@ function seedPinnedExtensionState(userDataDir: string, extensionId: string): voi
     const pinnedActions = new Set(preferences.toolbar.pinned_actions ?? []);
     pinnedActions.add(extensionId);
     preferences.toolbar.pinned_actions = Array.from(pinnedActions);
+
+    // Also enable the extension in extensions.settings
+    preferences.extensions.settings = preferences.extensions.settings ?? {};
+    preferences.extensions.settings[extensionId] = preferences.extensions.settings[extensionId] ?? {};
+    preferences.extensions.settings[extensionId].state = 1; // 1 = ENABLED
+    preferences.extensions.settings[extensionId].location = 5; // 5 = UNPACKED
+    preferences.extensions.settings[extensionId].manifest = {};
 
     fs.writeFileSync(preferencesPath, JSON.stringify(preferences), 'utf-8');
 }
@@ -409,16 +422,79 @@ function buildChromiumLaunchArgs(platform: AutoLaunchBrowserPlatform, extensionD
     const normalizedExtensionDir = path.resolve(extensionDir);
     const normalizedUserDataDir = path.resolve(userDataDir);
 
-    return [
-        `--disable-extensions-except=${normalizedExtensionDir}`,
-        `--load-extension=${normalizedExtensionDir}`,
-        `--remote-debugging-port=${debugPort}`,
+    const args = [
         `--user-data-dir=${normalizedUserDataDir}`,
+        `--remote-debugging-port=${debugPort}`,
         '--enable-unsafe-extension-debugging',
         '--no-first-run',
         '--no-default-browser-check',
-        getChromiumExtensionsPage(platform),
+        '--disable-features=ExtensionManifestV2Disabled',
     ];
+
+    // Chrome 137+ removed --load-extension from branded builds.
+    // For branded Chrome, use --remote-debugging-pipe and load via CDP after launch.
+    // For Edge/Brave/Opera and non-branded Chromium, --load-extension still works.
+    if (platform !== 'chrome') {
+        args.push(`--load-extension=${normalizedExtensionDir}`);
+        args.push(`--disable-extensions-except=${normalizedExtensionDir}`);
+    } else {
+        args.push('--remote-debugging-pipe');
+    }
+
+    args.push(getChromiumExtensionsPage(platform));
+    return args;
+}
+
+/**
+ * Loads an unpacked extension into a running Chrome instance via the remote debugging pipe.
+ * Required for Chrome 137+ where --load-extension was removed from branded builds.
+ * stdio[3] = writable (parent writes commands, Chrome reads from fd 3)
+ * stdio[4] = readable (parent reads responses, Chrome writes to fd 4)
+ */
+function loadExtensionViaPipe(child: ChildProcess, extensionDir: string): Promise<string | null> {
+    return new Promise((resolve) => {
+        const pipeOut = child.stdio?.[3] as import('stream').Writable | null;
+        const pipeIn = child.stdio?.[4] as import('stream').Readable | null;
+
+        if (!pipeIn || !pipeOut) {
+            resolve(null);
+            return;
+        }
+
+        const requestId = Math.floor(Math.random() * 1e6);
+        const request = {
+            id: requestId,
+            method: 'Extensions.loadUnpacked',
+            params: { path: path.resolve(extensionDir) },
+        };
+
+        let buffer = '';
+        const timeout = setTimeout(() => {
+            pipeIn.removeAllListeners('data');
+            resolve(null);
+        }, 10000);
+
+        pipeIn.on('data', (chunk: Buffer) => {
+            buffer += chunk.toString();
+            let end: number;
+            while ((end = buffer.indexOf('\0')) !== -1) {
+                const message = buffer.slice(0, end);
+                buffer = buffer.slice(end + 1);
+                try {
+                    const parsed = JSON.parse(message);
+                    if (parsed.id === requestId) {
+                        clearTimeout(timeout);
+                        pipeIn.removeAllListeners('data');
+                        resolve(parsed.result?.id ?? null);
+                    }
+                } catch {
+                    // ignore non-JSON
+                }
+            }
+        });
+
+        pipeOut.write(JSON.stringify(request) + '\0');
+    });
 }
 
 export function buildChromeLaunchArgs(extensionDir: string, userDataDir: string, debugPort: number): string[] {
@@ -496,9 +572,29 @@ export function launchBrowserWithExtension(options: LaunchBrowserWithExtensionOp
 
     clearChromiumStaleLockFiles(userDataDir);
     const args = buildChromiumLaunchArgs(platform, extensionDir, userDataDir, debugPort);
-    const child = spawn(executablePath, args, { detached: true, stdio: 'ignore', windowsHide: true });
+
+    // Chrome 137+ removed --load-extension from branded builds.
+    // Use --remote-debugging-pipe + Extensions.loadUnpacked CDP command instead.
+    const isBrandedChrome = platform === 'chrome' && executableKind === 'google-chrome';
+    const useDebugPipe = isBrandedChrome || platform === 'chrome';
+
+    const spawnStdio: any = useDebugPipe
+        ? ['ignore', 'ignore', 'ignore', 'pipe', 'pipe']
+        : 'ignore';
+
+    const child = spawn(executablePath, args, { detached: true, stdio: spawnStdio, windowsHide: true });
     child.on('error', () => { /* Prevent unhandled spawn errors from crashing the CLI process. */ });
-    child.unref();
+
+    if (useDebugPipe) {
+        // Fire-and-forget: load extension via CDP pipe, then detach
+        loadExtensionViaPipe(child, extensionDir).then(() => {
+            try { child.unref(); } catch { /* ignore */ }
+        }).catch(() => {
+            try { child.unref(); } catch { /* ignore */ }
+        });
+    } else {
+        child.unref();
+    }
 
     return {
         platform,

@@ -101,6 +101,7 @@ describe('new command', () => {
       managedDevtools: false,
       reactDevtools: false,
       managedNewtab: false,
+      framework: 'react',
       blank: false,
       packageManager: 'npm',
       packageManagerVersion: '10.9.0',
@@ -118,6 +119,7 @@ describe('new command', () => {
       .mockResolvedValueOnce({ reactPopup: true })
       .mockResolvedValueOnce({ managedDevtools: true })
       .mockResolvedValueOnce({ managedNewtab: false })
+      .mockResolvedValueOnce({ framework: 'react' })
       .mockResolvedValueOnce({ packageManager: 'npm' });
 
     const program = new Command();
@@ -132,6 +134,7 @@ describe('new command', () => {
       managedDevtools: true,
       reactDevtools: true,
       managedNewtab: false,
+      framework: 'react',
       blank: false,
       packageManager: 'npm',
       packageManagerVersion: '10.9.0',
@@ -153,6 +156,49 @@ describe('new command', () => {
     await runCli(program, ['new', 'my-extension', '--platform', 'safari,firefox']);
 
     expect(getRunScriptCommandMock).toHaveBeenCalledWith('npm', 'build:firefox');
+  });
+
+  it('asks for the framework when at least one managed surface is selected and forwards the choice', async () => {
+    promptMock
+      .mockResolvedValueOnce({ template: 'full' })
+      .mockResolvedValueOnce({ reactPopup: true })
+      .mockResolvedValueOnce({ managedDevtools: false })
+      .mockResolvedValueOnce({ managedNewtab: false })
+      .mockResolvedValueOnce({ framework: 'vue' })
+      .mockResolvedValueOnce({ packageManager: 'npm' });
+
+    const program = new Command();
+    newCommand(program);
+
+    await runCli(program, ['new', 'my-vue-ext', '--platform', 'chrome']);
+
+    expect(scaffoldMock).toHaveBeenCalledWith(expect.objectContaining({
+      reactPopup: true,
+      framework: 'vue',
+    }));
+  });
+
+  it('skips the framework prompt when no managed surface is selected', async () => {
+    promptMock
+      .mockResolvedValueOnce({ template: 'full' })
+      .mockResolvedValueOnce({ reactPopup: false })
+      .mockResolvedValueOnce({ managedDevtools: false })
+      .mockResolvedValueOnce({ managedNewtab: false })
+      .mockResolvedValueOnce({ packageManager: 'npm' });
+
+    const program = new Command();
+    newCommand(program);
+
+    await runCli(program, ['new', 'no-ui-ext', '--platform', 'chrome']);
+
+    // Verify that the prompt for `framework` was never asked: the prompt
+    // sequence above contains exactly 5 calls (template, reactPopup,
+    // managedDevtools, managedNewtab, packageManager). If a framework prompt
+    // had been asked, the next mockResolvedValue would have been consumed.
+    expect(promptMock).toHaveBeenCalledTimes(5);
+    expect(scaffoldMock).toHaveBeenCalledWith(expect.objectContaining({
+      framework: 'react',
+    }));
   });
 
   it('retries npm install with --legacy-peer-deps when npm returns ERESOLVE', async () => {

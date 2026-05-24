@@ -327,6 +327,37 @@ export async function updateUiSurfaceConfig(configPath: string, surface: UiSurfa
   await fs.writeJSON(configPath, next, { spaces: 2 });
 }
 
+/**
+ * Add or preserve `ui.framework` on the project's hexa-cli.config.json.
+ * Existing values take precedence so users aren't silently switched between
+ * frameworks; only an absent `framework` is filled in.
+ */
+export async function mergeUiFrameworkIntoConfig(configPath: string, framework: 'react' | 'vue', options: SchematicCommandOptions): Promise<void> {
+  const projectRoot = path.resolve(options.cwd || process.cwd());
+  assertSchematicPathInProject(projectRoot, configPath, 'UI config path');
+
+  const raw = await fs.readJSON(configPath) as HexaConfig & { ui?: { framework?: 'react' | 'vue' } };
+  const existingFramework = raw.ui?.framework;
+  if (existingFramework) {
+    return; // preserve user's choice
+  }
+
+  const next: HexaConfig = {
+    ...raw,
+    ui: {
+      ...(raw.ui || {}),
+      framework,
+    } as HexaConfig['ui'],
+  };
+
+  if (options.dryRun) {
+    logDryRun(`update ${relativePathFromCwd(configPath)}`);
+    return;
+  }
+
+  await fs.writeJSON(configPath, next, { spaces: 2 });
+}
+
 export function printSchematicSuccess(title: string, files: string[], options: SchematicCommandOptions): void {
   console.log(chalk.green(`✓ ${title}`));
   if (options.verbose || options.dryRun) {
