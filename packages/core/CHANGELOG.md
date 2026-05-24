@@ -1,5 +1,12 @@
 # @hexajs-dev/core
 
+## 0.9.3-beta.11
+
+### Patch Changes
+
+- @hexajs-dev/common@0.9.3-beta.11
+- @hexajs-dev/ports@0.9.3-beta.11
+
 ## 0.9.3-beta.10
 
 ### Patch Changes
