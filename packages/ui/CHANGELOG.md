@@ -1,5 +1,13 @@
 # @hexajs-dev/ui
 
+## 0.9.3-beta.10
+
+### Patch Changes
+
+- @hexajs-dev/common@0.9.3-beta.10
+- @hexajs-dev/core@0.9.3-beta.10
+- @hexajs-dev/ports@0.9.3-beta.10
+
 ## 0.9.3-beta.9
 
 ### Patch Changes
