@@ -1,5 +1,14 @@
 # @hexajs-dev/ui
 
+## 0.9.3-beta.11
+
+### Patch Changes
+
+- 1b3c8fc: Adds Vue-specific build/plugins, templates and scaffold files so the CLI can scaffold Vue-managed surfaces (popup/devtools/newtab).
+  - @hexajs-dev/common@0.9.3-beta.11
+  - @hexajs-dev/core@0.9.3-beta.11
+  - @hexajs-dev/ports@0.9.3-beta.11
+
 ## 0.9.3-beta.10
 
 ### Patch Changes

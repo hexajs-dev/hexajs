@@ -14,6 +14,7 @@
   },
   "changesets": [
     "beta-release",
+    "breezy-buckets-lick",
     "cuddly-parks-scream",
     "fruity-taxes-attack",
     "funny-name-heal",
