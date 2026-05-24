@@ -1,6 +1,6 @@
 ﻿---
 title: Build Pipeline
-sidebar_position: 3
+sidebar_position: 4
 description: Understand AOT compilation flow, context attribution, and runtime validation guarantees.
 ---
 

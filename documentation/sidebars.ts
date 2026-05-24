@@ -104,6 +104,7 @@ const sidebars: SidebarsConfig = {
       link: { type: 'doc', id: 'cli-tooling/index' },
       items: [
         'cli-tooling/cli-commands',
+        'cli-tooling/build-output',
         'cli-tooling/build-pipeline',
         'cli-tooling/manifest-patching',
         'cli-tooling/hmr',

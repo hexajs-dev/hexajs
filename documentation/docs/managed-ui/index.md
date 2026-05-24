@@ -34,7 +34,7 @@ Set `ui.framework` in `hexa-cli.config.json` to either `"react"` (default) or `"
 }
 ```
 
-See [React Integration](./react-integration) and [Vue Integration](./vue-integration) for the framework-specific patterns.
+See [React Integration](./react-integration.md) and [Vue Integration](./vue-integration.md) for the framework-specific patterns.
 
 ## What Managed UI does not host
 
