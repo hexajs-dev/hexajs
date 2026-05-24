@@ -1,5 +1,12 @@
 # @hexajs-dev/cli
 
+## 0.9.3-beta.10
+
+### Patch Changes
+
+- 45db1fe: feat: enhance Chrome watch mode with automatic browser launch and configuration options
+  - @hexajs-dev/common@0.9.3-beta.10
+
 ## 0.9.3-beta.9
 
 ### Patch Changes
