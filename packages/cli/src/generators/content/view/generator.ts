@@ -1,7 +1,33 @@
 import { ViewMetadata } from '../../../compiler/content/view/types';
 import { buildDependencyArgs, normalizeImportPath } from '../../shared';
 
+export type ViewGeneratorFramework = 'react' | 'vue';
+
+interface ShadowRendererTarget {
+  module: string;
+  exportName: string;
+}
+
+const SHADOW_RENDERER_BY_FRAMEWORK: Record<ViewGeneratorFramework, ShadowRendererTarget> = {
+  react: { module: '@hexajs-dev/ui/react', exportName: 'ReactShadowRenderer' },
+  vue: { module: '@hexajs-dev/ui/vue', exportName: 'VueShadowRenderer' },
+};
+
+/**
+ * Generates the per-@View imports and DI registrations that the content
+ * bootstrap stitches together. The framework determines:
+ *  - Which ShadowRenderer to import (ReactShadowRenderer vs VueShadowRenderer)
+ *  - From which subpath of @hexajs-dev/ui to import it
+ */
 export class ContentViewGenerator {
+  private framework: ViewGeneratorFramework;
+  private shadowRenderer: ShadowRendererTarget;
+
+  constructor(framework: ViewGeneratorFramework = 'react') {
+    this.framework = framework;
+    this.shadowRenderer = SHADOW_RENDERER_BY_FRAMEWORK[framework] ?? SHADOW_RENDERER_BY_FRAMEWORK.react;
+  }
+
   public generateImports(views: ViewMetadata[], outputDir: string): string[] {
     if (views.length === 0) {
       return [];
@@ -9,7 +35,7 @@ export class ContentViewGenerator {
 
     const imports: string[] = [
       `import { ViewRef } from '@hexajs-dev/core';`,
-      `import { ReactShadowRenderer } from '@hexajs-dev/ui';`
+      `import { ${this.shadowRenderer.exportName} } from '${this.shadowRenderer.module}';`,
     ];
 
     views.forEach(view => {
@@ -46,6 +72,8 @@ export class ContentViewGenerator {
       `  // Register views`
     ];
 
+    const renderer = this.shadowRenderer.exportName;
+
     views.forEach(view => {
       const anchorArg = view.anchorSelector ? `'${view.anchorSelector}'` : `'body'`;
       const stylesArg = view.stylesImportPath ? `${view.className}__Styles` : `undefined`;
@@ -54,7 +82,7 @@ export class ContentViewGenerator {
       if (view.extendsHexaView) {
         registrations.push(`  container.register(${view.className}, (c) => {`);
         registrations.push(`    const instance = new ${view.className}(${deps});`);
-        registrations.push(`    instance.viewRef = new ViewRef(instance, () => ReactShadowRenderer.mount({`);
+        registrations.push(`    instance.viewRef = new ViewRef(instance, () => ${renderer}.mount({`);
         registrations.push(`      id: '${view.id}',`);
         registrations.push(`      component: ${view.className}__Component,`);
         registrations.push(`      controllerInstance: instance,`);
@@ -68,7 +96,7 @@ export class ContentViewGenerator {
         registrations.push(`  container.register(${view.className}, (c) => new ${view.className}(${deps}));`);
         registrations.push(`  container.register('__hexa_view_ref__${view.className}', (c) => {`);
         registrations.push(`    const instance = c.resolve(${view.className});`);
-        registrations.push(`    return new ViewRef(instance, () => ReactShadowRenderer.mount({`);
+        registrations.push(`    return new ViewRef(instance, () => ${renderer}.mount({`);
         registrations.push(`      id: '${view.id}',`);
         registrations.push(`      component: ${view.className}__Component,`);
         registrations.push(`      controllerInstance: instance,`);

@@ -21,13 +21,22 @@ import { blankBackgroundMainTemplate } from '../templates/blank-background-main.
 import { blankBackgroundControllerTemplate } from '../templates/blank-background-controller.template';
 import { blankContentTemplate } from '../templates/blank-content.template';
 import { blankContentHandlerTemplate } from '../templates/blank-content-handler.template';
+// React popup templates
 import { popupIndexHtmlTemplate } from '../templates/popup-index-html.template';
 import { popupTsConfigTemplate } from '../templates/popup-tsconfig.template';
 import { popupMainTemplate } from '../templates/popup-main.template';
 import { popupAppTemplate } from '../templates/popup-app.template';
 import { popupStyleTemplate } from '../templates/popup-style.template';
+import { popupViteConfigTemplate } from '../templates/popup-vite-config.template';
+// Vue popup templates
+import { popupIndexHtmlVueTemplate } from '../templates/popup-index-html-vue.template';
+import { popupTsConfigVueTemplate } from '../templates/popup-tsconfig-vue.template';
+import { popupMainVueTemplate } from '../templates/popup-main-vue.template';
+import { popupAppVueTemplate } from '../templates/popup-app-vue.template';
+import { popupViteConfigVueTemplate } from '../templates/popup-vite-config-vue.template';
 import { popupFallbackHtmlTemplate } from '../templates/popup-fallback-html.template';
 import { devtoolsFallbackHtmlTemplate } from '../templates/devtools-fallback-html.template';
+// React devtools templates
 import { devtoolsIndexHtmlTemplate } from '../templates/devtools-index-html.template';
 import { devtoolsMainTemplate } from '../templates/devtools-main.template';
 import { devtoolsAppTemplate } from '../templates/devtools-app.template';
@@ -35,14 +44,26 @@ import { devtoolsStyleTemplate } from '../templates/devtools-style.template';
 import { devtoolsTsConfigTemplate } from '../templates/devtools-tsconfig.template';
 import { devtoolsEntryTemplate } from '../templates/devtools-entry.template';
 import { devtoolsBridgeHtmlTemplate } from '../templates/devtools-bridge-html.template';
-import { popupViteConfigTemplate } from '../templates/popup-vite-config.template';
 import { devtoolsViteConfigTemplate } from '../templates/devtools-vite-config.template';
+// Vue devtools templates
+import { devtoolsIndexHtmlVueTemplate } from '../templates/devtools-index-html-vue.template';
+import { devtoolsMainVueTemplate } from '../templates/devtools-main-vue.template';
+import { devtoolsAppVueTemplate } from '../templates/devtools-app-vue.template';
+import { devtoolsTsConfigVueTemplate } from '../templates/devtools-tsconfig-vue.template';
+import { devtoolsViteConfigVueTemplate } from '../templates/devtools-vite-config-vue.template';
+// React newtab templates
 import { newtabIndexHtmlTemplate } from '../templates/newtab-index-html.template';
 import { newtabViteConfigTemplate } from '../templates/newtab-vite-config.template';
 import { newtabTsConfigTemplate } from '../templates/newtab-tsconfig.template';
 import { newtabMainTemplate } from '../templates/newtab-main.template';
 import { newtabAppTemplate } from '../templates/newtab-app.template';
 import { newtabStyleTemplate } from '../templates/newtab-style.template';
+// Vue newtab templates
+import { newtabIndexHtmlVueTemplate } from '../templates/newtab-index-html-vue.template';
+import { newtabViteConfigVueTemplate } from '../templates/newtab-vite-config-vue.template';
+import { newtabTsConfigVueTemplate } from '../templates/newtab-tsconfig-vue.template';
+import { newtabMainVueTemplate } from '../templates/newtab-main-vue.template';
+import { newtabAppVueTemplate } from '../templates/newtab-app-vue.template';
 import type { PackageManager } from '../../../../shared/package-manager';
 
 /** Convert a kebab-case / snake_case name to PascalCase */
@@ -57,14 +78,16 @@ export interface ScaffoldOptions {
   platforms: string[];
   packageManager?: PackageManager;
   packageManagerVersion?: string;
-  /** Whether to scaffold a managed React popup (default: false → plain HTML) */
+  /** Whether to scaffold a managed popup (default: false → plain HTML) */
   reactPopup?: boolean;
   /** Whether to scaffold a managed devtools panel (default: false) */
   managedDevtools?: boolean;
-  /** Whether to scaffold the devtools panel with React (requires managedDevtools, default: false) */
+  /** Whether to scaffold the devtools panel with the chosen framework (requires managedDevtools, default: false) */
   reactDevtools?: boolean;
   /** Whether to scaffold a managed new tab page (default: false) */
   managedNewtab?: boolean;
+  /** Project-wide UI framework. Defaults to 'react' for backwards compatibility. */
+  framework?: 'react' | 'vue';
   /** Whether to scaffold a minimal blank project (no store, no services, no contract demo) */
   blank?: boolean;
   /** Destination root — defaults to process.cwd()/<name> */
@@ -83,6 +106,7 @@ export async function scaffold(options: ScaffoldOptions): Promise<string> {
     name,
     className: toPascalCase(name),
     platforms,
+    framework: options.framework ?? 'react',
     reactPopup: options.reactPopup ?? false,
     managedDevtools: options.managedDevtools ?? false,
     reactDevtools: options.reactDevtools ?? false,
@@ -91,6 +115,8 @@ export async function scaffold(options: ScaffoldOptions): Promise<string> {
     packageManager,
     packageManagerVersion,
   };
+
+  const isVue = ctx.framework === 'vue';
 
   const files: Array<{ rel: string; content: string }> = [
     { rel: 'package.json', content: packageJsonTemplate(ctx) },
@@ -130,36 +156,62 @@ export async function scaffold(options: ScaffoldOptions): Promise<string> {
     );
   }
 
-  // popup ui — always managed when opted in; React source files are added below if opted in
+  // Always emit a popup index.html. Vue uses ./src/main.ts, React uses ./src/main.tsx.
   files.push({
     rel: 'ui/popup/index.html',
-    content: ctx.reactPopup ? popupIndexHtmlTemplate() : popupFallbackHtmlTemplate(),
+    content: ctx.reactPopup
+      ? (isVue ? popupIndexHtmlVueTemplate() : popupIndexHtmlTemplate())
+      : popupFallbackHtmlTemplate(),
   });
 
-  // React popup extras
+  // Managed popup source files (framework-specific)
   if (ctx.reactPopup) {
-    files.push(
-      { rel: 'ui/popup/vite.config.ts', content: popupViteConfigTemplate() },
-      { rel: 'ui/popup/tsconfig.json', content: popupTsConfigTemplate() },
-      { rel: 'ui/popup/src/main.tsx', content: popupMainTemplate() },
-      { rel: 'ui/popup/src/App.tsx', content: popupAppTemplate() },
-      { rel: 'ui/popup/src/style.css', content: popupStyleTemplate() }
-    );
+    if (isVue) {
+      files.push(
+        { rel: 'ui/popup/vite.config.ts', content: popupViteConfigVueTemplate() },
+        { rel: 'ui/popup/tsconfig.json', content: popupTsConfigVueTemplate() },
+        { rel: 'ui/popup/src/main.ts', content: popupMainVueTemplate() },
+        { rel: 'ui/popup/src/App.vue', content: popupAppVueTemplate() },
+        { rel: 'ui/popup/src/style.css', content: popupStyleTemplate() }
+      );
+    } else {
+      files.push(
+        { rel: 'ui/popup/vite.config.ts', content: popupViteConfigTemplate() },
+        { rel: 'ui/popup/tsconfig.json', content: popupTsConfigTemplate() },
+        { rel: 'ui/popup/src/main.tsx', content: popupMainTemplate() },
+        { rel: 'ui/popup/src/App.tsx', content: popupAppTemplate() },
+        { rel: 'ui/popup/src/style.css', content: popupStyleTemplate() }
+      );
+    }
   }
 
   // Managed devtools panel
   if (ctx.managedDevtools) {
     if (ctx.reactDevtools) {
-      files.push(
-        { rel: 'ui/devtools/vite.config.ts', content: devtoolsViteConfigTemplate() },
-        { rel: 'ui/devtools/devtools.html', content: devtoolsBridgeHtmlTemplate() },
-        { rel: 'ui/devtools/devtools.ts', content: devtoolsEntryTemplate(ctx) },
-        { rel: 'ui/devtools/index.html', content: devtoolsIndexHtmlTemplate() },
-        { rel: 'ui/devtools/tsconfig.json', content: devtoolsTsConfigTemplate() },
-        { rel: 'ui/devtools/src/main.tsx', content: devtoolsMainTemplate() },
-        { rel: 'ui/devtools/src/App.tsx', content: devtoolsAppTemplate() },
-        { rel: 'ui/devtools/src/style.css', content: devtoolsStyleTemplate() }
-      );
+      // The bridge HTML and devtools.ts entry are framework-agnostic; reuse them.
+      if (isVue) {
+        files.push(
+          { rel: 'ui/devtools/vite.config.ts', content: devtoolsViteConfigVueTemplate() },
+          { rel: 'ui/devtools/devtools.html', content: devtoolsBridgeHtmlTemplate() },
+          { rel: 'ui/devtools/devtools.ts', content: devtoolsEntryTemplate(ctx) },
+          { rel: 'ui/devtools/index.html', content: devtoolsIndexHtmlVueTemplate() },
+          { rel: 'ui/devtools/tsconfig.json', content: devtoolsTsConfigVueTemplate() },
+          { rel: 'ui/devtools/src/main.ts', content: devtoolsMainVueTemplate() },
+          { rel: 'ui/devtools/src/App.vue', content: devtoolsAppVueTemplate() },
+          { rel: 'ui/devtools/src/style.css', content: devtoolsStyleTemplate() }
+        );
+      } else {
+        files.push(
+          { rel: 'ui/devtools/vite.config.ts', content: devtoolsViteConfigTemplate() },
+          { rel: 'ui/devtools/devtools.html', content: devtoolsBridgeHtmlTemplate() },
+          { rel: 'ui/devtools/devtools.ts', content: devtoolsEntryTemplate(ctx) },
+          { rel: 'ui/devtools/index.html', content: devtoolsIndexHtmlTemplate() },
+          { rel: 'ui/devtools/tsconfig.json', content: devtoolsTsConfigTemplate() },
+          { rel: 'ui/devtools/src/main.tsx', content: devtoolsMainTemplate() },
+          { rel: 'ui/devtools/src/App.tsx', content: devtoolsAppTemplate() },
+          { rel: 'ui/devtools/src/style.css', content: devtoolsStyleTemplate() }
+        );
+      }
     } else {
       files.push({ rel: 'ui/devtools/index.html', content: devtoolsFallbackHtmlTemplate() });
     }
@@ -167,14 +219,25 @@ export async function scaffold(options: ScaffoldOptions): Promise<string> {
 
   // Managed new tab page
   if (ctx.managedNewtab) {
-    files.push(
-      { rel: 'ui/newtab/index.html', content: newtabIndexHtmlTemplate() },
-      { rel: 'ui/newtab/vite.config.ts', content: newtabViteConfigTemplate() },
-      { rel: 'ui/newtab/tsconfig.json', content: newtabTsConfigTemplate() },
-      { rel: 'ui/newtab/src/main.tsx', content: newtabMainTemplate() },
-      { rel: 'ui/newtab/src/App.tsx', content: newtabAppTemplate() },
-      { rel: 'ui/newtab/src/style.css', content: newtabStyleTemplate() }
-    );
+    if (isVue) {
+      files.push(
+        { rel: 'ui/newtab/index.html', content: newtabIndexHtmlVueTemplate() },
+        { rel: 'ui/newtab/vite.config.ts', content: newtabViteConfigVueTemplate() },
+        { rel: 'ui/newtab/tsconfig.json', content: newtabTsConfigVueTemplate() },
+        { rel: 'ui/newtab/src/main.ts', content: newtabMainVueTemplate() },
+        { rel: 'ui/newtab/src/App.vue', content: newtabAppVueTemplate() },
+        { rel: 'ui/newtab/src/style.css', content: newtabStyleTemplate() }
+      );
+    } else {
+      files.push(
+        { rel: 'ui/newtab/index.html', content: newtabIndexHtmlTemplate() },
+        { rel: 'ui/newtab/vite.config.ts', content: newtabViteConfigTemplate() },
+        { rel: 'ui/newtab/tsconfig.json', content: newtabTsConfigTemplate() },
+        { rel: 'ui/newtab/src/main.tsx', content: newtabMainTemplate() },
+        { rel: 'ui/newtab/src/App.tsx', content: newtabAppTemplate() },
+        { rel: 'ui/newtab/src/style.css', content: newtabStyleTemplate() }
+      );
+    }
   }
 
   for (const { rel, content } of files) {

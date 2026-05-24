@@ -22,6 +22,17 @@ export type ChromiumExecutableKind = 'chromium-like' | 'google-chrome';
 export interface ChromiumPreferencesShape {
     extensions?: {
         pinned_extensions?: string[];
+        ui?: {
+            developer_mode?: boolean;
+        };
+        settings?: {
+            [extensionId: string]: {
+                state?: number;
+                location?: number;
+                path?: string;
+                manifest?: object;
+            };
+        };
     };
     toolbar?: {
         pinned_actions?: string[];

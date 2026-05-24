@@ -8,7 +8,7 @@ import { writeIconsArtifacts } from './generators/icons/generator';
 import { copyStaticAssets } from './generators/assets/generator';
 import { resolveUsedIconPath } from './generators/icons/paths';
 import { bundleBootstrapFiles } from './bundler';
-import { loadReactPlugin } from './bundler-react';
+import { loadFrameworkPlugin } from './bundler-framework';
 import { buildSourceContextMap, writeSourceContextMap } from './build/context-map.builder';
 import { runBackgroundOrchestrator } from './build/background.orchestrator';
 import { runContentOrchestrator } from './build/content.orchestrator';
@@ -203,12 +203,14 @@ export async function buildAction(files: string[], resolved: ResolvedBuildConfig
         const contentPlugins: import('vite').Plugin[] = [];
         const hasViews = registry.getViews().length > 0;
         if (hasViews) {
-            const reactPlugin = loadReactPlugin(process.cwd());
-            if (!reactPlugin) {
+            const framework = resolved.ui?.framework ?? 'react';
+            const frameworkPlugin = loadFrameworkPlugin(process.cwd(), framework);
+            if (!frameworkPlugin) {
                 const packageManager = detectProjectPM(process.cwd());
-                printWarningLine(`@View detected but @vitejs/plugin-react is not installed. Run: ${getAddDependencyCommand(packageManager, '@vitejs/plugin-react', true)}`);
+                const pluginPackage = framework === 'vue' ? '@vitejs/plugin-vue' : '@vitejs/plugin-react';
+                printWarningLine(`@View detected but ${pluginPackage} is not installed. Run: ${getAddDependencyCommand(packageManager, pluginPackage, true)}`);
             } else {
-                const plugins = Array.isArray(reactPlugin) ? reactPlugin : [reactPlugin];
+                const plugins = Array.isArray(frameworkPlugin.plugin) ? frameworkPlugin.plugin : [frameworkPlugin.plugin];
                 contentPlugins.push(...plugins);
             }
         }

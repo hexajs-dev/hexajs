@@ -2,6 +2,8 @@ export type HexaUiSurface = 'popup' | 'devtools' | 'newtab';
 
 export type HexaUiMode = 'managed' | 'external' | 'none';
 
+export type HexaUiFrameworkName = 'react' | 'vue';
+
 export interface HexaUiSurfaceConfig {
   mode?: HexaUiMode;
   /** Source directory for managed builds (relative to project root) */
@@ -22,6 +24,8 @@ export interface HexaUiCompilerOptions {
 }
 
 export interface HexaUiConfig {
+  /** Project-wide UI framework. Defaults to 'react' for backwards compatibility. */
+  framework?: HexaUiFrameworkName;
   popup?: HexaUiSurfaceConfig;
   devtools?: HexaUiSurfaceConfig;
   newtab?: HexaUiSurfaceConfig;

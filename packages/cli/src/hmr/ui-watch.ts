@@ -8,7 +8,7 @@ export interface UIWatchTarget {
     sourceDir: string;
 }
 
-const WATCHABLE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.html', '.css', '.scss']);
+const WATCHABLE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.html', '.css', '.scss', '.vue']);
 
 export function resolveManagedUiWatchTargets(resolved: ResolvedBuildConfig, cwd: string = process.cwd()): UIWatchTarget[] {
     const targets: UIWatchTarget[] = [];

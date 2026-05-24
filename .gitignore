@@ -7,3 +7,6 @@ dist/
 .hexa/
 ignore
 .kiro
+examples/hexa-vue-starter
+examples/hexa-grayscale-vue
+examples/vue-test

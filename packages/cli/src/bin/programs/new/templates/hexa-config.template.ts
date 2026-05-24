@@ -17,24 +17,31 @@ export const hexaConfigTemplate = (ctx: ScaffoldContext): string => {
     };
   }
 
-  // Managed popup is only scaffolded when the user opts into the React popup template.
+  // Managed popup is only scaffolded when the user opts into a popup template.
   const popupMode = ctx.reactPopup ? 'managed' : 'none';
   const popupSection =
     popupMode === 'managed'
       ? { mode: 'managed', sourceDir: 'ui/popup', indexFile: 'index.html', icons: 'src/assets/hexa-logo.svg' }
       : { mode: 'none', icons: 'src/assets/hexa-logo.svg' };
 
-  const uiSection = {
-    ui: {
-      popup: popupSection,
-      devtools: ctx.managedDevtools
-        ? { mode: 'managed', sourceDir: 'ui/devtools', indexFile: 'index.html' }
-        : { mode: 'none' },
-      newtab: ctx.managedNewtab
-        ? { mode: 'managed', sourceDir: 'ui/newtab', indexFile: 'index.html' }
-        : { mode: 'none' },
-    },
+  const hasManagedSurface = ctx.reactPopup || ctx.managedDevtools || ctx.managedNewtab;
+
+  // Only emit `ui.framework` when at least one managed surface is configured.
+  // Existing projects without managed UI keep their config minimal.
+  const uiBlock: Record<string, unknown> = {
+    popup: popupSection,
+    devtools: ctx.managedDevtools
+      ? { mode: 'managed', sourceDir: 'ui/devtools', indexFile: 'index.html' }
+      : { mode: 'none' },
+    newtab: ctx.managedNewtab
+      ? { mode: 'managed', sourceDir: 'ui/newtab', indexFile: 'index.html' }
+      : { mode: 'none' },
   };
+  if (hasManagedSurface) {
+    uiBlock.framework = ctx.framework;
+  }
+
+  const uiSection = { ui: uiBlock };
 
   return JSON.stringify(
     {

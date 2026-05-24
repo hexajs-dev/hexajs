@@ -72,10 +72,32 @@ describe('chrome launcher', () => {
     expect(path.normalize(resolved).toLowerCase()).toBe(path.normalize(chromePath).toLowerCase());
   });
 
-  it('prefers a discovered non-branded Chromium build over Google Chrome on Windows', () => {
+  it('prefers Google Chrome over a discovered non-branded Chromium build on Windows', () => {
+    const userRoot = createTempDir('hexa-user-root-');
+    writeExecutable(path.join(userRoot, '.codeium', 'ws-browser', 'chromium-1155', 'chrome-win', 'chrome.exe'));
+    const realChrome = writeExecutable(path.join(userRoot, 'Program Files', 'Google', 'Chrome', 'Application', 'chrome.exe'));
+
+    vi.spyOn(process, 'platform', 'get').mockReturnValue('win32');
+
+    const resolved = resolveChromeExecutablePath({
+      env: {
+        ...process.env,
+        USERPROFILE: userRoot,
+        ProgramFiles: path.join(userRoot, 'Program Files'),
+        'ProgramFiles(x86)': '',
+        LocalAppData: path.join(userRoot, 'AppData', 'Local'),
+        SystemRoot: userRoot,
+        WINDIR: userRoot,
+      },
+    });
+
+    expect(path.normalize(resolved).toLowerCase()).toBe(path.normalize(realChrome).toLowerCase());
+  });
+
+  it('falls back to a discovered non-branded Chromium build when Google Chrome is absent on Windows', () => {
     const userRoot = createTempDir('hexa-user-root-');
     const codeiumChrome = writeExecutable(path.join(userRoot, '.codeium', 'ws-browser', 'chromium-1155', 'chrome-win', 'chrome.exe'));
-    writeExecutable(path.join(userRoot, 'Program Files', 'Google', 'Chrome', 'Application', 'chrome.exe'));
+    // No real Chrome installed.
 
     vi.spyOn(process, 'platform', 'get').mockReturnValue('win32');
 
@@ -124,12 +146,13 @@ describe('chrome launcher', () => {
     const userDataDir = path.join('tmp', 'chrome-profile');
     const args = buildChromeLaunchArgs(extensionDir, userDataDir, 9222);
 
-    expect(args).toContain(`--disable-extensions-except=${path.resolve(extensionDir)}`);
-    expect(args).toContain(`--load-extension=${path.resolve(extensionDir)}`);
+    expect(args).toContain('--remote-debugging-pipe');
     expect(args).toContain('--remote-debugging-port=9222');
     expect(args).toContain(`--user-data-dir=${path.resolve(userDataDir)}`);
     expect(args).toContain('--enable-unsafe-extension-debugging');
     expect(args).toContain('chrome://extensions/');
+    // Chrome 137+ removed --load-extension from branded builds; pipe-based loading is used instead
+    expect(args.some(a => a.startsWith('--load-extension='))).toBe(false);
   });
 
   it('computes the Chromium unpacked extension id from path', () => {
@@ -150,7 +173,7 @@ describe('chrome launcher', () => {
     const chromePath = writeExecutable(path.join(root, 'chrome', 'chrome.exe'));
     const unref = vi.fn();
 
-    childProcessMocks.spawn.mockReturnValue({ unref, on: vi.fn() } as any);
+    childProcessMocks.spawn.mockReturnValue({ unref, on: vi.fn(), stdio: [null, null, null, null, null] } as any);
 
     const result = launchChromeWithExtension({
       extensionDir,
@@ -162,17 +185,16 @@ describe('chrome launcher', () => {
     expect(childProcessMocks.spawn).toHaveBeenCalledWith(
       chromePath,
       expect.arrayContaining([
-        `--disable-extensions-except=${path.resolve(extensionDir)}`,
-        `--load-extension=${path.resolve(extensionDir)}`,
+        '--remote-debugging-pipe',
+        '--enable-unsafe-extension-debugging',
       ]),
-      { detached: true, stdio: 'ignore', windowsHide: true },
+      { detached: true, stdio: ['ignore', 'ignore', 'ignore', 'pipe', 'pipe'], windowsHide: true },
     );
     expect(fs.existsSync(result.userDataDir)).toBe(true);
     const preferencesPath = path.join(result.userDataDir, 'Default', 'Preferences');
     const preferences = JSON.parse(fs.readFileSync(preferencesPath, 'utf-8'));
     expect(preferences.extensions.pinned_extensions).toContain(result.extensionId);
     expect(preferences.toolbar.pinned_actions).toContain(result.extensionId);
-    expect(unref).toHaveBeenCalledTimes(1);
   });
 
   it('launches Edge with unpacked extension flags', () => {
@@ -253,7 +275,7 @@ describe('chrome launcher', () => {
     const chromePath = writeExecutable(path.join(root, 'google-chrome', 'chrome.exe'));
     const unref = vi.fn();
 
-    childProcessMocks.spawn.mockReturnValue({ unref, on: vi.fn() } as any);
+    childProcessMocks.spawn.mockReturnValue({ unref, on: vi.fn(), stdio: [null, null, null, null, null] } as any);
 
     const chromiumLaunch = launchChromeWithExtension({ extensionDir, executablePath: chromiumPath, env: { ...process.env } });
     const chromeLaunch = launchChromeWithExtension({ extensionDir, executablePath: chromePath, env: { ...process.env } });
@@ -269,7 +291,7 @@ describe('chrome launcher', () => {
     fs.mkdirSync(extensionDir, { recursive: true });
     const googleChromePath = writeExecutable(path.join(root, 'Program Files', 'Google', 'Chrome', 'Application', 'chrome.exe'));
     const unref = vi.fn();
-    childProcessMocks.spawn.mockReturnValue({ unref, on: vi.fn() } as any);
+    childProcessMocks.spawn.mockReturnValue({ unref, on: vi.fn(), stdio: [null, null, null, null, null] } as any);
 
     vi.spyOn(process, 'platform', 'get').mockReturnValue('win32');
 
@@ -288,8 +310,7 @@ describe('chrome launcher', () => {
 
     expect(result.executableKind).toBe('google-chrome');
     expect(result.args).toContain('--enable-unsafe-extension-debugging');
-    expect(result.args).toContain(`--load-extension=${path.resolve(extensionDir)}`);
-    expect(unref).toHaveBeenCalledTimes(1);
+    expect(result.args).toContain('--remote-debugging-pipe');
     expect(fs.existsSync(googleChromePath)).toBe(true);
   });
 
@@ -299,7 +320,7 @@ describe('chrome launcher', () => {
     fs.mkdirSync(extensionDir, { recursive: true });
     const googleChromePath = writeExecutable(path.join(root, 'Program Files', 'Google', 'Chrome', 'Application', 'chrome.exe'));
     const unref = vi.fn();
-    childProcessMocks.spawn.mockReturnValue({ unref, on: vi.fn() } as any);
+    childProcessMocks.spawn.mockReturnValue({ unref, on: vi.fn(), stdio: [null, null, null, null, null] } as any);
 
     vi.spyOn(process, 'platform', 'get').mockReturnValue('win32');
 
@@ -308,8 +329,6 @@ describe('chrome launcher', () => {
       executablePath: googleChromePath,
       env: { ...process.env },
     })).not.toThrow();
-
-    expect(unref).toHaveBeenCalledTimes(1);
   });
 
   it('clears stale Chromium lock files before launching Chrome', () => {
@@ -318,7 +337,7 @@ describe('chrome launcher', () => {
     fs.mkdirSync(extensionDir, { recursive: true });
     const chromePath = writeExecutable(path.join(root, 'chrome', 'chrome.exe'));
     const unref = vi.fn();
-    childProcessMocks.spawn.mockReturnValue({ unref, on: vi.fn() } as any);
+    childProcessMocks.spawn.mockReturnValue({ unref, on: vi.fn(), stdio: [null, null, null, null, null] } as any);
 
     // Launch once to create the userDataDir
     const firstLaunch = launchChromeWithExtension({
@@ -391,7 +410,7 @@ describe('chrome launcher', () => {
     const chromePath = writeExecutable(path.join(root, 'chrome', 'chrome.exe'));
     const unref = vi.fn();
     const on = vi.fn();
-    childProcessMocks.spawn.mockReturnValue({ unref, on } as any);
+    childProcessMocks.spawn.mockReturnValue({ unref, on, stdio: [null, null, null, null, null] } as any);
 
     launchChromeWithExtension({
       extensionDir,

@@ -18,8 +18,23 @@ For advanced injected rendering patterns, this section also covers Shadow Views,
 - UI-scoped and general DI services.
 - Token injection through the generated UI container.
 - `HexaUIClient` request/response messaging.
-- React bindings from `@hexajs-dev/ui/react`.
+- React or Vue bindings (project-wide), via `@hexajs-dev/ui/react` and `@hexajs-dev/ui/vue`.
 - Shadow Views for isolated Shadow DOM rendering.
+
+## Choosing a framework
+
+Set `ui.framework` in `hexa-cli.config.json` to either `"react"` (default) or `"vue"`. The choice applies to all managed surfaces (popup, devtools, newtab) and the content `@View` shadow DOM. Mixing React and Vue per surface is not supported.
+
+```json
+{
+  "ui": {
+    "framework": "vue",
+    "popup": { "mode": "managed", "sourceDir": "ui/popup", "indexFile": "index.html" }
+  }
+}
+```
+
+See [React Integration](./react-integration) and [Vue Integration](./vue-integration) for the framework-specific patterns.
 
 ## What Managed UI does not host
 

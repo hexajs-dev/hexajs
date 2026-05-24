@@ -95,7 +95,7 @@ function toExternalList(externalValue: unknown): any[] {
     return [externalValue];
 }
 
-export const getDefaultViteConfig = (sourceDir: string, targetBase: string, compilerOptions: HexaUiCompilerOptions, inputs: Record<string, string>, plugins: any[] = [], define: Record<string, string> = {}) => ({
+export const getDefaultViteConfig = (sourceDir: string, targetBase: string, compilerOptions: HexaUiCompilerOptions, inputs: Record<string, string>, plugins: any[] = [], define: Record<string, string> = {}, dedupe: string[] = ['react', 'react-dom']) => ({
     configFile: false,
     root: sourceDir,
     base: './',
@@ -105,10 +105,11 @@ export const getDefaultViteConfig = (sourceDir: string, targetBase: string, comp
     define,
     resolve: {
         alias: loadTsConfigAliases(sourceDir),
-        // Force React to resolve from the project root (walking up from sourceDir)
-        // so Rollup finds the extension's react/react-dom installation rather than
-        // trying to resolve from packages/ui/dist/** (where React is not installed).
-        dedupe: ['react', 'react-dom'],
+        // Force framework runtime libraries (e.g. react/react-dom or vue) to
+        // resolve from the project root (walking up from sourceDir) so Rollup
+        // finds the extension's installation rather than trying to resolve
+        // from packages/ui/dist/** (where they are not installed).
+        dedupe,
     },
     build: {
         outDir: targetBase,

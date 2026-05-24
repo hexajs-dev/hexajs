@@ -81,6 +81,7 @@ const sidebars: SidebarsConfig = {
         'managed-ui/devtools',
         'managed-ui/newtab',
         'managed-ui/react-integration',
+        'managed-ui/vue-integration',
         'managed-ui/shadow-views',
       ],
     },

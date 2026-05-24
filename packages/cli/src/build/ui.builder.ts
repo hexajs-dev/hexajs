@@ -12,9 +12,9 @@ import { normalizeManifestPath } from '../shared/path-utils';
 import { detectProjectPM, getAddDependencyCommand } from '../shared/package-manager';
 
 interface HexaUiModule {
-    buildManagedPopup: (config: UiSurfaceConfig | undefined, outputDir: string, compilerOptions: ResolvedBuildConfig['compilerOptions'], bootstrapPath: string, platform: string, watch?: boolean, hmrAddress?: string, hmrSessionToken?: string) => Promise<string>;
-    buildManagedDevtools: (config: UiSurfaceConfig | undefined, outputDir: string, compilerOptions: ResolvedBuildConfig['compilerOptions'], bootstrapPath: string, platform: string, watch?: boolean, hmrAddress?: string, hmrSessionToken?: string) => Promise<string>;
-    buildManagedNewtab: (config: UiSurfaceConfig | undefined, outputDir: string, compilerOptions: ResolvedBuildConfig['compilerOptions'], bootstrapPath: string, platform: string, watch?: boolean, hmrAddress?: string, hmrSessionToken?: string) => Promise<string>;
+    buildManagedPopup: (config: UiSurfaceConfig | undefined, outputDir: string, compilerOptions: ResolvedBuildConfig['compilerOptions'], bootstrapPath: string, platform: string, watch?: boolean, hmrAddress?: string, hmrSessionToken?: string, cwd?: string, framework?: 'react' | 'vue') => Promise<string>;
+    buildManagedDevtools: (config: UiSurfaceConfig | undefined, outputDir: string, compilerOptions: ResolvedBuildConfig['compilerOptions'], bootstrapPath: string, platform: string, watch?: boolean, hmrAddress?: string, hmrSessionToken?: string, cwd?: string, framework?: 'react' | 'vue') => Promise<string>;
+    buildManagedNewtab: (config: UiSurfaceConfig | undefined, outputDir: string, compilerOptions: ResolvedBuildConfig['compilerOptions'], bootstrapPath: string, platform: string, watch?: boolean, hmrAddress?: string, hmrSessionToken?: string, cwd?: string, framework?: 'react' | 'vue') => Promise<string>;
 }
 
 type ManagedUiSurface = 'popup' | 'devtools' | 'newtab';
@@ -185,6 +185,8 @@ export function buildUiBootstrap(registry: MetadataRegistry, storeOutputs: Store
 export async function buildUiEntries(resolved: ResolvedBuildConfig, outputDir: string, bootstrapPath: string, watch?: boolean, hmrAddress?: string, hmrSessionToken?: string): Promise<ManifestUiEntries> {
     const entries: ManifestUiEntries = {};
     const isWatchBuild = !!watch;
+    const cwd = process.cwd();
+    const framework = resolved.ui?.framework ?? 'react';
 
     const popupConfig = resolved.ui?.popup;
     const popupMode = popupConfig?.mode ?? 'none';
@@ -199,7 +201,7 @@ export async function buildUiEntries(resolved: ResolvedBuildConfig, outputDir: s
     if (newtabMode === 'managed') managedSurfaces.push('newtab');
 
     const hexaUi = managedSurfaces.length > 0
-        ? loadHexaUi(process.cwd(), managedSurfaces)
+        ? loadHexaUi(cwd, managedSurfaces)
         : undefined;
 
     const shouldParallelizeManagedUi = resolved.ui?.parallelBuild !== false && !isWatchBuild;
@@ -209,19 +211,19 @@ export async function buildUiEntries(resolved: ResolvedBuildConfig, outputDir: s
 
         if (popupMode === 'managed') {
             tasks.push(
-                hexaUi!.buildManagedPopup(popupConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken)
+                hexaUi!.buildManagedPopup(popupConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken, cwd, framework)
                     .then(entry => { entries.popup = entry; })
             );
         }
         if (devtoolsMode === 'managed') {
             tasks.push(
-                hexaUi!.buildManagedDevtools(devtoolsConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken)
+                hexaUi!.buildManagedDevtools(devtoolsConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken, cwd, framework)
                     .then(entry => { entries.devtools = entry; })
             );
         }
         if (newtabMode === 'managed') {
             tasks.push(
-                hexaUi!.buildManagedNewtab(newtabConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken)
+                hexaUi!.buildManagedNewtab(newtabConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken, cwd, framework)
                     .then(entry => { entries.newtab = entry; })
             );
         }
@@ -237,21 +239,21 @@ export async function buildUiEntries(resolved: ResolvedBuildConfig, outputDir: s
 
     if (popupMode === 'managed') {
         const { buildManagedPopup } = hexaUi!;
-        entries.popup = await buildManagedPopup(popupConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken);
+        entries.popup = await buildManagedPopup(popupConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken, cwd, framework);
     } else if (popupMode === 'external') {
         entries.popup = copyExternalSurface('popup', popupConfig!, outputDir);
     }
 
     if (devtoolsMode === 'managed') {
         const { buildManagedDevtools } = hexaUi!;
-        entries.devtools = await buildManagedDevtools(devtoolsConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken);
+        entries.devtools = await buildManagedDevtools(devtoolsConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken, cwd, framework);
     } else if (devtoolsMode === 'external') {
         entries.devtools = copyExternalSurface('devtools', devtoolsConfig!, outputDir);
     }
 
     if (newtabMode === 'managed') {
         const { buildManagedNewtab } = hexaUi!;
-        entries.newtab = await buildManagedNewtab(newtabConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken);
+        entries.newtab = await buildManagedNewtab(newtabConfig, outputDir, resolved.compilerOptions, bootstrapPath, resolved.platform, watch, hmrAddress, hmrSessionToken, cwd, framework);
     } else if (newtabMode === 'external') {
         entries.newtab = copyExternalSurface('newtab', newtabConfig!, outputDir);
     }

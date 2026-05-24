@@ -46,6 +46,10 @@ function mergeUiConfig(...layers: (UiConfig | undefined)[]): UiConfig {
             merged.parallelBuild = layer.parallelBuild;
         }
 
+        if (layer.framework !== undefined) {
+            merged.framework = layer.framework;
+        }
+
         if (layer.popup) {
             merged.popup = {
                 ...(merged.popup || {}),
@@ -66,6 +70,13 @@ function mergeUiConfig(...layers: (UiConfig | undefined)[]): UiConfig {
                 ...layer.newtab,
             };
         }
+    }
+
+    // Backwards compatibility: if a managed surface is selected but no
+    // framework is declared, default to 'react' so existing projects keep
+    // building unchanged.
+    if (merged.framework === undefined) {
+        merged.framework = 'react';
     }
 
     return merged;

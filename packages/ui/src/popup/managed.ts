@@ -4,7 +4,7 @@ import { build as viteBuild } from 'vite';
 import type { HexaUiCompilerOptions, HexaUiSurfaceConfig } from '../core/types';
 import { createFallbackSurface } from '../core/fallback';
 import { normalizeManifestPath } from '../core/normalize';
-import { loadReactPlugin } from '../core/react-plugin';
+import { getAdapter, type UiFrameworkName } from '../core/framework-adapter';
 import { hexaBootstrapPlugin } from '../core/vendor';
 import { getDefaultViteConfig, loadUserViteConfig, mergeViteConfigs } from '../core/config';
 
@@ -22,8 +22,9 @@ function isPathWithinRoot(rootPath: string, candidatePath: string): boolean {
 }
 
 /**
- * Build the React popup from `config.sourceDir` using an internal Vite build,
- * resolving `@vitejs/plugin-react` from the user's project.
+ * Build the managed popup from `config.sourceDir` using an internal Vite build,
+ * resolving the framework's Vite plugin (e.g. `@vitejs/plugin-react` for the
+ * React adapter, `@vitejs/plugin-vue` for the Vue adapter) from the user's project.
  * Returns the manifest-relative entry path (e.g. "ui/popup/index.html").
  */
 export async function buildManagedPopup(
@@ -35,7 +36,8 @@ export async function buildManagedPopup(
   watch: boolean = false,
   hmrAddress?: string,
   hmrSessionToken?: string,
-  cwd: string = process.cwd()
+  cwd: string = process.cwd(),
+  framework: UiFrameworkName = 'react'
 ): Promise<string> {
   const projectRoot = resolveForComparison(cwd);
   const sourceDir = path.resolve(projectRoot, config?.sourceDir ?? path.join('ui', 'popup'));
@@ -67,7 +69,8 @@ export async function buildManagedPopup(
   }
 
   const targetBase = path.join(outputDir, 'ui', 'popup');
-  const react = loadReactPlugin(cwd);
+  const adapter = getAdapter(framework);
+  const frameworkPlugin = adapter.loadVitePlugin(cwd);
   const bootstrap = hexaBootstrapPlugin(bootstrapPath, { watch, hmrAddress, hmrSessionToken, surface: 'popup' });
 
   const defaultViteConfig = getDefaultViteConfig(
@@ -75,8 +78,9 @@ export async function buildManagedPopup(
     targetBase,
     compilerOptions,
     { popup: sourceIndexReal },
-    [react, bootstrap],
-    { __HEXA_PLATFORM__: JSON.stringify(platform) }
+    [frameworkPlugin, bootstrap],
+    { __HEXA_PLATFORM__: JSON.stringify(platform) },
+    [...adapter.dedupe]
   );
   const userViteConfig = await loadUserViteConfig(sourceDirReal, watch ? 'development' : 'production') ?? {};
 

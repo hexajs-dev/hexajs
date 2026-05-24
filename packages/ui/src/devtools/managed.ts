@@ -3,7 +3,7 @@ import * as path from 'path';
 import { build as viteBuild } from 'vite';
 import type { HexaUiCompilerOptions, HexaUiSurfaceConfig } from '../core/types';
 import { createFallbackSurface } from '../core/fallback';
-import { loadReactPlugin } from '../core/react-plugin';
+import { getAdapter, type UiFrameworkName } from '../core/framework-adapter';
 import { normalizeManifestPath } from '../core/normalize';
 import { hexaBootstrapPlugin } from '../core/vendor';
 import { getDefaultViteConfig, loadUserViteConfig, mergeViteConfigs } from '../core/config';
@@ -25,7 +25,7 @@ function isPathWithinRoot(rootPath: string, candidatePath: string): boolean {
  * Build a managed devtools panel from `config.sourceDir` using an internal Vite build.
  * Returns the manifest-relative entry path (e.g. "ui/devtools/index.html").
  */
-export async function buildManagedDevtools(config: HexaUiSurfaceConfig | undefined, outputDir: string, compilerOptions: HexaUiCompilerOptions, bootstrapPath: string, platform: string, watch: boolean = false, hmrAddress?: string, hmrSessionToken?: string, cwd: string = process.cwd()): Promise<string> {
+export async function buildManagedDevtools(config: HexaUiSurfaceConfig | undefined, outputDir: string, compilerOptions: HexaUiCompilerOptions, bootstrapPath: string, platform: string, watch: boolean = false, hmrAddress?: string, hmrSessionToken?: string, cwd: string = process.cwd(), framework: UiFrameworkName = 'react'): Promise<string> {
   const projectRoot = resolveForComparison(cwd);
   const sourceDir = path.resolve(projectRoot, config?.sourceDir ?? path.join('ui', 'devtools'));
   const sourceDirReal = resolveForComparison(sourceDir);
@@ -57,11 +57,12 @@ export async function buildManagedDevtools(config: HexaUiSurfaceConfig | undefin
 
   const targetBase = path.join(outputDir, 'ui', 'devtools');
   const bridgeHtml = path.join(sourceDirReal, 'devtools.html');
-  const react = loadReactPlugin(cwd);
+  const adapter = getAdapter(framework);
+  const frameworkPlugin = adapter.loadVitePlugin(cwd);
   const bootstrap = hexaBootstrapPlugin(bootstrapPath, { watch, hmrAddress, hmrSessionToken, surface: 'devtools' });
 
   // Build both the bridge entry (devtools.html → devtools.ts) and the panel
-  // (index.html → src/main.tsx) in one Vite pass, sharing the vendor plugin.
+  // (index.html → src/main.{tsx,ts}) in one Vite pass, sharing the vendor plugin.
   const inputs: Record<string, string> = {
     panel: sourceIndexReal,
   };
@@ -69,7 +70,7 @@ export async function buildManagedDevtools(config: HexaUiSurfaceConfig | undefin
     inputs['devtools'] = bridgeHtml;
   }
 
-  const defaultViteConfig = getDefaultViteConfig(sourceDirReal, targetBase, compilerOptions, inputs, [react, bootstrap], { __HEXA_PLATFORM__: JSON.stringify(platform) });
+  const defaultViteConfig = getDefaultViteConfig(sourceDirReal, targetBase, compilerOptions, inputs, [frameworkPlugin, bootstrap], { __HEXA_PLATFORM__: JSON.stringify(platform) }, [...adapter.dedupe]);
   const userViteConfig = await loadUserViteConfig(sourceDirReal, watch ? 'development' : 'production') ?? {};
 
   await viteBuild(mergeViteConfigs(defaultViteConfig, userViteConfig));
