@@ -1,5 +1,64 @@
 # @hexajs-dev/ports
 
+## 1.0.0
+
+### Major Changes
+
+- First stable release 1.0.0
+
+  HexaJS is now production-ready. This release marks the graduation from pre-release to the first stable, supported version of the framework.
+
+  Highlights since the last alpha:
+
+  - Vue support: CLI can now scaffold Vue-managed surfaces (popup, devtools, newtab).
+  - Chrome watch mode with automatic browser launch and configuration options.
+  - Hardened communication flows and external message support.
+  - External content scripts support in manifest merging.
+  - Security and validation improvements across all packages.
+  - Improved code structure, exports, and internal dependency resolution.
+
+### Patch Changes
+
+- 9fe2660: Prepare beta prerelease with aggregated changes since previous alpha:
+
+  - Hardening and security improvements across packages.
+  - Support for external messages and hardened communication flows.
+  - License updates and housekeeping.
+  - Refactor: improved code structure and readability (code organization, exports).
+  - Fix: npm scaffolding dependency resolution with ERESOLVE install retry fallback.
+  - Support external content scripts in manifest merge and manifest handling improvements.
+  - Updated internal package linkage metadata and dependency updates across packages.
+  - Misc: release infra changes and versioning trigger adjustments.
+
+  Run the following to enter beta prerelease and apply versions:
+
+  ```bash
+  pnpm changeset pre enter beta
+  pnpm run version-packages
+  ```
+
+  Or to run non-interactive prerelease bump:
+
+  ```bash
+  pnpm changeset version --prerelease beta
+  pnpm install --lockfile-only
+  ```
+
+- 7b368fd: trigger release
+- 9501729: documentation changes. simplify first application logic, minor bug fixes
+- license
+- Support external messages and hardening communication
+- 1804e01: Hardening
+- fec6a5c: Fix npm scaffolding dependency resolution by improving internal package linkage metadata and adding an npm ERESOLVE install retry fallback in hexa new.
+- Updated dependencies [9fe2660]
+- Updated dependencies [7b368fd]
+- Updated dependencies [9501729]
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies [1804e01]
+- Updated dependencies
+  - @hexajs-dev/common@2.0.0
+
 ## 0.9.3-beta.11
 
 ### Patch Changes

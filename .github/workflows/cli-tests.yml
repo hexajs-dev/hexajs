@@ -14,6 +14,8 @@ jobs:
   package-tests:
     name: Package Tests (${{ matrix.os }}, node-${{ matrix.node }})
     runs-on: ${{ matrix.os }}
+    env:
+      HEXA_RUN_ON_DEMAND_NEW_APP_TESTS: '0'
     if: >-
       !startsWith(github.head_ref, 'changeset-release/') &&
       (
