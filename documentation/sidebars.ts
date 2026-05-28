@@ -82,7 +82,15 @@ const sidebars: SidebarsConfig = {
         'managed-ui/newtab',
         'managed-ui/react-integration',
         'managed-ui/vue-integration',
-        'managed-ui/shadow-views',
+        {
+          type: 'category',
+          label: 'Shadow Views',
+          link: { type: 'doc', id: 'managed-ui/shadow-views' },
+          items: [
+            'managed-ui/shadow-views-react',
+            'managed-ui/shadow-views-vue',
+          ],
+        },
       ],
     },
     {
