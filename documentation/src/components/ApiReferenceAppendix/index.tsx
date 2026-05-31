@@ -7,7 +7,7 @@ type ApiReferenceAppendixProps = {
 };
 
 export default function ApiReferenceAppendix({ title = 'API Reference Appendix', children }: ApiReferenceAppendixProps) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   return (
     <div className="api-reference-appendix">
