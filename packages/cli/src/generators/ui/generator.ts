@@ -70,7 +70,7 @@ export class UIGenerator {
   private generateImports(services: ServiceMetadata[], requiredPorts: string[], uiStore?: StoreScriptOutput): string {
     const imports: string[] = [
       `import { Container, setContainer, HEXA_PLATFORM } from '@hexajs-dev/common';`,
-      `import { HexaUIClient } from '@hexajs-dev/ui';`
+      `import { HexaUIClient } from '@hexajs-dev/ui/client';`
     ];
 
     if (requiredPorts.length > 0) {

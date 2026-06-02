@@ -31,6 +31,8 @@ import {
     getPlatformFirefoxCandidates,
 } from './firefox-launcher';
 
+import { assertLoopbackHost, assertLocalPort } from '../network-security.js';
+
 export interface LaunchChromeWithExtensionOptions {
     extensionDir: string;
     executablePath?: string;
@@ -367,12 +369,18 @@ export function resolveChromeDebugPort(explicitPort: number | undefined, env: No
     if (endpoint) {
         try {
             const parsed = new URL(endpoint);
+            // DT-02: validate loopback for debug endpoint
+            assertLoopbackHost(parsed.hostname, 'HEXA_CHROMIUM_DEBUG_ENDPOINT');
+            assertLocalPort(Number(parsed.port), 'HEXA_CHROMIUM_DEBUG_ENDPOINT');
+
             const parsedPort = Number(parsed.port);
             if (Number.isFinite(parsedPort) && parsedPort > 0) {
                 return parsedPort;
             }
-        } catch {
-            // Fallback to the default port.
+        } catch (e) {
+            // DT-02: warn and fall back to default if validation fails (non-loopback or invalid)
+            console.warn(`HEXA_CHROMIUM_DEBUG_ENDPOINT validation failed: ${e instanceof Error ? e.message : String(e)}. Using default port ${DEFAULT_CHROME_DEBUG_PORT}.`);
+            return DEFAULT_CHROME_DEBUG_PORT;
         }
     }
 

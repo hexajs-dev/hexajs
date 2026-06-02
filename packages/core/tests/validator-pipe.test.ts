@@ -9,6 +9,9 @@ describe('Validator Pipe Integration', () => {
   let mockTabsPort: any;
 
   beforeEach(() => {
+    // RT-01 fix: set chrome.runtime.id so identity verification works
+    (globalThis as any).chrome = { runtime: { id: 'test.extension' } };
+
     mockRuntimePort = {
       onMessage: vi.fn(),
       sendMessage: vi.fn(),
@@ -19,6 +22,13 @@ describe('Validator Pipe Integration', () => {
       broadcastMessage: vi.fn(),
     };
   });
+
+  afterEach(() => {
+    delete (globalThis as any).chrome;
+  });
+
+  // Helper to create sender with proper identity for RT-01 fix
+  const createInternalSender = () => ({ id: 'test.extension', tab: { id: 1 } });
 
   describe('ControllerContainer pipe execution', () => {
     it('should unsubscribe runtime listeners and clear handlers on destroy', () => {
@@ -76,7 +86,7 @@ describe('Validator Pipe Integration', () => {
       const sendResponse1 = vi.fn();
       onMessageCall(
         { action: 'test:action', payload: { valid: true, data: 'test' } },
-        { tab: { id: 1 } },
+        createInternalSender(),
         sendResponse1
       );
 
@@ -91,7 +101,7 @@ describe('Validator Pipe Integration', () => {
       const sendResponse2 = vi.fn();
       onMessageCall(
         { action: 'test:action', payload: { valid: false } },
-        { tab: { id: 1 } },
+        createInternalSender(),
         sendResponse2
       );
 
@@ -123,7 +133,7 @@ describe('Validator Pipe Integration', () => {
       const result = await pipeRunner.runInboundPipes({
         route: 'test:action',
         payload: { test: 'data' },
-        sender: { tab: { id: 1 } },
+        sender: createInternalSender(),
         context: 'background'
       });
 
@@ -146,7 +156,7 @@ describe('Validator Pipe Integration', () => {
       const result = await pipeRunner.runOutboundPipes({
         route: 'test:action',
         payload: { test: 'data' },
-        sender: { tab: { id: 1 } },
+        sender: createInternalSender(),
         context: 'background'
       });
 
@@ -183,7 +193,7 @@ describe('Validator Pipe Integration', () => {
 
       onMessageCall(
         { action: 'test:action', payload: { test: 'data' } },
-        { tab: { id: 1 } },
+        createInternalSender(),
         sendResponse
       );
 
@@ -219,7 +229,7 @@ describe('Validator Pipe Integration', () => {
 
       onMessageCall(
         { action: 'test:action', payload: { test: 'data' } },
-        { tab: { id: 1 } },
+        createInternalSender(),
         sendResponse
       );
 
@@ -254,7 +264,7 @@ describe('Validator Pipe Integration', () => {
 
       onMessageCall(
         { action: 'test:handle', payload: { test: 'data' } },
-        { tab: { id: 1 } },
+        createInternalSender(),
         sendResponse
       );
 
@@ -289,7 +299,7 @@ describe('Validator Pipe Integration', () => {
 
       const keepOpen = onMessageCall(
         { event: 'test:event', payload: { id: 7 } },
-        { tab: { id: 1 } },
+        createInternalSender(),
         sendResponse
       );
 
@@ -297,8 +307,8 @@ describe('Validator Pipe Integration', () => {
 
       await new Promise(resolve => setTimeout(resolve, 10));
 
-      expect(firstHandler).toHaveBeenCalledWith({ id: 7, validated: true }, { tab: { id: 1 } });
-      expect(secondHandler).toHaveBeenCalledWith({ id: 7, validated: true }, { tab: { id: 1 } });
+      expect(firstHandler).toHaveBeenCalledWith({ id: 7, validated: true }, createInternalSender());
+      expect(secondHandler).toHaveBeenCalledWith({ id: 7, validated: true }, createInternalSender());
       expect(sendResponse).not.toHaveBeenCalled();
     });
 
@@ -324,7 +334,7 @@ describe('Validator Pipe Integration', () => {
 
       onMessageCall(
         { event: 'test:event', payload: {} },
-        { tab: { id: 1 } },
+        createInternalSender(),
         sendResponse
       );
 
@@ -349,7 +359,7 @@ describe('Validator Pipe Integration', () => {
 
       onMessageCall(
         { action: 'test:action', payload: { id: 1 } },
-        { tab: { id: 1 } },
+        createInternalSender(),
         sendResponse
       );
 

@@ -47,6 +47,7 @@ export default defineConfig({
         browser: resolve(__dirname, 'src/services/index.ts'),
         react: resolve(__dirname, 'src/services/react.ts'),
         vue: resolve(__dirname, 'src/services/vue.ts'),
+        client: resolve(__dirname, 'src/services/client.ts'),
       },
       formats: ['es', 'cjs'],
       fileName: (format, entryName) =>

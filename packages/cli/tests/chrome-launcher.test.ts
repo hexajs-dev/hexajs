@@ -141,6 +141,21 @@ describe('chrome launcher', () => {
     expect(port).toBe(9333);
   });
 
+  it('falls back to default port for non-loopback HEXA_CHROMIUM_DEBUG_ENDPOINT', () => {
+    const port = resolveChromeDebugPort(undefined, { ...process.env, HEXA_CHROMIUM_DEBUG_ENDPOINT: 'http://192.168.1.100:9333' });
+    expect(port).toBe(9222);
+  });
+
+  it('falls back to default port for invalid endpoint URL', () => {
+    const port = resolveChromeDebugPort(undefined, { ...process.env, HEXA_CHROMIUM_DEBUG_ENDPOINT: 'not-a-url' });
+    expect(port).toBe(9222);
+  });
+
+  it('falls back to default port for endpoint with invalid port', () => {
+    const port = resolveChromeDebugPort(undefined, { ...process.env, HEXA_CHROMIUM_DEBUG_ENDPOINT: 'http://127.0.0.1:99999' });
+    expect(port).toBe(9222);
+  });
+
   it('builds required Chrome extension flags', () => {
     const extensionDir = path.join('project', 'dist', 'chrome', 'development');
     const userDataDir = path.join('tmp', 'chrome-profile');
