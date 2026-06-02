@@ -75,7 +75,8 @@ export class ContentViewGenerator {
     const renderer = this.shadowRenderer.exportName;
 
     views.forEach(view => {
-      const anchorArg = view.anchorSelector ? `'${view.anchorSelector}'` : `'body'`;
+      // SC-02: use JSON.stringify to safely escape metadata values
+      const anchorArg = view.anchorSelector ? JSON.stringify(view.anchorSelector) : "'body'";
       const stylesArg = view.stylesImportPath ? `${view.className}__Styles` : `undefined`;
       const deps = buildDependencyArgs(view);
 
@@ -83,7 +84,7 @@ export class ContentViewGenerator {
         registrations.push(`  container.register(${view.className}, (c) => {`);
         registrations.push(`    const instance = new ${view.className}(${deps});`);
         registrations.push(`    instance.viewRef = new ViewRef(instance, () => ${renderer}.mount({`);
-        registrations.push(`      id: '${view.id}',`);
+        registrations.push(`      id: ${JSON.stringify(view.id)},`);
         registrations.push(`      component: ${view.className}__Component,`);
         registrations.push(`      controllerInstance: instance,`);
         registrations.push(`      cssText: ${stylesArg},`);
@@ -97,7 +98,7 @@ export class ContentViewGenerator {
         registrations.push(`  container.register('__hexa_view_ref__${view.className}', (c) => {`);
         registrations.push(`    const instance = c.resolve(${view.className});`);
         registrations.push(`    return new ViewRef(instance, () => ${renderer}.mount({`);
-        registrations.push(`      id: '${view.id}',`);
+        registrations.push(`      id: ${JSON.stringify(view.id)},`);
         registrations.push(`      component: ${view.className}__Component,`);
         registrations.push(`      controllerInstance: instance,`);
         registrations.push(`      cssText: ${stylesArg},`);

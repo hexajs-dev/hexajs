@@ -1,4 +1,5 @@
 import { WebSocket } from 'ws';
+import { assertLoopbackHost, assertLocalPort } from '../shared/network-security.js';
 
 interface ChromeTarget {
     id: string;
@@ -18,8 +19,40 @@ export class ChromiumCdpInjector {
     private extensionId?: string;
 
     constructor(options: ChromiumCdpInjectorOptions = {}) {
-        this.endpoint = (options.endpoint ?? process.env.HEXA_CHROMIUM_DEBUG_ENDPOINT ?? 'http://127.0.0.1:9222').replace(/\/+$/, '');
+        const rawEndpoint = options.endpoint ?? process.env.HEXA_CHROMIUM_DEBUG_ENDPOINT ?? 'http://127.0.0.1:9222';
+        this.endpoint = this.validateEndpoint(rawEndpoint.replace(/\/+$/, ''));
         this.extensionId = options.extensionId ?? process.env.HEXA_CHROMIUM_EXTENSION_ID;
+    }
+
+    private validateEndpoint(endpoint: string): string {
+        // DT-02: validate CDP endpoint is loopback-only
+        let url: URL;
+        try {
+            // Add protocol if missing for URL parsing
+            const withProtocol = endpoint.includes('://') ? endpoint : `http://${endpoint}`;
+            url = new URL(withProtocol);
+        } catch {
+            throw new Error(`Invalid CDP endpoint URL: "${endpoint}". Expected format: http://127.0.0.1:9222`);
+        }
+
+        assertLoopbackHost(url.hostname, 'Chromium CDP endpoint');
+        assertLocalPort(Number(url.port), 'Chromium CDP endpoint');
+
+        // Reject credentials, non-root paths, queries, fragments
+        if (url.username || url.password) {
+            throw new Error(`Chromium CDP endpoint must not include credentials. Received "${endpoint}".`);
+        }
+        if (url.pathname && url.pathname !== '/') {
+            throw new Error(`Chromium CDP endpoint must not include a path. Received "${endpoint}".`);
+        }
+        if (url.search) {
+            throw new Error(`Chromium CDP endpoint must not include query string. Received "${endpoint}".`);
+        }
+        if (url.hash) {
+            throw new Error(`Chromium CDP endpoint must not include fragment. Received "${endpoint}".`);
+        }
+
+        return `${url.protocol}//${url.host}`;
     }
 
     public async injectScript(scriptSource: string): Promise<void> {

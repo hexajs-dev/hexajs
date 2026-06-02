@@ -68,19 +68,24 @@ function resolveSenderOrigin(sender: unknown): string | undefined {
   return normalized.length > 0 ? normalized : undefined;
 }
 
-function isInternalSender(senderId: string | undefined, channel: MessageChannel): boolean {
-  const runtimeId = resolveRuntimeId();
-  if (senderId && runtimeId) {
-    return senderId === runtimeId;
+function isInternalSender(senderId: string | undefined): boolean {
+  // Fail closed: if we can't verify identity, don't assume internal
+  if (!senderId) {
+    return false;
   }
 
-  return channel === 'internal';
+  const runtimeId = resolveRuntimeId();
+  if (!runtimeId) {
+    return false;
+  }
+
+  return senderId === runtimeId;
 }
 
 export function evaluateMessageBoundaryPolicy(policy: Readonly<HexaMessageBoundaryPolicy>, sender: unknown, channel: MessageChannel): BoundaryEvaluationResult {
   const senderId = resolveSenderId(sender);
   const senderOrigin = resolveSenderOrigin(sender);
-  const internal = isInternalSender(senderId, channel);
+  const internal = isInternalSender(senderId);
 
   if (internal) {
     return { allowed: true, internal, senderId, senderOrigin };
@@ -92,8 +97,9 @@ export function evaluateMessageBoundaryPolicy(policy: Readonly<HexaMessageBounda
 
   const ids = policy.ids ?? [];
   const origins = policy.origins ?? [];
+  // RT-02: fail closed on empty external allow-list instead of wildcard allow
   if (ids.length === 0 && origins.length === 0) {
-    return { allowed: true, internal: false, senderId, senderOrigin };
+    return { allowed: false, internal: false, senderId, senderOrigin };
   }
 
   const idAllowed = senderId ? ids.includes(senderId) : false;

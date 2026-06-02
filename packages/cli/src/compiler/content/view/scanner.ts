@@ -95,6 +95,14 @@ export class ViewScanner {
       throw new Error('@View: "id" must be a string.');
     }
 
+    // SC-02: validate id is alphanumeric with optional hyphens/underscores, starts with letter
+    if (!/^[a-zA-Z][\w-]*$/.test(id)) {
+      throw new Error(`@View: "id" must start with a letter and contain only alphanumeric characters, hyphens, or underscores. Received: "${id}".`);
+    }
+    if (id.length > 64) {
+      throw new Error('@View: "id" must be 64 characters or less.');
+    }
+
     if (!componentProp) {
       throw new Error('@View: "component" is required.');
     }
@@ -121,6 +129,18 @@ export class ViewScanner {
     const anchorSelector = anchorProp ? extractProp(this.checker, anchorProp) : undefined;
     if (anchorSelector !== undefined && typeof anchorSelector !== 'string') {
       throw new Error('@View: "anchorSelector" must be a string.');
+    }
+
+    // SC-02: validate anchorSelector is a safe CSS selector
+    if (anchorSelector) {
+      if (anchorSelector.length > 256) {
+        throw new Error('@View: "anchorSelector" must be 256 characters or less.');
+      }
+      // Basic validation: avoid selectors that could be exploited
+      // Reject url(), attr(), calc(), var(), and expression()
+      if (/\b(url|attr|calc|var|expression)\s*\(/i.test(anchorSelector)) {
+        throw new Error('@View: "anchorSelector" contains unsafe CSS functions.');
+      }
     }
 
     return {

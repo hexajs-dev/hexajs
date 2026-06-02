@@ -58,6 +58,118 @@ afterEach(() => {
 });
 
 describe('ViewScanner security', () => {
+  // SC-02: id validation tests
+  it('rejects id starting with non-letter', () => {
+    const rootDir = createFixture({
+      'src/view.ts': [
+        "import { MyComponent } from './component';",
+        'function View(opts: any): ClassDecorator { return (t) => t; }',
+        "@View({ id: '123-invalid', component: MyComponent })",
+        'class BadIdView {}',
+      ].join('\n'),
+      'src/component.ts': 'export const MyComponent = {};',
+    });
+
+    const run = scanFirstClass(rootDir, 'src/view.ts');
+    expect(run).toThrow(/must start with a letter/);
+  });
+
+  it('rejects id containing quotes or special characters', () => {
+    const rootDir = createFixture({
+      'src/view.ts': [
+        "import { MyComponent } from './component';",
+        'function View(opts: any): ClassDecorator { return (t) => t; }',
+        "@View({ id: \"'; alert(1)//\", component: MyComponent })",
+        'class InjectionView {}',
+      ].join('\n'),
+      'src/component.ts': 'export const MyComponent = {};',
+    });
+
+    const run = scanFirstClass(rootDir, 'src/view.ts');
+    expect(run).toThrow(/must start with a letter/);
+  });
+
+  it('rejects id longer than 64 characters', () => {
+    const rootDir = createFixture({
+      'src/view.ts': [
+        "import { MyComponent } from './component';",
+        'function View(opts: any): ClassDecorator { return (t) => t; }',
+        '@View({ id: \'' + 'a'.repeat(65) + '\', component: MyComponent })',
+        'class LongIdView {}',
+      ].join('\n'),
+      'src/component.ts': 'export const MyComponent = {};',
+    });
+
+    const run = scanFirstClass(rootDir, 'src/view.ts');
+    expect(run).toThrow(/must be 64 characters or less/);
+  });
+
+  // SC-02: anchorSelector validation tests
+  it('rejects anchorSelector longer than 256 characters', () => {
+    const rootDir = createFixture({
+      'src/view.ts': [
+        "import { MyComponent } from './component';",
+        'function View(opts: any): ClassDecorator { return (t) => t; }',
+        '@View({ id: \'myview\', component: MyComponent, anchorSelector: \'' + '#'.repeat(257) + '\' })',
+        'class LongAnchorView {}',
+      ].join('\n'),
+      'src/component.ts': 'export const MyComponent = {};',
+    });
+
+    const run = scanFirstClass(rootDir, 'src/view.ts');
+    expect(run).toThrow(/must be 256 characters or less/);
+  });
+
+  it('rejects anchorSelector with unsafe url() CSS function', () => {
+    const rootDir = createFixture({
+      'src/view.ts': [
+        "import { MyComponent } from './component';",
+        'function View(opts: any): ClassDecorator { return (t) => t; }',
+        "@View({ id: 'myview', component: MyComponent, anchorSelector: 'body { background: url(https://evil.com/track)' })",
+        'class UnsafeAnchorView {}',
+      ].join('\n'),
+      'src/component.ts': 'export const MyComponent = {};',
+    });
+
+    const run = scanFirstClass(rootDir, 'src/view.ts');
+    expect(run).toThrow(/contains unsafe CSS functions/);
+  });
+
+  it('rejects anchorSelector with expression() CSS function', () => {
+    const rootDir = createFixture({
+      'src/view.ts': [
+        "import { MyComponent } from './component';",
+        'function View(opts: any): ClassDecorator { return (t) => t; }',
+        "@View({ id: 'myview', component: MyComponent, anchorSelector: 'body { color: expression(alert(1))' })",
+        'class ExprAnchorView {}',
+      ].join('\n'),
+      'src/component.ts': 'export const MyComponent = {};',
+    });
+
+    const run = scanFirstClass(rootDir, 'src/view.ts');
+    expect(run).toThrow(/contains unsafe CSS functions/);
+  });
+
+  it('accepts valid id and anchorSelector', () => {
+    const rootDir = createFixture({
+      'src/component.ts': 'export const MyComponent = {};',
+      'src/view.ts': [
+        "import { MyComponent } from './component';",
+        'function View(opts: any): ClassDecorator { return (t) => t; }',
+        "@View({ id: 'my-view', component: MyComponent, anchorSelector: '#container' })",
+        'class ValidView {}',
+      ].join('\n'),
+    });
+
+    const run = scanFirstClass(rootDir, 'src/view.ts');
+    expect(run).not.toThrow();
+    const metadata = run();
+    expect(metadata).not.toBeNull();
+    expect(metadata?.id).toBe('my-view');
+    expect(metadata?.anchorSelector).toBe('#container');
+  });
+
+  // Existing import path tests
   it('rejects relative paths that escape the project root', () => {
     const rootDir = createFixture({
       'src/view.ts': [

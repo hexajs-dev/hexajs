@@ -80,7 +80,8 @@ describe('message boundary policy enforcement', () => {
     const container = new ControllerContainer(runtime.runtimePort as any);
     const handler = vi.fn((payload: any) => ({ ok: true, payload }));
 
-    container.registerUnicast('security:ping', handler, allowExternalPolicy());
+    // RT-02 fix: empty allow-external now denies by default; use explicit ids/origins
+    container.registerUnicast('security:ping', handler, allowExternalPolicy({ ids: ['external.extension'], origins: ['https://client.example'] }));
 
     const sendResponse = vi.fn();
     runtime.getExternalListener()?.(
