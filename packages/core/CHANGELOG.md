@@ -1,5 +1,12 @@
 # @hexajs-dev/core
 
+## 1.0.1
+
+### Patch Changes
+
+- @hexajs-dev/common@1.0.1
+- @hexajs-dev/ports@1.0.1
+
 ## 1.0.0
 
 ### Major Changes

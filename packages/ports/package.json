@@ -1,6 +1,6 @@
 {
   "name": "@hexajs-dev/ports",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "description": "HexaJS platform ports for background/content/ui contexts",
   "homepage": "https://hexajs.dev",
