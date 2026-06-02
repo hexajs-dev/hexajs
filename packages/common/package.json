@@ -1,6 +1,6 @@
 {
   "name": "@hexajs-dev/common",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "description": "Shared DI container, decorators, and tokens for HexaJS",
   "homepage": "https://hexajs.dev",
