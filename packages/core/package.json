@@ -1,6 +1,6 @@
 {
   "name": "@hexajs-dev/core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "license": "MIT",
   "description": "Core contracts, decorators, and services for HexaJS",
   "homepage": "https://hexajs.dev",
