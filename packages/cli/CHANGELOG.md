@@ -1,5 +1,12 @@
 # @hexajs-dev/cli
 
+## 1.0.3
+
+### Patch Changes
+
+- 54a7cb7: Refactor async initialization methods from initAsync to initState across reducers and documentation
+  - @hexajs-dev/common@1.0.3
+
 ## 1.0.2
 
 ### Patch Changes
