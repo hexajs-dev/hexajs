@@ -14,7 +14,7 @@ export interface StoreScriptOutput {
   /** List of reducer features included in this store */
   features: string[];
 
-  /** Whether any reducer in this store uses initAsync */
+  /** Whether any reducer in this store uses async initState */
   hasAsyncReducers: boolean;
 }
 
@@ -43,7 +43,7 @@ export class StoreGenerator {
    */
   private generateStoreFile(state: StateMetadata): StoreScriptOutput {
     const features = Object.keys(state.state);
-    const hasAsyncReducers = Object.values(state.state).some(r => r.hasInitAsync);
+    const hasAsyncReducers = Object.values(state.state).some(r => r.hasInitState && r.isAsyncInitState);
     const imports = this.generateImports(state);
     const reducerCreations = this.generateReducerCreations(state);
     const storeCreation = this.generateStoreCreation(state);
@@ -101,8 +101,10 @@ export class StoreGenerator {
     const initialStateName = `${featureName}InitialState`;
     const reducerVarName = `${featureName}Reducer`;
 
-    const initLine = reducer.hasInitAsync
-      ? `const ${initialStateName} = await ${instanceName}.initAsync();`
+    const initLine = reducer.hasInitState
+      ? (reducer.isAsyncInitState
+        ? `const ${initialStateName} = await ${instanceName}.initState();`
+        : `const ${initialStateName} = ${instanceName}.initState();`)
       : `const ${initialStateName} = ${instanceName}.initialState;`;
 
     const lines: string[] = [

@@ -68,7 +68,7 @@ Content `@View` shadow overlays follow the same project-wide `ui.framework` choi
 **Background**
 - `@Controller` + `@Action` — typed unicast request/response endpoints
 - `@On` — fire-and-forget multicast events
-- `HexaBackgroundStore` — context-owned state with reducers, effects, and `initAsync`
+- `HexaBackgroundStore` — context-owned state with reducers, effects, and `initState`
 - `@Worker` — isolated CPU/DOM workers with streaming progress events
 
 **Content**

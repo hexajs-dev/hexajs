@@ -50,9 +50,9 @@ export class LastContentCallReducer extends HexaReducer<LastContentCallState> {
 - Keep reducer methods deterministic and side-effect free.
 - Perform logging/IO in services/controllers/handlers, not reducers.
 
-## Async initial state with initAsync
+## Async initial state with initState
 
-`initialState` is synchronous. When a slice needs to start from persisted or asynchronous data — storage, a token, a remote value — override `initAsync` instead.
+`initialState` is synchronous. When a slice needs to start from persisted or asynchronous data — storage, a token, a remote value — override `initState` instead.
 
 ```ts
 import { HexaReducer, Reduce, Reducer } from '@hexajs-dev/core';
@@ -64,7 +64,7 @@ import * as Actions from './background.actions';
 export class ClipsReducer extends HexaReducer<ClipItem[]> {
   initialState: ClipItem[] = [];
 
-  async initAsync(): Promise<ClipItem[]> {
+  async initState(): Promise<ClipItem[]> {
     const result = await inject(StoragePort).get('local', 'clips');
     const stored = result['clips'];
     return Array.isArray(stored) ? stored : [];
@@ -79,12 +79,13 @@ export class ClipsReducer extends HexaReducer<ClipItem[]> {
 
 How it works:
 
-- The generated bootstrap calls `initAsync()` on every reducer that defines it, before the context starts handling any messages.
+- The generated bootstrap calls `initState()` on every reducer that defines it, before the context starts handling any messages.
 - The resolved value replaces `initialState` for that slice.
-- `inject(...)` is safe inside `initAsync` because the DI container is fully initialized before bootstrap calls it.
-- If `initAsync` is not defined, `initialState` is used as-is.
+- `inject(...)` is safe inside `initState` because the DI container is fully initialized before bootstrap calls it.
+- If `initState` is not defined, `initialState` is used as-is.
+- If `initState` returns a plain value (sync), the generated code uses it directly. If it returns a `Promise` (or uses the `async` keyword), the generated code awaits it.
 
-Use `initAsync` whenever a slice's starting value depends on anything that can't be evaluated synchronously at class definition time. Common cases: loading from `StoragePort`, reading a token, or fetching a remote default.
+Use `initState` whenever a slice's starting value depends on anything that can't be evaluated synchronously at class definition time. Common cases: loading from `StoragePort`, reading a token, or fetching a remote default.
 
 ## CLI and compiler behavior
 

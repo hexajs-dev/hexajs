@@ -16,7 +16,7 @@ export class ConfigReducer extends HexaReducer<ClipVaultConfig> {
     return { ...action.payload.config };
   }
 
-  async initAsync(): Promise<ClipVaultConfig> {
+  async initState(): Promise<ClipVaultConfig> {
     // Simulate async config loading (e.g. from storage) during reducer initialization
     return new Promise(resolve => {
       setTimeout(() => {
