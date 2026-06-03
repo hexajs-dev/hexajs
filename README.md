@@ -20,44 +20,82 @@
 	<img src="./documentation/static/img/city-background.jpg" alt="HexaJS architecture city" />
 </p>
 
-HexaJS is a TypeScript-first framework for browser extension backends with a structured architecture for background, content, and state.
+HexaJS is a TypeScript-first framework for building browser extensions as real applications — with structured architecture, a full AOT build pipeline, and a first-class developer experience across all major browsers.
+
+---
 
 ## What Makes HexaJS Different
 
-- Browser-agnostic architecture with typed messaging across UI, content, and background.
-- AOT-first build pipeline that discovers routes and generates context-ready artifacts before runtime.
-- Controller-based calls with explicit namespace/action routing.
-- Built-in state management for background and content contexts.
-- Full HMR developer experience, including live behavior for background and content flows.
+| | |
+|---|---|
+| 🧩 **Structured architecture** | Controller/handler/service model with context-aware DI across background, content, and UI |
+| 🔀 **Browser-agnostic** | Typed messaging and a ports layer eliminate browser-specific glue code |
+| ⚡ **AOT-first build** | Discovers routes, validates context boundaries, and generates bootstraps before runtime |
+| 🗃️ **State management** | Reducer/effect/store model for background and content contexts with RxJS selectors |
+| 🎨 **Managed UI** | Popup, devtools, and newtab with React or Vue 3 — built and hot-reloaded by Hexa |
+| 🔥 **Real HMR** | Live updates across UI, content, and background without losing extension state |
+
+---
 
 ## Platform Support
 
-- Manifest V3 (MV3) is fully supported.
-- Manifest V2 (MV2) is not supported.
+- ✅ **Manifest V3** — fully supported across Chrome, Firefox, Edge, Brave, Opera, and Safari
+- ❌ **Manifest V2** — not supported
+
+---
 
 ## UI Modes
 
-- Managed popup (`ui.popup.mode = "managed"`): Hexa builds your popup source (default `ui/popup`) using the internal Vite pipeline. Choose **React** or **Vue 3** project-wide via `ui.framework`.
-- External popup (`ui.popup.mode = "external"`): Use any UI framework with your own build pipeline. Hexa copies built assets into the extension, but UI HMR is not managed by Hexa in this mode.
-- Devtools and newtab remain optional (`ui.devtools.mode`, `ui.newtab.mode = "none" | "managed" | "external"`).
-- Content `@View` shadow overlays follow the same project-wide `ui.framework` choice.
+Hexa builds managed UI surfaces (popup, devtools, newtab) using its internal Vite pipeline. Choose your framework project-wide via `ui.framework`:
+
+```json
+{ "ui": { "framework": "react" } }
+{ "ui": { "framework": "vue" } }
+```
+
+| Mode | Description |
+|---|---|
+| `"managed"` | Hexa builds and HMR-reloads your source. Supports **React** and **Vue 3**. |
+| `"external"` | Use your own build pipeline. Hexa copies built assets into the extension. |
+| `"none"` | Surface disabled. |
+
+Content `@View` shadow overlays follow the same project-wide `ui.framework` choice.
+
+---
 
 ## Core Capabilities
 
-- Browser-agnostic messaging: typed routes and ports reduce browser-specific glue code.
-- Controller architecture: `@Controller` and `@Action` define clean background entry points.
-- State management: reducer/effect/store model with reactive patterns for extension contexts.
-- AOT build: compile-time metadata scan, route validation generation, and context-aware outputs.
+**Background**
+- `@Controller` + `@Action` — typed unicast request/response endpoints
+- `@On` — fire-and-forget multicast events
+- `HexaBackgroundStore` — context-owned state with reducers, effects, and `initAsync`
+- `@Worker` — isolated CPU/DOM workers with streaming progress events
+
+**Content**
+- `@Handler` + `@Handle` — receive typed messages from background
+- `@Subscribe` — listen to multicast broadcasts
+- `HexaContentStore` — per-page state store with the same reducer/effect model
+- `@View` — inject React or Vue components into shadow DOM overlays
+
+**General**
+- Ports (`@hexajs-dev/ports`) — platform-normalized wrappers for every browser API
+- Dependency injection — context-scoped, AOT-validated, lifecycle-aware
+- Tokens — injectable config values with per-environment and per-platform overrides
+- Validation pipes — AOT-generated DTO validators on every routed message boundary
+
+---
 
 ## HMR That Matters
 
-HexaJS provides a first-in-world extension workflow for practical live development across runtime contexts, including background/content lifecycle-aware updates.
+| Context | Chrome | Firefox | Safari |
+|---|---|---|---|
+| UI | ✅ Full HMR | ✅ Full HMR | ✅ Full HMR |
+| Content | ✅ Full HMR | ✅ Full HMR | ✅ Full HMR |
+| Background | ⚡ Debug patch | ✅ Full HMR | 🔄 Reload fallback |
 
-- UI: full HMR in managed mode.
-- Content: full HMR.
-- Background: platform-specific live behavior with patch/reload fallback strategy.
+See the full behavior table in [HMR docs](https://hexajs.dev/docs/cli-tooling/hmr).
 
-See the complete matrix and behavior table in [HMR docs](https://hexajs.dev/docs/cli-tooling/hmr).
+---
 
 ## Quick Start
 
@@ -69,35 +107,51 @@ pnpm install
 hexa build --platform chrome
 ```
 
-Start development with watch mode:
+Development with watch mode:
 
 ```bash
 hexa build --platform chrome --mode development --watch
 ```
 
-## Documentation Map
+---
 
-- [Getting Started](https://hexajs.dev/docs/getting-started)
-- [Core Fundamentals](https://hexajs.dev/docs/core-fundamentals)
-- [Browser-Agnostic Messaging](https://hexajs.dev/docs/browser-agnostic-messaging)
-- [State Management](https://hexajs.dev/docs/state-management)
-- [Managed UI](https://hexajs.dev/docs/managed-ui)
-- [CLI Tooling](https://hexajs.dev/docs/cli-tooling)
-- [API Reference](https://hexajs.dev/docs/api-reference)
+## Documentation
+
+| Section | Description |
+|---|---|
+| [Getting Started](https://hexajs.dev/docs/getting-started) | Installation, first steps, scaffold |
+| [Core Fundamentals](https://hexajs.dev/docs/core-fundamentals) | DI, controllers, handlers, tokens, workers, validation |
+| [State Management](https://hexajs.dev/docs/state-management) | Store, actions, reducers, effects, RxJS selectors |
+| [Managed UI](https://hexajs.dev/docs/managed-ui) | Popup, devtools, newtab, React & Vue integration, shadow views |
+| [Browser-Agnostic Messaging](https://hexajs.dev/docs/browser-agnostic-messaging) | Ports, bridged routing, custom ports |
+| [CLI & Tooling](https://hexajs.dev/docs/cli-tooling) | Build output, pipeline, manifest patching, HMR |
+| [Advanced Techniques](https://hexajs.dev/docs/advanced-techniques) | Cross-context state sync, worker streaming, typed contracts, environment config |
+| [API Reference](https://hexajs.dev/docs/api-reference) | All ports — background, content, UI, general |
+
+---
 
 ## Examples
 
-- Managed popup/devtools-none config: [Managed popup reference model](https://hexajs.dev/docs/reference-models/ui/popup/managed)
-- External React popup config: [External popup reference model](https://hexajs.dev/docs/reference-models/ui/popup/external)
-- Full example projects: [Build your first extension](https://hexajs.dev/docs/build-your-first-extension)
+Full source at **[github.com/hexajs-dev/examples](https://github.com/hexajs-dev/examples)**
+
+| Example | Framework | Platforms | Highlights |
+|---|---|---|---|
+| [hexa-grayscale](https://github.com/hexajs-dev/examples/tree/main/hexa-grayscale) | React | Chrome · Firefox · Safari · Edge | Minimal starter — content script, background controller, managed popup |
+| [hexa-grayscale-vue](https://github.com/hexajs-dev/examples/tree/main/hexa-grayscale-vue) | Vue 3 | Chrome · Firefox · Safari · Edge · Opera · Brave | Same as above with `ui.framework: "vue"` |
+| [clip-volt](https://github.com/hexajs-dev/examples/tree/main/clip-volt) | React | Chrome · Firefox · Safari · Edge · Opera · Brave | Clipboard manager — cross-context state sync, content store + effects, shadow overlay, devtools panel |
+| [smart-clipper](https://github.com/hexajs-dev/examples/tree/main/smart-clipper) | React | Chrome · Firefox · Safari · Edge · Opera · Brave | Screen capture + OCR — DOM worker, streaming progress events, validated DTO contracts, devtools diagnostics |
+
+---
 
 ## Report Policy
 
 Please use the structured templates so reports are reproducible, actionable, and easy to triage.
 
-- Bug report: [New bug report](https://github.com/hexajs-dev/hexajs/issues/new?template=bug_report.yml)
-- Feature suggestion: [New feature suggestion](https://github.com/hexajs-dev/hexajs/issues/new?template=feature_suggestion.yml)
+- 🐛 [New bug report](https://github.com/hexajs-dev/hexajs/issues/new?template=bug_report.yml)
+- 💡 [New feature suggestion](https://github.com/hexajs-dev/hexajs/issues/new?template=feature_suggestion.yml)
+
+---
 
 ## License
 
-MIT License. See [LICENSE.md](LICENSE.md).
+MIT — see [LICENSE.md](LICENSE.md).

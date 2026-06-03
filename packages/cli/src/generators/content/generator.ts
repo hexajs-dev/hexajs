@@ -10,6 +10,7 @@ import { buildDependencyArgs, extractTokensForContext, generateTokenRegistration
 import { ContentHandlerGenerator } from './handler/generator';
 import { ContentViewGenerator } from './view/generator';
 import { ContentLifecycleGenerator } from './lifecycle/generator';
+import { printWarningLine } from '../../shared/logging';
 
 export interface ContentScriptOutput {
   /** The generated bootstrap file content */
@@ -75,6 +76,15 @@ export class ContentGenerator {
     // Group content entries by their injection configuration
     const groups = this.groupContentEntries(contentEntries);
     const snapshot = this.createGenerationSnapshot();
+
+    // Warn if document_start content scripts use async store initialization
+    if (snapshot.contentStore?.hasAsyncReducers) {
+      const docStartEntries = contentEntries.filter(e => e.options.runAt === ContentRunAt.DocumentStart);
+      if (docStartEntries.length > 0) {
+        const names = docStartEntries.map(e => e.className).join(', ');
+        printWarningLine(`Content script(s) [${names}] use document_start with async store initialization (initAsync). The store will not be available until the async initialization completes.`);
+      }
+    }
 
     // Generate a bootstrap file for each group
     return Array.from(groups.entries()).map(([key, entries]) => {
@@ -153,7 +163,9 @@ export class ContentGenerator {
       contentInits,
       lifecycleBootstrap,
       effectSubscriptions,
-      bundleName
+      bundleName,
+      hasStore: !!contentStore,
+      hasAsyncStore: !!contentStore?.hasAsyncReducers
     });
   }
 
@@ -278,7 +290,11 @@ export class ContentGenerator {
     // Import store class if it exists
     if (contentStore) {
       imports.push(`import { HexaContentStore, ActionsSubject, Actions, subscribeEffects } from '@hexajs-dev/core';`);
-      imports.push(`import { ${toLowerFirst(contentStore.context)}Store, actionsSubject } from './${contentStore.context.toLowerCase()}.store';`);
+      if (contentStore.hasAsyncReducers) {
+        imports.push(`import { initContentStore } from './${contentStore.context.toLowerCase()}.store';`);
+      } else {
+        imports.push(`import { ${toLowerFirst(contentStore.context)}Store, actionsSubject } from './${contentStore.context.toLowerCase()}.store';`);
+      }
     }
 
     // Import services
@@ -322,11 +338,12 @@ export class ContentGenerator {
 
     // Register store if it exists
     if (contentStore) {
-      const storeVarName = toLowerFirst(contentStore.context) + 'Store';
+      const storeRef = contentStore.hasAsyncReducers ? `__storeResult__.${toLowerFirst(contentStore.context)}Store` : `${toLowerFirst(contentStore.context)}Store`;
+      const actionsRef = contentStore.hasAsyncReducers ? `__storeResult__.actionsSubject` : `actionsSubject`;
       registrations.push(`  // Register store and actions stream`);
-      registrations.push(`  container.register(HexaContentStore, (c) => ${storeVarName});`);
-      registrations.push(`  container.register(ActionsSubject, () => actionsSubject);`);
-      registrations.push(`  container.register(Actions, () => new Actions(actionsSubject));`);
+      registrations.push(`  container.register(HexaContentStore, (c) => ${storeRef});`);
+      registrations.push(`  container.register(ActionsSubject, () => ${actionsRef});`);
+      registrations.push(`  container.register(Actions, () => new Actions(${actionsRef}));`);
       registrations.push(``);
     }
 
@@ -396,7 +413,13 @@ export class ContentGenerator {
     lifecycleBootstrap: string;
     effectSubscriptions: string;
     bundleName: string;
+    hasStore: boolean;
+    hasAsyncStore: boolean;
   }): string {
+    const storeInit = parts.hasAsyncStore ? `const __storeResult__ = await initContentStore();\n` : '';
+    const wrapStart = parts.hasAsyncStore ? '(async () => {\n' : '';
+    const wrapEnd = parts.hasAsyncStore ? '\n})();' : '';
+
     if (this.watch) {
       // HMR-aware dual-mode bootstrap
       return `/** 
@@ -406,12 +429,13 @@ export class ContentGenerator {
 
 ${parts.imports}
 
+${wrapStart}${storeInit}
 // Check for existing shell (HMR path)
 const __HEXA_SHELL_KEY__ = ${JSON.stringify(`__HEXA_SHELL__:${parts.bundleName}`)};
 const __existingShell__ = window[__HEXA_SHELL_KEY__];
 
 // Initialize DI Container
-export const container = new Container();
+const container = new Container();
 setContainer(container);
 
 function setupDependencies() {
@@ -494,6 +518,7 @@ ${parts.effectSubscriptions ? `  effectSubs,` : ''}
 };
 
 console.log('[HexaJS] Content script ' + (__existingShell__ ? 'hot-replaced (v' + window[__HEXA_SHELL_KEY__].version + ')' : 'initialized'));
+${wrapEnd}
 `;
     } else {
       // Non-HMR bootstrap (production)
@@ -504,8 +529,9 @@ console.log('[HexaJS] Content script ' + (__existingShell__ ? 'hot-replaced (v' 
 
 ${parts.imports}
 
+${wrapStart}${storeInit}
 // Initialize DI Container
-export const container = new Container();
+const container = new Container();
 setContainer(container);
 
 function setupDependencies() {
@@ -562,6 +588,7 @@ void runOnInit(onInitTargets).catch(error => {
 registerOnDestroy(onDestroyTargets${parts.effectSubscriptions ? `, effectSubs` : ''});
 
 console.log('[HexaJS] Content script initialized');
+${wrapEnd}
 `;
     }
   }

@@ -50,6 +50,42 @@ export class LastContentCallReducer extends HexaReducer<LastContentCallState> {
 - Keep reducer methods deterministic and side-effect free.
 - Perform logging/IO in services/controllers/handlers, not reducers.
 
+## Async initial state with initAsync
+
+`initialState` is synchronous. When a slice needs to start from persisted or asynchronous data — storage, a token, a remote value — override `initAsync` instead.
+
+```ts
+import { HexaReducer, Reduce, Reducer } from '@hexajs-dev/core';
+import { inject } from '@hexajs-dev/common';
+import { StoragePort } from '@hexajs-dev/ports';
+import * as Actions from './background.actions';
+
+@Reducer()
+export class ClipsReducer extends HexaReducer<ClipItem[]> {
+  initialState: ClipItem[] = [];
+
+  async initAsync(): Promise<ClipItem[]> {
+    const result = await inject(StoragePort).get('local', 'clips');
+    const stored = result['clips'];
+    return Array.isArray(stored) ? stored : [];
+  }
+
+  @Reduce(Actions.CLIPS_UPDATED)
+  onClipsUpdated(_state: ClipItem[], action: ReturnType<typeof Actions.clipsUpdated>): ClipItem[] {
+    return [...action.payload.clips];
+  }
+}
+```
+
+How it works:
+
+- The generated bootstrap calls `initAsync()` on every reducer that defines it, before the context starts handling any messages.
+- The resolved value replaces `initialState` for that slice.
+- `inject(...)` is safe inside `initAsync` because the DI container is fully initialized before bootstrap calls it.
+- If `initAsync` is not defined, `initialState` is used as-is.
+
+Use `initAsync` whenever a slice's starting value depends on anything that can't be evaluated synchronously at class definition time. Common cases: loading from `StoragePort`, reading a token, or fetching a remote default.
+
 ## CLI and compiler behavior
 
 - Use `hexa generate reducer <name> <context>` to scaffold reducer classes.

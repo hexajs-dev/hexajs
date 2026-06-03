@@ -146,6 +146,45 @@ audit$ = createEffect(() =>
 
 Use this sparingly. If the pipeline is producing new state transitions, prefer returning a real action instead.
 
+## State-subscription effects
+
+Not every effect needs to react to an action. When the goal is to respond to *any* state change — regardless of which action caused it — subscribe to the store directly instead of the `Actions` stream.
+
+This is the correct pattern for persistence, logging, and any side effect that should fire whenever a slice changes value.
+
+```ts
+import { HexaContext, Injectable, inject } from '@hexajs-dev/common';
+import { HexaBackgroundStore, createEffect, select } from '@hexajs-dev/core';
+import { skip, switchMap } from 'rxjs/operators';
+import { from } from 'rxjs';
+import { BackgroundState } from './background.reducer';
+import { StorageService } from '../services/storage.service';
+
+@Injectable({ context: HexaContext.Background })
+export class BackgroundEffects {
+  private store = inject(HexaBackgroundStore<BackgroundState>);
+  private storage = inject(StorageService);
+
+  persistClips$ = createEffect(() =>
+    this.store.pipe(
+      select(state => state.clips),
+      skip(1),
+      switchMap(clips => from(this.storage.persistClips(clips))),
+    ),
+    { dispatch: false },
+  );
+}
+```
+
+Key points:
+
+- **No `ofType`** — the source is the store state observable, not the `Actions` stream. The effect fires whenever the `clips` slice reference changes, regardless of which action triggered it.
+- **`skip(1)`** — the store emits its initial state synchronously on subscription. Skip that first value to avoid writing data that was just loaded from storage by `initAsync`.
+- **`switchMap`** — cancels any in-flight async work if a newer state arrives before the previous call resolves. Correct for full-replacement writes; use `concatMap` if write order must be preserved.
+- **`dispatch: false`** — this effect produces no actions.
+
+The store only emits when the selected slice reference actually changes (`select` applies `distinctUntilChanged` internally), so this pattern does not fire on unrelated dispatches.
+
 ## Resilience and dead-stream recovery
 
 HexaJS protects effects from permanently dying after an unhandled error.

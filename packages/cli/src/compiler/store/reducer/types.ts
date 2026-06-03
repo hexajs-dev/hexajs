@@ -8,6 +8,7 @@ export interface ReducerMetadata {
     methods: ReduceMetadata[];
     dependencies: string[];
     importPath: string;
+    hasInitAsync: boolean;
 }
 
 export type HexaAction<T extends string = string> = {

@@ -243,6 +243,91 @@ Background calls this.client.broadcast(clipboardHandlesApi.SyncConfig, syncMessa
 
 ---
 
+## Unicast vs multicast
+
+HexaJS has two routing modes. The decorator pair you choose determines how many handlers can exist for a route and whether the sender receives a response.
+
+| | Background | Content | Sender gets response |
+|---|---|---|---|
+| **Unicast** | `@Action` | `@Handle` | Yes — `Promise<T>` |
+| **Multicast** | `@On` | `@Subscribe` | No — fire-and-forget |
+
+### Unicast — `@Action` / `@Handle`
+
+One handler per route. The sender awaits a typed response. Use this for request/response flows where the caller needs a result or confirmation.
+
+```ts
+// Background
+@Controller({ namespace: 'clipboard' })
+export class ClipboardController {
+  @Action('add')
+  async onAdd(payload: AddClipMessage): Promise<ClipsResponseMessage> {
+    return new ClipsResponseMessage(await this.manager.addClip(payload.clip));
+  }
+}
+
+// Content caller
+const response = await this.client.sendMessage<AddClipMessage, ClipsResponseMessage>('clipboard:add', new AddClipMessage(clip));
+```
+
+### Multicast — `@On` / `@Subscribe`
+
+Multiple handlers can listen to the same event name. The sender does not await a response — fire-and-forget. Use this when background needs to notify all content scripts of a change, or when multiple independent handlers should react to the same event.
+
+```ts
+// Background — emits the event
+@Controller({ namespace: 'clipboard' })
+export class ClipboardController {
+  constructor(private readonly client: HexaBackgroundClient) {}
+
+  @On('clips-changed')
+  async onClipsChanged(payload: SyncClipsMessage): Promise<void> {
+    // multiple @Subscribe handlers across content scripts all receive this
+  }
+}
+```
+
+```ts
+// Content — one or more subscribers on the same event name
+@Handler({ namespace: 'clipboard', Contents: [MyContent] })
+export class ClipboardHandler {
+  constructor(private readonly store: HexaContentStore<ContentState>) {}
+
+  @Subscribe('clips-changed')
+  onClipsChanged(payload: SyncClipsMessage): void {
+    this.store.dispatch(clipsSynced({ clips: payload.clips }));
+  }
+}
+
+@Handler({ namespace: 'clipboard', Contents: [MyContent] })
+export class ClipboardAuditHandler {
+  @Subscribe('clips-changed')
+  onClipsChanged(payload: SyncClipsMessage): void {
+    this.logger.log('Clips changed, count:', payload.clips.length);
+  }
+}
+```
+
+Both `onClipsChanged` methods receive the same event. Neither returns a value the background caller can read.
+
+### Wire protocol difference
+
+Internally, unicast messages carry `{ action: 'namespace:name', payload }` and multicast messages carry `{ event: 'namespace:name', payload }`. The container routes them differently — unicast goes to a single registered handler and sends a response; multicast fans out to all registered subscribers and does not send a response.
+
+This means `@Action`/`@Handle` and `@On`/`@Subscribe` routes with the same name are independent and do not conflict.
+
+### When to use each
+
+Use **unicast** when:
+- the caller needs a result or confirmation,
+- exactly one handler should process the message,
+- you need validation pipe coverage on the response.
+
+Use **multicast** when:
+- background pushes a notification and does not need acknowledgement,
+- multiple independent handlers should react to the same event (e.g., store update + audit log),
+- the broadcast pattern from `HexaBackgroundClient.broadcast` maps to content subscribers.
+
 ## Message structure
 
 ### Payload types
