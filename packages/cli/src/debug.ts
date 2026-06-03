@@ -11,7 +11,7 @@ const CLI_VERSION = 'v0.0.0';
 // Change PLATFORM / MODE to debug a different target.
 const PLATFORM = 'chrome';
 const MODE = 'development';
-const PROJECT_ROOT = path.resolve(__dirname, '../../../examples/smart-clipper');
+const PROJECT_ROOT = path.resolve(__dirname, '../../../examples/clip-volt');
 
 async function debugBuild(): Promise<void> {
     const buildStart = Date.now();

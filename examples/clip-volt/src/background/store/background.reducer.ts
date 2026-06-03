@@ -10,11 +10,19 @@ export interface BackgroundState {
 
 @Reducer()
 export class ConfigReducer extends HexaReducer<ClipVaultConfig> {
-  initialState: ClipVaultConfig = { ...DEFAULT_CONFIG };
 
   @Reduce(BackgroundActions.CONFIG_LOADED)
   onConfigLoaded(_state: ClipVaultConfig, action: ReturnType<typeof BackgroundActions.configLoaded>): ClipVaultConfig {
     return { ...action.payload.config };
+  }
+
+  async initAsync(): Promise<ClipVaultConfig> {
+    // Simulate async config loading (e.g. from storage) during reducer initialization
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve({ ...DEFAULT_CONFIG });
+      }, 100);
+    });
   }
 }
 

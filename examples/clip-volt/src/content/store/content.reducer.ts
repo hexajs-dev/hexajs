@@ -16,7 +16,6 @@ export interface ContentState {
 
 @Reducer()
 export class ContentClipsReducer extends HexaReducer<ClipsState> {
-  initialState: ClipsState = { list: [], filtered: [] };
 
   @Reduce(ContentActions.CLIPS_SYNCED)
   onClipsSynced(state: ClipsState, action: ReturnType<typeof ContentActions.clipsSynced>): ClipsState {
@@ -31,6 +30,15 @@ export class ContentClipsReducer extends HexaReducer<ClipsState> {
   @Reduce(ContentActions.CLIPS_FILTERED)
   onClipsFiltered(state: ClipsState, action: ReturnType<typeof ContentActions.clipsFiltered>): ClipsState {
     return { ...state, filtered: [...action.payload.filteredClips] };
+  }
+
+  async initAsync(): Promise<ClipsState> {
+    // Simulate async clips loading (e.g. from storage) during reducer initialization
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve({ list: [], filtered: [] });
+      }, 0);
+    });
   }
 }
 

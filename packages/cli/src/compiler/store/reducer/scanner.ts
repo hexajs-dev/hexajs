@@ -44,6 +44,24 @@ export class ReducerScanner {
             }
         });
 
+        // Check for initAsync method
+        const hasInitAsync = node.members.some(member =>
+            ts.isMethodDeclaration(member) && member.name.getText() === 'initAsync'
+        );
+
+        // Check for initialState property
+        const hasInitialState = node.members.some(member =>
+            ts.isPropertyDeclaration(member) && member.name.getText() === 'initialState'
+        );
+
+        if (hasInitAsync && hasInitialState) {
+            throw new Error(`Reducer "${node.name?.getText()}" defines both initialState and initAsync(). Use one or the other.`);
+        }
+
+        if (!hasInitAsync && !hasInitialState) {
+            throw new Error(`Reducer "${node.name?.getText()}" must define either initialState or initAsync().`);
+        }
+
         // 3. Extract dependencies from constructor
         const dependencies: string[] = [];
         const constructor = node.members.find(ts.isConstructorDeclaration);
@@ -67,7 +85,8 @@ export class ReducerScanner {
             dependencies,
             importPath: reducer.getSourceFile().fileName,
             className: node.name?.getText() || 'Unknown',
-            methods
+            methods,
+            hasInitAsync
         };
     }
 

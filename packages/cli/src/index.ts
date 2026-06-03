@@ -112,12 +112,15 @@ export async function buildAction(files: string[], resolved: ResolvedBuildConfig
     const { storeOutputs, program, registry } = foundation;
     const usedPorts = new UsedPortsCollector(registry).collect();
 
+    const storeRowsByContext = new Map<string, GeneratedArtifactRow>();
     storeOutputs
         .filter(store => shouldWriteStoreForTarget(target, store.context))
         .forEach((storeOutput) => {
             const contextFolder = storeOutput.context.toLowerCase();
             const storePath = path.join(outputDir, contextFolder, `${contextFolder}.store.js`);
-            generatedRows.push(writeGeneratedFile(storePath, storeOutput.content));
+            const row = writeGeneratedFile(storePath, storeOutput.content);
+            generatedRows.push(row);
+            storeRowsByContext.set(contextFolder, row);
         });
 
     let uiEntries: ManifestUiEntries = {};
@@ -159,7 +162,8 @@ export async function buildAction(files: string[], resolved: ResolvedBuildConfig
         contentBundleEntries = contentResult.contentBundleEntries;
         validatorArtifactPaths.push(contentResult.contentValidatorPath);
         generatedRows.push(...contentResult.generatedRows);
-        persistDebugGeneratedArtifacts(resolved, outputDir, contentResult.generatedRows, 'content');
+        const contentStoreRow = storeRowsByContext.get('content');
+        persistDebugGeneratedArtifacts(resolved, outputDir, [...(contentStoreRow ? [contentStoreRow] : []), ...contentResult.generatedRows], 'content');
     }
 
     if (shouldRunStage(target, 'background')) {
@@ -170,7 +174,8 @@ export async function buildAction(files: string[], resolved: ResolvedBuildConfig
         workerBundleEntries = backgroundResult.workerBundleEntries;
         hasOffscreenPage = backgroundResult.hasOffscreenPage;
         generatedRows.push(...backgroundResult.generatedRows);
-        persistDebugGeneratedArtifacts(resolved, outputDir, backgroundResult.generatedRows, 'background');
+        const backgroundStoreRow = storeRowsByContext.get('background');
+        persistDebugGeneratedArtifacts(resolved, outputDir, [...(backgroundStoreRow ? [backgroundStoreRow] : []), ...backgroundResult.generatedRows], 'background');
     }
 
     const contextMap = buildSourceContextMap(program, registry);

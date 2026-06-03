@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { Circle, Cog, Compass, Cpu, Database, Flame, Globe, Orbit, Paintbrush2, PanelsTopLeft, Puzzle, RefreshCw, Rocket, Shield, Shuffle, Waves, Waypoints, Workflow, Wrench } from 'lucide-react';
+import { Circle, Cog, Compass, Cpu, Database, Flame, Globe, Layers, Orbit, Paintbrush2, PanelsTopLeft, Puzzle, RefreshCw, Rocket, Shield, Shuffle, Waves, Waypoints, Workflow, Wrench } from 'lucide-react';
 
 export type DocIconKey =
   | 'rocket'
@@ -16,6 +16,7 @@ export type DocIconKey =
   | 'panels'
   | 'waypoints'
   | 'refresh'
+  | 'layers'
   | 'chrome'
   | 'firefox'
   | 'safari'
@@ -38,6 +39,7 @@ export const DOC_ICONS: Record<DocIconKey, LucideIcon> = {
   panels: PanelsTopLeft,
   waypoints: Waypoints,
   refresh: RefreshCw,
+  layers: Layers,
   chrome: Orbit,
   firefox: Flame,
   safari: Compass,

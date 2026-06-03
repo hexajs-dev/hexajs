@@ -120,6 +120,20 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
+      label: 'Advanced Techniques',
+      collapsed: false,
+      customProps: { icon: 'layers' },
+      link: { type: 'doc', id: 'advanced-techniques/index' },
+      items: [
+        'advanced-techniques/cross-context-state-sync',
+        'advanced-techniques/reactive-content-pipelines',
+        'advanced-techniques/worker-streaming-pipelines',
+        'advanced-techniques/typed-contracts-and-validation',
+        'advanced-techniques/environment-aware-config',
+      ],
+    },
+    {
+      type: 'category',
       label: 'API Reference',
       collapsed: true,
       customProps: { icon: 'book' },
