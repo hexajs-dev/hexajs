@@ -1,5 +1,13 @@
 # @hexajs-dev/core
 
+## 1.0.2
+
+### Patch Changes
+
+- 6c50453: Enforce reducer initialization rules and async handling
+  - @hexajs-dev/common@1.0.2
+  - @hexajs-dev/ports@1.0.2
+
 ## 1.0.1
 
 ### Patch Changes
