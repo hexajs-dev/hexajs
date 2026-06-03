@@ -179,7 +179,7 @@ export class BackgroundEffects {
 Key points:
 
 - **No `ofType`** — the source is the store state observable, not the `Actions` stream. The effect fires whenever the `clips` slice reference changes, regardless of which action triggered it.
-- **`skip(1)`** — the store emits its initial state synchronously on subscription. Skip that first value to avoid writing data that was just loaded from storage by `initAsync`.
+- **`skip(1)`** — the store emits its initial state synchronously on subscription. Skip that first value to avoid writing data that was just loaded from storage by `initState`.
 - **`switchMap`** — cancels any in-flight async work if a newer state arrives before the previous call resolves. Correct for full-replacement writes; use `concatMap` if write order must be preserved.
 - **`dispatch: false`** — this effect produces no actions.
 

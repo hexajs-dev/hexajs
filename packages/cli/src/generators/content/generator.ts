@@ -82,7 +82,7 @@ export class ContentGenerator {
       const docStartEntries = contentEntries.filter(e => e.options.runAt === ContentRunAt.DocumentStart);
       if (docStartEntries.length > 0) {
         const names = docStartEntries.map(e => e.className).join(', ');
-        printWarningLine(`Content script(s) [${names}] use document_start with async store initialization (initAsync). The store will not be available until the async initialization completes.`);
+        printWarningLine(`Content script(s) [${names}] use document_start with async store initialization (initState). The store will not be available until the async initialization completes.`);
       }
     }
 

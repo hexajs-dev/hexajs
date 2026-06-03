@@ -44,22 +44,34 @@ export class ReducerScanner {
             }
         });
 
-        // Check for initAsync method
-        const hasInitAsync = node.members.some(member =>
-            ts.isMethodDeclaration(member) && member.name.getText() === 'initAsync'
-        );
+        // Check for initState method and determine if it's async via return type
+        let hasInitState = false;
+        let isAsyncInitState = false;
+        const initStateMethod = node.members.find(member =>
+            ts.isMethodDeclaration(member) && member.name.getText() === 'initState'
+        ) as ts.MethodDeclaration | undefined;
+
+        if (initStateMethod) {
+            hasInitState = true;
+            const sig = this.checker.getSignatureFromDeclaration(initStateMethod);
+            if (sig) {
+                const returnType = this.checker.getReturnTypeOfSignature(sig);
+                const types = returnType.isUnion() ? returnType.types : [returnType];
+                isAsyncInitState = types.some(t => !!t.getProperty('then'));
+            }
+        }
 
         // Check for initialState property
         const hasInitialState = node.members.some(member =>
             ts.isPropertyDeclaration(member) && member.name.getText() === 'initialState'
         );
 
-        if (hasInitAsync && hasInitialState) {
-            throw new Error(`Reducer "${node.name?.getText()}" defines both initialState and initAsync(). Use one or the other.`);
+        if (hasInitState && hasInitialState) {
+            throw new Error(`Reducer "${node.name?.getText()}" defines both initialState and initState(). Use one or the other.`);
         }
 
-        if (!hasInitAsync && !hasInitialState) {
-            throw new Error(`Reducer "${node.name?.getText()}" must define either initialState or initAsync().`);
+        if (!hasInitState && !hasInitialState) {
+            throw new Error(`Reducer "${node.name?.getText()}" must define either initialState or initState().`);
         }
 
         // 3. Extract dependencies from constructor
@@ -86,7 +98,8 @@ export class ReducerScanner {
             importPath: reducer.getSourceFile().fileName,
             className: node.name?.getText() || 'Unknown',
             methods,
-            hasInitAsync
+            hasInitState,
+            isAsyncInitState
         };
     }
 

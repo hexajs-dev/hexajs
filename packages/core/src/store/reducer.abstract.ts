@@ -56,7 +56,7 @@ export function createReducer<T>(initialState: T,
 
 export abstract class HexaReducer<T> {
   initialState?: T;
-  initAsync?(): Promise<T>;
+  initState?(): T | Promise<T>;
 }
 
 

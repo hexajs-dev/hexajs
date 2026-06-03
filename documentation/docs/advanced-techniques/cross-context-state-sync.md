@@ -1,13 +1,13 @@
 ---
 title: Cross-Context State Sync
 sidebar_position: 2
-description: Persist background state with StoragePort and initAsync, sync to content via broadcast, and keep stores coherent across service-worker restarts.
+description: Persist background state with StoragePort and initState, sync to content via broadcast, and keep stores coherent across service-worker restarts.
 ---
 
 # Cross-Context State Sync
 
 > **Target Audience:** Advanced
-> **Goal:** Design a background-owned store that survives service-worker restarts using `initAsync` and a persistence effect, then stays coherent with content-side mirrors using broadcast and `*Synced` actions.
+> **Goal:** Design a background-owned store that survives service-worker restarts using `initState` and a persistence effect, then stays coherent with content-side mirrors using broadcast and `*Synced` actions.
 
 Browser extension contexts are isolated processes. Background holds the persistent source of truth. Content scripts run per-page and start cold on every navigation. Service workers can be terminated and restarted at any time — meaning in-memory background state is lost unless it is persisted to storage.
 
@@ -19,7 +19,7 @@ This recipe walks through the pattern used in **clip-volt** ([github.com/hexajs-
 
 ```
 StoragePort (local)
-     │  initAsync (load)          persistence effect (write-back)
+     │  initState (load)          persistence effect (write-back)
      │       ↓                          ↑
      └──► Background store ──(broadcast)──► Content store (mirror)
                ▲                                    │
@@ -27,7 +27,7 @@ StoragePort (local)
 ```
 
 Two separate concerns:
-- **Loading:** the reducer's `initAsync` populates the store slice from storage when the service worker boots.
+- **Loading:** the reducer's `initState` populates the store slice from storage when the service worker boots.
 - **Persisting:** a `dispatch: false` effect subscribes to the store state and writes it back to storage whenever it changes.
 - **Syncing:** the controller broadcasts after every mutation so open content scripts mirror the latest state.
 
@@ -69,9 +69,9 @@ export class ClipboardManagerService {
 
 `'local'` storage persists across service-worker restarts. `'session'` is discarded when the browser closes. `'sync'` roams across devices but has tight size limits.
 
-## 2. Reducer with initAsync: load state from storage on boot
+## 2. Reducer with initState: load state from storage on boot
 
-`initAsync` is called by the generated bootstrap before the context starts handling any messages. It replaces `initialState` for that slice — the store starts with real persisted data, not an empty default.
+`initState` is called by the generated bootstrap before the context starts handling any messages. It replaces `initialState` for that slice — the store starts with real persisted data, not an empty default.
 
 ```ts
 // src/background/store/background.reducer.ts
@@ -89,7 +89,7 @@ export interface BackgroundState {
 export class ClipsReducer extends HexaReducer<ClipItem[]> {
   initialState: ClipItem[] = [];
 
-  async initAsync(): Promise<ClipItem[]> {
+  async initState(): Promise<ClipItem[]> {
     // Runs once at bootstrap — loads persisted clips from storage.
     // The store starts with real data before any controller handles a message.
     return inject(ClipboardManagerService).loadClips();
@@ -102,7 +102,7 @@ export class ClipsReducer extends HexaReducer<ClipItem[]> {
 }
 ```
 
-`inject(ClipboardManagerService)` works inside `initAsync` because the DI container is already set up before bootstrap calls it.
+`inject(ClipboardManagerService)` works inside `initState` because the DI container is already set up before bootstrap calls it.
 
 ## 3. Persistence effect: subscribe to state, write back on every change
 
@@ -126,7 +126,7 @@ export class BackgroundEffects {
   persistClips$ = createEffect(() =>
     this.store.pipe(
       select(state => state.clips),
-      skip(1), // skip the initial emission from initAsync — it was just loaded from storage
+      skip(1), // skip the initial emission from initState — it was just loaded from storage
       switchMap(clips => from(this.clipboardManager.persistClips(clips))),
     ),
     { dispatch: false },
@@ -136,7 +136,7 @@ export class BackgroundEffects {
 
 Key points:
 - **No `ofType`** — the effect subscribes to the state observable directly. It doesn't matter which action caused the change; if `clips` changed, it persists.
-- **`skip(1)`** — the store emits the initial state (loaded by `initAsync`) on subscription. Skipping that first emission avoids writing back data that was just read from storage.
+- **`skip(1)`** — the store emits the initial state (loaded by `initState`) on subscription. Skipping that first emission avoids writing back data that was just read from storage.
 - **`switchMap`** — cancels any in-flight write if a new state arrives before the previous `persistClips` resolves. Safe because writes are full replacements.
 - **`dispatch: false`** — this effect produces no actions, it only writes to storage.
 
@@ -310,7 +310,7 @@ onClipsSynced(state: ClipsState, action: ReturnType<typeof clipsSynced>): ClipsS
 ## Pitfalls
 
 - **Using `ofType` in a persistence effect.** If you filter to specific action types, you will miss any other action that modifies that slice. Subscribe to the state slice directly — let the store determine whether the value actually changed (it only emits when the reference changes).
-- **Skipping `skip(1)`.** Without it, the initial state loaded by `initAsync` gets written straight back to storage on subscription — a no-op at best, a race condition with concurrent reads at worst.
+- **Skipping `skip(1)`.** Without it, the initial state loaded by `initState` gets written straight back to storage on subscription — a no-op at best, a race condition with concurrent reads at worst.
 - **Using `mergeMap` instead of `switchMap`.** `mergeMap` lets concurrent writes pile up. `switchMap` cancels the previous in-flight write when a newer state arrives, which is correct for full-replacement writes.
 - **Forgetting the hydration step in content.** Content only stays live while the tab is open. New tabs opened after the last broadcast will start empty until they hydrate via the `get` action.
 
