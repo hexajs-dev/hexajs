@@ -1,5 +1,14 @@
 # @hexajs-dev/core
 
+## 1.0.4
+
+### Patch Changes
+
+- Updated dependencies [7b27092]
+- Updated dependencies [7b27092]
+  - @hexajs-dev/common@1.0.4
+  - @hexajs-dev/ports@1.0.4
+
 ## 1.0.3
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @hexajs-dev/cli
 
+## 1.0.4
+
+### Patch Changes
+
+- 7b27092: (cli): add profile resolver for Chromium browsers, test(cli): enhance asset security tests, test(cli): add configuration resolution tests, test(cli): extend manifest watch mode tests, refactor(common): remove unused platform tokens, test(common): add public tokens contract test
+- Updated dependencies [7b27092]
+- Updated dependencies [7b27092]
+  - @hexajs-dev/common@1.0.4
+
 ## 1.0.3
 
 ### Patch Changes
