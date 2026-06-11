@@ -1,4 +1,4 @@
-import { PanelsTopLeft, Paintbrush2, Rocket, Activity, type LucideIcon } from 'lucide-react';
+import { PanelsTopLeft, Paintbrush2, Rocket, Activity, CheckCircle2, type LucideIcon } from 'lucide-react';
 import './RoadmapTimeline.scss';
 
 type RoadmapItem = {
@@ -51,6 +51,12 @@ export function RoadmapTimeline() {
 
                 const card = (
                     <div className={`rmtCard${done ? ' rmtCardDone' : ''}`}>
+                        {done && (
+                            <span className="rmtBadge" aria-label="Achieved">
+                                <CheckCircle2 size={11} strokeWidth={2.5} />
+                                Done
+                            </span>
+                        )}
                         <div className="rmtCardHeader">
                             <div className={`rmtIconBox${done ? ' rmtIconBoxDone' : ''}`} aria-hidden="true">
                                 <Icon size={15} strokeWidth={2} />
@@ -69,10 +75,9 @@ export function RoadmapTimeline() {
                         ) : (
                             <div className="rmtSideEmpty" />
                         )}
-                        <div className='rmDotContainer'>
+                        <div className="rmDotContainer">
                             <div className={`rmtDot${done ? ' rmtDotDone' : ''}`} aria-hidden="true" />
                         </div>
-
                         {!isLeft ? (
                             <div className="rmtSide rmtSideRight">{card}</div>
                         ) : (
@@ -81,6 +86,17 @@ export function RoadmapTimeline() {
                     </div>
                 );
             })}
+
+            <div className="rmtLegend" aria-label="Legend">
+                <span className="rmtLegendItem">
+                    <span className="rmtLegendDot rmtLegendDotDone" aria-hidden="true" />
+                    Achieved
+                </span>
+                <span className="rmtLegendItem">
+                    <span className="rmtLegendDot" aria-hidden="true" />
+                    Upcoming
+                </span>
+            </div>
 
             <p className="rmtNote">
                 These are capability goals, not promises about timing. The order may change as the platform evolves.

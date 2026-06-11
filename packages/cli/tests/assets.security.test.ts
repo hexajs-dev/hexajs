@@ -55,6 +55,23 @@ describe('copyStaticAssets security', () => {
     expect(fs.readFileSync(path.join(outputDir, 'images', 'icon.txt'), 'utf-8')).toBe('icon');
   });
 
+  it('excludes .ts and .tsx files from asset copy', async () => {
+    const projectDir = path.join(tempRoot, 'project');
+    const outputDir = path.join(projectDir, 'dist', 'chrome', 'development');
+    fs.mkdirSync(path.join(projectDir, 'src', 'models'), { recursive: true });
+    fs.writeFileSync(path.join(projectDir, 'src', 'models', 'page.model.ts'), 'export class Page {}', 'utf-8');
+    fs.writeFileSync(path.join(projectDir, 'src', 'models', 'view.component.tsx'), '<View />', 'utf-8');
+    fs.writeFileSync(path.join(projectDir, 'src', 'models', 'schema.json'), '{}', 'utf-8');
+
+    vi.spyOn(process, 'cwd').mockReturnValue(projectDir);
+
+    await copyStaticAssets(createResolved(['src/models/**/*']), outputDir);
+
+    expect(fs.existsSync(path.join(outputDir, 'models', 'schema.json'))).toBe(true);
+    expect(fs.existsSync(path.join(outputDir, 'models', 'page.model.ts'))).toBe(false);
+    expect(fs.existsSync(path.join(outputDir, 'models', 'view.component.tsx'))).toBe(false);
+  });
+
   it('rejects asset patterns that resolve outside the project root', async () => {
     const workspaceDir = path.join(tempRoot, 'workspace');
     const projectDir = path.join(workspaceDir, 'project');

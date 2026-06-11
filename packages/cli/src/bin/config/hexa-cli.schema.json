@@ -68,6 +68,10 @@
       "$ref": "#/definitions/uiConfig",
       "description": "UI surface configuration (popup/devtools)"
     },
+    "autoLaunch": {
+      "$ref": "#/definitions/autoLaunchConfig",
+      "description": "Auto-launch profile settings for watch mode"
+    },
     "environments": {
       "type": "object",
       "description": "Build environments (e.g. development, production, staging). Each can override compilerOptions, tsConfig, manifest, and tokens.",
@@ -85,6 +89,22 @@
     }
   },
   "definitions": {
+    "autoLaunchConfig": {
+      "type": "object",
+      "description": "Auto-launch profile settings for watch mode",
+      "properties": {
+        "profile": {
+          "type": "string",
+          "enum": ["isolated", "default"],
+          "default": "isolated",
+          "description": "isolated: use a throwaway temp profile (default). default: use the user's real logged-in browser profile."
+        },
+        "profileName": {
+          "type": "string",
+          "description": "Specific profile name or directory (e.g. 'Default', 'Profile 1', 'Work'). Required when profile='default' and the browser has multiple profiles."
+        }
+      }
+    },
     "tokenItem": {
       "type": "object",
       "description": "A DI token with a key, value, and optional context",
@@ -147,6 +167,10 @@
         "ui": {
           "$ref": "#/definitions/uiConfig",
           "description": "Platform-specific UI overrides"
+        },
+        "autoLaunch": {
+          "$ref": "#/definitions/autoLaunchConfig",
+          "description": "Platform-specific auto-launch overrides"
         }
       }
     },
@@ -191,6 +215,10 @@
         "ui": {
           "$ref": "#/definitions/uiConfig",
           "description": "Environment-specific UI overrides"
+        },
+        "autoLaunch": {
+          "$ref": "#/definitions/autoLaunchConfig",
+          "description": "Environment-specific auto-launch overrides"
         },
         "platforms": {
           "type": "object",

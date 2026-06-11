@@ -28,6 +28,11 @@ getURL(path?: string): string
 onMessage(callback: (message: any, sender: webExt.runtime.MessageSender, sendResponse: (response?: any) => void) => boolean | void): () => void
 ```
 
+**`onMessageExternal()`**
+```typescript
+onMessageExternal(callback: (message: any, sender: webExt.runtime.MessageSender, sendResponse: (response?: any) => void) => boolean | void): () => void
+```
+
 **`onSuspend()`**
 ```typescript
 onSuspend(callback: () => void): void

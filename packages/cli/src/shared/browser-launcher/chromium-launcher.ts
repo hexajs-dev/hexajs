@@ -31,6 +31,12 @@ import {
     getPlatformFirefoxCandidates,
 } from './firefox-launcher';
 
+import {
+    getRealBrowserUserDataDir,
+    resolveChromiumProfileDirectory,
+    isChromiumProfileInUse,
+} from './profile-resolver';
+
 import { assertLoopbackHost, assertLocalPort } from '../network-security.js';
 
 export interface LaunchChromeWithExtensionOptions {
@@ -58,6 +64,10 @@ export interface LaunchBrowserWithExtensionOptions {
     userDataDir?: string;
     debugPort?: number;
     env?: NodeJS.ProcessEnv;
+    /** 'isolated' (default) = throwaway temp profile; 'default' = user's real profile */
+    profileMode?: 'isolated' | 'default';
+    /** Specific profile name or dir to use when profileMode='default'. Required when multiple profiles exist. */
+    profileName?: string;
 }
 
 export interface LaunchBrowserWithExtensionResult {
@@ -541,13 +551,39 @@ export function launchBrowserWithExtension(options: LaunchBrowserWithExtensionOp
     const platform = options.platform;
     const overrideKey = getBrowserOverrideEnvKey(platform);
     const hasExplicitBrowserOverride = !!(options.executablePath?.trim() || env[overrideKey]?.trim());
+    const profileMode = options.profileMode ?? 'isolated';
 
     if (!fs.existsSync(extensionDir)) {
         throw new Error(`Extension output directory does not exist: ${extensionDir}`);
     }
 
     const executablePath = resolveBrowserExecutablePath({ platform, executablePath: options.executablePath, env });
-    const userDataDir = path.resolve(options.userDataDir ?? getDefaultBrowserUserDataDir(platform, extensionDir, executablePath));
+
+    // ── Resolve user-data-dir ────────────────────────────────────────────────
+    let userDataDir: string;
+    let profileDir: string | undefined;
+    let useRealProfile = false;
+
+    if (profileMode === 'default' && isChromiumPlatform(platform)) {
+        const realUdd = getRealBrowserUserDataDir(platform, env);
+        // resolveChromiumProfileDirectory will throw AmbiguousProfileError or "not found" if needed
+        const resolvedProfileDir = resolveChromiumProfileDirectory({
+            userDataDir: realUdd,
+            requested: options.profileName,
+        });
+        if (isChromiumProfileInUse(realUdd)) {
+            throw new Error(
+                `${getBrowserDisplayName(platform)} is already running on this profile.\n` +
+                `Close all ${getBrowserDisplayName(platform)} windows and try again, or use the isolated profile with --profile isolated.`
+            );
+        }
+        userDataDir = realUdd;
+        profileDir = resolvedProfileDir;
+        useRealProfile = true;
+    } else {
+        userDataDir = path.resolve(options.userDataDir ?? getDefaultBrowserUserDataDir(platform, extensionDir, executablePath));
+    }
+
     fs.mkdirSync(userDataDir, { recursive: true });
 
     if (platform === 'firefox') {
@@ -571,18 +607,25 @@ export function launchBrowserWithExtension(options: LaunchBrowserWithExtensionOp
     }
 
     const executableKind = classifyChromiumExecutable(executablePath);
-
     const debugPort = resolveChromeDebugPort(options.debugPort, env);
     const extensionId = computeChromiumExtensionId(extensionDir);
-    if (isChromiumPlatform(platform)) {
+
+    if (isChromiumPlatform(platform) && !useRealProfile) {
+        // Only seed preferences into isolated/temp profiles — never touch user's real profile.
         seedPinnedExtensionState(userDataDir, extensionId);
     }
 
-    clearChromiumStaleLockFiles(userDataDir);
-    const args = buildChromiumLaunchArgs(platform, extensionDir, userDataDir, debugPort);
+    if (!useRealProfile) {
+        // Only clear stale locks for isolated profiles; never remove locks from a real profile.
+        clearChromiumStaleLockFiles(userDataDir);
+    }
 
-    // Chrome 137+ removed --load-extension from branded builds.
-    // Use --remote-debugging-pipe + Extensions.loadUnpacked CDP command instead.
+    const args = buildChromiumLaunchArgs(platform, extensionDir, userDataDir, debugPort);
+    if (profileDir) {
+        // Insert --profile-directory right after --user-data-dir (first arg)
+        args.splice(1, 0, `--profile-directory=${profileDir}`);
+    }
+
     const isBrandedChrome = platform === 'chrome' && executableKind === 'google-chrome';
     const useDebugPipe = isBrandedChrome || platform === 'chrome';
 
@@ -594,7 +637,6 @@ export function launchBrowserWithExtension(options: LaunchBrowserWithExtensionOp
     child.on('error', () => { /* Prevent unhandled spawn errors from crashing the CLI process. */ });
 
     if (useDebugPipe) {
-        // Fire-and-forget: load extension via CDP pipe, then detach
         loadExtensionViaPipe(child, extensionDir).then(() => {
             try { child.unref(); } catch { /* ignore */ }
         }).catch(() => {

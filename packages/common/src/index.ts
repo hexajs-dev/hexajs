@@ -2,13 +2,11 @@
  * HexaJS Common Module
  * 
  * Exports:
- * - DI container and decorators
+ * - DI container, decorators, and system tokens
  * - Validation decorators (AOT-based)
- * - Platform and configuration tokens
  */
 
 export * from './di';
-export * from './tokens';
 export * from './validation';
 export * from './constants';
 export * from './security';

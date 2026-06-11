@@ -43,11 +43,3 @@ export function loadFrameworkPlugin(cwd: string, framework: UiFrameworkName = 'r
   }
 }
 
-/**
- * @deprecated Use `loadFrameworkPlugin(cwd, 'react')` instead. Retained for
- * backwards compatibility within the CLI.
- */
-export function loadReactPlugin(cwd: string): Plugin | Plugin[] | null {
-  const result = loadFrameworkPlugin(cwd, 'react');
-  return result?.plugin ?? null;
-}

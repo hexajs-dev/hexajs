@@ -18,12 +18,13 @@ class ClipboardPort { ... }
 
 #### Methods
 
+**`readText()`**
+```typescript
+readText(): Promise<string>
+```
+
 **`writeText()`**
 ```typescript
 writeText(text: string): Promise<void>
 ```
 
-**`readText()`**
-```typescript
-readText(): Promise<string>
-```

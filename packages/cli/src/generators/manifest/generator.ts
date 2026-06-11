@@ -226,6 +226,26 @@ export class ManifestGenerator {
         if (!manifest.permissions.includes('offscreen')) {
             manifest.permissions.push('offscreen');
         }
+
+        this.patchChromiumWorkerScriptSrc(manifest);
+    }
+
+    private patchChromiumWorkerScriptSrc(manifest: ManifestV3): void {
+        const existing = manifest.content_security_policy?.extension_pages ?? "script-src 'self'; object-src 'self';";
+        const scriptValue = this.extractScriptSrcValue(existing);
+
+        if (scriptValue.includes("'wasm-unsafe-eval'")) return;
+
+        const nextScriptValue = scriptValue.length > 0
+            ? `${scriptValue} 'wasm-unsafe-eval'`
+            : `'self' 'wasm-unsafe-eval'`;
+
+        const nextPolicy = this.upsertScriptSrc(existing, nextScriptValue);
+
+        manifest.content_security_policy = {
+            ...(manifest.content_security_policy || {}),
+            extension_pages: nextPolicy,
+        };
     }
 
     private applyPortPermissionMutations(manifest: ManifestV3): void {

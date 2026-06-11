@@ -51,7 +51,7 @@ export async function copyStaticAssets(resolved: ResolvedBuildConfig, outputDir:
     const cwd = process.cwd();
     const projectRootAbs = resolveForComparison(cwd);
     const sourceRootAbs = resolveForComparison(path.resolve(cwd, resolved.project.sourceRoot ?? 'src'));
-    const files = await fg(patterns, { cwd, onlyFiles: true, dot: true, unique: true, followSymbolicLinks: false });
+    const files = await fg(patterns, { cwd, onlyFiles: true, dot: true, unique: true, followSymbolicLinks: false, ignore: ['**/*.ts', '**/*.tsx'] });
 
     if (files.length === 0) return;
 

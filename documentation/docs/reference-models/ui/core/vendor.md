@@ -17,7 +17,7 @@ interface HexaBootstrapPluginOptions {
     watch?: boolean;
     hmrAddress?: string;
     hmrSessionToken?: string;
-    surface?: 'popup' | 'devtools';
+    surface?: 'popup' | 'devtools' | 'newtab';
 }
 ```
 

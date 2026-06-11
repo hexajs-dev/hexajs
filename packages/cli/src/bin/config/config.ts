@@ -27,6 +27,17 @@ export interface UiSurfaceConfig {
     icons?: string;
 }
 
+// ─── AutoLaunch Types ─────────────────────────────────────────────────────────
+
+export type AutoLaunchProfileMode = 'isolated' | 'default';
+
+export interface AutoLaunchConfig {
+    /** Whether to use an isolated temp profile or the user's real browser profile. Defaults to 'isolated'. */
+    profile?: AutoLaunchProfileMode;
+    /** Specific profile name or directory (e.g. 'Default', 'Profile 1', 'Work'). Required when profile='default' and the browser has multiple profiles. */
+    profileName?: string;
+}
+
 export interface UiConfig {
     parallelBuild?: boolean;
     /**
@@ -48,6 +59,7 @@ export interface EnvironmentConfig {
     manifest?: string;
     tokens?: ConfigToken[];
     ui?: UiConfig;
+    autoLaunch?: AutoLaunchConfig;
     platforms?: {
         [key: string]: PlatformSettings;
     };
@@ -61,6 +73,7 @@ export interface PlatformSettings {
     tsConfig?: string;
     tokens?: ConfigToken[];
     ui?: UiConfig;
+    autoLaunch?: AutoLaunchConfig;
 }
 
 // ─── Main Config ──────────────────────────────────────────────────────────────
@@ -82,6 +95,7 @@ export interface HexaConfig {
     };
     tokens?: ConfigToken[];
     ui?: UiConfig;
+    autoLaunch?: AutoLaunchConfig;
     environments?: {
         [key: string]: EnvironmentConfig;
     };

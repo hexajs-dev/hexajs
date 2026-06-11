@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { HexaConfig, ConfigToken, UiConfig, MinifyOption, CssMinifyOption, SourceMapOption } from './config';
+import { HexaConfig, ConfigToken, UiConfig, MinifyOption, CssMinifyOption, SourceMapOption, AutoLaunchConfig } from './config';
 import { assertPathWithinRoot } from '../../shared/path-utils';
 import { assertValidTokenKey } from '../../shared/token-security';
 
@@ -32,6 +32,9 @@ export interface ResolvedBuildConfig {
 
     /** Resolved UI surface configuration */
     ui: UiConfig;
+
+    /** Resolved auto-launch profile configuration */
+    autoLaunch: Required<AutoLaunchConfig>;
 
     debug?: boolean;
 }
@@ -80,6 +83,16 @@ function mergeUiConfig(...layers: (UiConfig | undefined)[]): UiConfig {
     }
 
     return merged;
+}
+
+function mergeAutoLaunch(...layers: (AutoLaunchConfig | undefined)[]): Required<AutoLaunchConfig> {
+    let merged: AutoLaunchConfig = { profile: 'isolated' };
+    for (const layer of layers) {
+        if (!layer) continue;
+        if (layer.profile !== undefined) merged.profile = layer.profile;
+        if (layer.profileName !== undefined) merged.profileName = layer.profileName;
+    }
+    return { profile: merged.profile ?? 'isolated', profileName: merged.profileName ?? '' };
 }
 
 /**
@@ -229,6 +242,12 @@ export function resolveConfig(config: HexaConfig, platform: string, mode: string
         envPlatformConfig.ui,
     );
 
+    const autoLaunch = mergeAutoLaunch(
+        config.autoLaunch,
+        envConfig.autoLaunch,
+        envPlatformConfig.autoLaunch,
+    );
+
     return {
         tsConfig: resolvedTsConfig,
         manifest,
@@ -239,5 +258,6 @@ export function resolveConfig(config: HexaConfig, platform: string, mode: string
         mode,
         project: config.project,
         ui,
+        autoLaunch,
     };
 }

@@ -191,4 +191,94 @@ describe('manifest watch mode mutations', () => {
     expect(warnSpy).not.toHaveBeenCalled();
     warnSpy.mockRestore();
   });
+
+  it.each(['chrome', 'edge', 'brave', 'opera'])('adds wasm-unsafe-eval to extension_pages for %s when hasOffscreenPage is true', (platform) => {
+    const generator = new ManifestGenerator([], createResolved(platform), {}, { hasOffscreenPage: true });
+    const manifest = JSON.parse(generator.generate()) as any;
+
+    expect(manifest.permissions).toContain('offscreen');
+    const csp = manifest.content_security_policy?.extension_pages as string;
+    expect(csp).toContain("script-src");
+    expect(csp).toContain("'self'");
+    expect(csp).toContain("'wasm-unsafe-eval'");
+  });
+
+  it('does not add wasm-unsafe-eval or offscreen when hasOffscreenPage is falsy on chromium', () => {
+    const generator = new ManifestGenerator([], createResolved('chrome'), {}, {});
+    const manifest = JSON.parse(generator.generate()) as any;
+
+    expect(manifest.permissions).not.toContain('offscreen');
+    expect(manifest.content_security_policy).toBeUndefined();
+  });
+
+  it('does not add wasm-unsafe-eval for firefox even with hasOffscreenPage', () => {
+    const generator = new ManifestGenerator([], createResolved('firefox'), {}, { hasOffscreenPage: true });
+    const manifest = JSON.parse(generator.generate()) as any;
+
+    expect(manifest.permissions).not.toContain('offscreen');
+    expect(manifest.content_security_policy).toBeUndefined();
+  });
+
+  it('preserves user-provided CSP directives when appending wasm-unsafe-eval', () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'hexa-manifest-'));
+    try {
+      const manifestPath = path.join(tempDir, 'manifest.chrome.json');
+      fs.writeFileSync(manifestPath, JSON.stringify({
+        content_security_policy: {
+          extension_pages: "script-src 'self' https://example.com; object-src 'self';",
+        },
+      }));
+
+      const resolved = createResolved('chrome');
+      resolved.manifest = manifestPath;
+
+      const generator = new ManifestGenerator([], resolved, {}, { hasOffscreenPage: true });
+      const manifest = JSON.parse(generator.generate()) as any;
+      const csp = manifest.content_security_policy.extension_pages as string;
+
+      expect(csp).toContain("https://example.com");
+      expect(csp).toContain("'wasm-unsafe-eval'");
+      expect(csp).toContain("object-src 'self'");
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it('does not duplicate wasm-unsafe-eval if user CSP already contains it', () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'hexa-manifest-'));
+    try {
+      const manifestPath = path.join(tempDir, 'manifest.chrome.json');
+      fs.writeFileSync(manifestPath, JSON.stringify({
+        content_security_policy: {
+          extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';",
+        },
+      }));
+
+      const resolved = createResolved('chrome');
+      resolved.manifest = manifestPath;
+
+      const generator = new ManifestGenerator([], resolved, {}, { hasOffscreenPage: true });
+      const manifest = JSON.parse(generator.generate()) as any;
+      const csp = manifest.content_security_policy.extension_pages as string;
+
+      const matches = csp.match(/wasm-unsafe-eval/g);
+      expect(matches).toHaveLength(1);
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it('combines watch mode and offscreen mutations without conflict on chromium', () => {
+    const generator = new ManifestGenerator([], createResolved('chrome'), {}, {
+      watch: true,
+      hmrAddress: 'ws://127.0.0.1:55333',
+      hasOffscreenPage: true,
+    });
+    const manifest = JSON.parse(generator.generate()) as any;
+
+    expect(manifest.permissions).toContain('scripting');
+    expect(manifest.permissions).toContain('offscreen');
+    const csp = manifest.content_security_policy?.extension_pages as string;
+    expect(csp).toContain("'wasm-unsafe-eval'");
+  });
 });

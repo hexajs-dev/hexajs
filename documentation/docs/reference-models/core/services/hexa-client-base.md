@@ -20,6 +20,20 @@ class HexaPipeValidationError extends Error { ... }
 - `code`
 - `details`
 
+#### HexaRemoteError
+
+```ts
+import { HexaRemoteError } from '@hexajs-dev/core';
+```
+
+```typescript
+class HexaRemoteError extends Error { ... }
+```
+
+#### Properties
+- `code`
+- `details`
+
 
 ### Types & Interfaces
 

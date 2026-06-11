@@ -29,8 +29,10 @@ import { HexaUiConfig } from '@hexajs-dev/ui';
 
 ```typescript
 interface HexaUiConfig {
+    framework?: HexaUiFrameworkName;
     popup?: HexaUiSurfaceConfig;
     devtools?: HexaUiSurfaceConfig;
+    newtab?: HexaUiSurfaceConfig;
 }
 ```
 
@@ -62,7 +64,18 @@ import { ManifestUiEntries } from '@hexajs-dev/ui';
 interface ManifestUiEntries {
     popup?: string;
     devtools?: string;
+    newtab?: string;
 }
+```
+
+#### HexaUiFrameworkName
+
+```ts
+import { HexaUiFrameworkName } from '@hexajs-dev/ui';
+```
+
+```typescript
+type HexaUiFrameworkName = 'react' | 'vue';
 ```
 
 #### HexaUiMode
@@ -82,6 +95,6 @@ import { HexaUiSurface } from '@hexajs-dev/ui';
 ```
 
 ```typescript
-type HexaUiSurface = 'popup' | 'devtools';
+type HexaUiSurface = 'popup' | 'devtools' | 'newtab';
 ```
 

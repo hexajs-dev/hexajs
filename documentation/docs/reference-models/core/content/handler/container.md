@@ -29,13 +29,13 @@ destroy(): void
 
 **`registerMulticast()`**
 ```typescript
-registerMulticast(name: string, handler: ContentHandlerFn): (name: string, handler: ContentHandlerFn) => void
+registerMulticast(name: string, handler: ContentHandlerFn, policy?: Readonly<HexaMessageBoundaryPolicy>): (name: string, handler: ContentHandlerFn, policy?: Readonly<HexaMessageBoundaryPolicy>) => void
 ```
 
 **`registerUnicast()`**
 > Called by the Bootstrap Generator
 ```typescript
-registerUnicast(name: string, handler: ContentHandlerFn): (name: string, handler: ContentHandlerFn) => void
+registerUnicast(name: string, handler: ContentHandlerFn, policy?: Readonly<HexaMessageBoundaryPolicy>): (name: string, handler: ContentHandlerFn, policy?: Readonly<HexaMessageBoundaryPolicy>) => void
 ```
 
 **`setPipeRunner()`**

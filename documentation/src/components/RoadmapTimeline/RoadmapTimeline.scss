@@ -10,7 +10,7 @@ $icon-fg: rgba(13, 17, 23, 0.82);
     padding: 0.5rem 0 0;
 }
 
-/* Continuous vertical line — muted since nothing is complete yet */
+/* Vertical line — cyan gradient */
 .rmtLine {
     position: absolute;
     left: 50%;
@@ -18,9 +18,9 @@ $icon-fg: rgba(13, 17, 23, 0.82);
     bottom: 0;
     width: 2px;
     transform: translateX(-50%);
-    background: rgba($cyan-mid, 0.28);
+    background: linear-gradient(to bottom, $cyan, $cyan-mid);
+    opacity: 0.32;
     pointer-events: none;
-    margin-block-end: 30px;
 }
 
 /* ---- Each item row ---- */
@@ -49,35 +49,83 @@ $icon-fg: rgba(13, 17, 23, 0.82);
     justify-content: flex-start;
 }
 
-.rmtSideEmpty {
-    /* intentionally empty — placeholder for the opposing column */
-}
-
 /* ---- Card ---- */
 .rmtCard {
+    position: relative;
     width: 258px;
     border-radius: 16px;
     padding: 1rem 1.1rem 1.1rem;
-    background: #ffffff;
-    box-shadow: 0 6px 18px rgba(13, 17, 23, 0.09), 0 1px 3px rgba(13, 17, 23, 0.06);
-    opacity: 0.72;
-    transition: opacity 0.2s ease;
 
-    &:hover {
-        opacity: 1;
+    /* Light theme — upcoming */
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+
+    .rmtKicker { color: var(--ifm-font-color-secondary); }
+    .rmtTitle  { color: rgba(var(--ifm-font-color-base-rgb), 0.45); }
+    .rmtDescription { color: rgba(var(--ifm-font-color-base-rgb), 0.38); }
+}
+
+/* Light theme — achieved */
+.rmtCardDone {
+    background: linear-gradient(135deg, rgba($cyan, 0.07), rgba($cyan-mid, 0.04));
+    border: 1px solid rgba($cyan-mid, 0.35);
+    box-shadow: 0 4px 32px rgba($cyan, 0.08), inset 0 1px 0 rgba($cyan, 0.1);
+
+    .rmtKicker { color: $cyan-mid; }
+    .rmtTitle  { color: var(--ifm-font-color-base); }
+    .rmtDescription { color: var(--ifm-font-color-secondary); }
+}
+
+/* Dark theme overrides */
+[data-theme='dark'] {
+    .rmtCard {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+
+        .rmtTitle  { color: rgba(255, 255, 255, 0.35); }
+        .rmtDescription { color: rgba(255, 255, 255, 0.22); }
+    }
+
+    .rmtCardDone {
+        background: linear-gradient(135deg, rgba($cyan, 0.06), rgba($cyan-mid, 0.04));
+        border: 1px solid rgba($cyan, 0.25);
+        box-shadow: 0 4px 32px rgba($cyan, 0.08), inset 0 1px 0 rgba($cyan, 0.1);
+
+        .rmtKicker { color: $cyan; }
+        .rmtTitle  { color: #ffffff; }
+        .rmtDescription { color: rgba(255, 255, 255, 0.55); }
     }
 }
 
-/* Completed card — fully opaque, no dimming */
-.rmtCardDone {
-    opacity: 1;
+/* ---- Done badge ---- */
+.rmtBadge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+
+    /* Light theme */
+    background: rgba($cyan-mid, 0.12);
+    border: 1px solid rgba($cyan-mid, 0.35);
+    color: $cyan-mid;
 }
 
-[data-theme='dark'] .rmtCard {
-    background: rgba(22, 27, 34, 0.92);
-    box-shadow: 0 2px 18px rgba(0, 0, 0, 0.36), 0 0 0 1px rgba(255, 255, 255, 0.05);
+[data-theme='dark'] .rmtBadge {
+    background: rgba($cyan, 0.12);
+    border: 1px solid rgba($cyan, 0.3);
+    color: $cyan;
 }
 
+/* ---- Card header ---- */
 .rmtCardHeader {
     display: flex;
     align-items: center;
@@ -98,7 +146,6 @@ $icon-fg: rgba(13, 17, 23, 0.82);
     flex-shrink: 0;
 }
 
-/* Completed icon box — filled gradient */
 .rmtIconBoxDone {
     background: linear-gradient(135deg, $cyan 0%, $cyan-mid 100%);
     border-color: transparent;
@@ -108,7 +155,6 @@ $icon-fg: rgba(13, 17, 23, 0.82);
 .rmtKicker {
     font-size: 0.75rem;
     font-weight: 500;
-    color: var(--ifm-font-color-secondary);
     letter-spacing: 0.01em;
 }
 
@@ -117,48 +163,74 @@ $icon-fg: rgba(13, 17, 23, 0.82);
     font-size: 0.9rem;
     font-weight: 700;
     letter-spacing: 0.06em;
-    left: calc(2rem + 6.5px);
-    color: var(--ifm-font-color-base);
 }
 
 .rmtDescription {
-    grid-template-columns: 13px 1fr;
     font-size: 0.8rem;
     line-height: 1.65;
-    color: var(--ifm-font-color-secondary);
+    margin: 0;
 }
 
 /* ---- Center dot ---- */
-/* Pending/upcoming: hollow ring — nothing is shipped yet */
 .rmDotContainer {
-    block-size: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    .rmtDot {
-        width: 13px;
-        height: 13px;
-        border-radius: 50%;
-        border: 2px solid rgba($cyan-mid, 0.55);
-        background: var(--ifm-background-color);
-        position: relative;
-        z-index: 1;
-        flex-shrink: 0;
-    }
 }
 
+.rmtDot {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    border: 2px solid rgba($cyan-mid, 0.55);
+    background: var(--ifm-background-color);
+    box-shadow: 0 0 6px 1px rgba($cyan-mid, 0.25);
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+}
 
-/* Completed: filled teal with glow */
 .rmtDotDone {
+    background: $cyan;
+    border-color: transparent;
+    box-shadow: 0 0 0 3px rgba($cyan, 0.2), 0 0 10px 2px rgba($cyan, 0.5);
+}
+
+/* ---- Legend ---- */
+.rmtLegend {
+    display: flex;
+    justify-content: center;
+    gap: 1.75rem;
+    margin-top: 2.5rem;
+}
+
+.rmtLegendItem {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    color: var(--ifm-font-color-secondary);
+}
+
+.rmtLegendDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid rgba($cyan-mid, 0.55);
+    background: var(--ifm-background-color);
+    flex-shrink: 0;
+}
+
+.rmtLegendDotDone {
     background: linear-gradient(135deg, $cyan 0%, $cyan-mid 100%);
     border-color: transparent;
-    box-shadow: 0 0 0 3px rgba($cyan, 0.2);
+    box-shadow: 0 0 6px 2px rgba($cyan, 0.4);
 }
 
 /* ---- Footer note ---- */
 .rmtNote {
-    margin-top: 2.5rem;
+    margin-top: 0.75rem;
     text-align: center;
     font-size: 0.8rem;
     color: var(--ifm-font-color-secondary);
@@ -195,10 +267,11 @@ $icon-fg: rgba(13, 17, 23, 0.82);
         justify-content: flex-start;
     }
 
-    .rmtDot {
+    .rmDotContainer {
         grid-column: 1;
         grid-row: 1;
         align-self: start;
+        padding-top: 0.85rem;
     }
 
     .rmtSideEmpty {
