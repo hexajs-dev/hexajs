@@ -1,5 +1,31 @@
 # @hexajs-dev/common
 
+## 1.0.4
+
+### Patch Changes
+
+- 7b27092: Fix: remove orphan `PLATFORM` token that caused DI runtime failures
+
+  `@hexajs-dev/common` was exporting a `PLATFORM = "PLATFORM"` constant that
+  was never registered in the CLI-generated bootstrap. Any service using
+  `@Inject(PLATFORM)` would throw `DI Error: No provider for PLATFORM.` at
+  runtime, causing service worker registration failure (status code 15).
+
+  **Migration:** replace `PLATFORM` with `HEXA_PLATFORM` in all `@Inject()`
+  calls and imports:
+
+  ```ts
+  // Before
+  import { Inject, PLATFORM } from '@hexajs-dev/common';
+  constructor(@Inject(PLATFORM) private readonly platform?: string) {}
+
+  // After
+  import { Inject, HEXA_PLATFORM } from '@hexajs-dev/common';
+  constructor(@Inject(HEXA_PLATFORM) private readonly platform?: string) {}
+  ```
+
+- 7b27092: (cli): add profile resolver for Chromium browsers, test(cli): enhance asset security tests, test(cli): add configuration resolution tests, test(cli): extend manifest watch mode tests, refactor(common): remove unused platform tokens, test(common): add public tokens contract test
+
 ## 1.0.3
 
 ## 1.0.2
